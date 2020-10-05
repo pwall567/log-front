@@ -40,7 +40,7 @@ The simplest method is to add `logback` to your build:
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.json:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 ```
 
 This is a work in progress - more information to follow.
