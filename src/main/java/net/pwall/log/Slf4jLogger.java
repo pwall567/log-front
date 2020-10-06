@@ -116,9 +116,9 @@ public class Slf4jLogger implements Logger {
     }
 
     @Override
-    public void trace(String message) {
+    public void trace(Object message) {
         try {
-            traceMethod.invoke(slf4jLogger, message);
+            traceMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Error accessing slf4j Logger.trace()", e);
@@ -126,9 +126,9 @@ public class Slf4jLogger implements Logger {
     }
 
     @Override
-    public void debug(String message) {
+    public void debug(Object message) {
         try {
-            debugMethod.invoke(slf4jLogger, message);
+            debugMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Error accessing slf4j Logger.debug()", e);
@@ -136,9 +136,9 @@ public class Slf4jLogger implements Logger {
     }
 
     @Override
-    public void info(String message) {
+    public void info(Object message) {
         try {
-            infoMethod.invoke(slf4jLogger, message);
+            infoMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Error accessing slf4j Logger.info()", e);
@@ -146,9 +146,9 @@ public class Slf4jLogger implements Logger {
     }
 
     @Override
-    public void warn(String message) {
+    public void warn(Object message) {
         try {
-            warnMethod.invoke(slf4jLogger, message);
+            warnMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Error accessing slf4j Logger.warn()", e);
@@ -156,9 +156,9 @@ public class Slf4jLogger implements Logger {
     }
 
     @Override
-    public void error(String message) {
+    public void error(Object message) {
         try {
-            errorMethod.invoke(slf4jLogger, message);
+            errorMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Error accessing slf4j Logger.error()", e);
@@ -166,9 +166,9 @@ public class Slf4jLogger implements Logger {
     }
 
     @Override
-    public void error(String message, Throwable throwable) {
+    public void error(Object message, Throwable throwable) {
         try {
-            errorThrowableMethod.invoke(slf4jLogger, message, throwable);
+            errorThrowableMethod.invoke(slf4jLogger, message.toString(), throwable);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Error accessing slf4j Logger.error()", e);

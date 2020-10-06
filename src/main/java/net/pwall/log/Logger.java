@@ -40,39 +40,39 @@ public interface Logger {
     boolean isWarnEnabled();
     boolean isErrorEnabled();
 
-    void trace(String message);
-    void debug(String message);
-    void info(String message);
-    void warn(String message);
-    void error(String message);
-    void error(String message, Throwable throwable);
+    void trace(Object message);
+    void debug(Object message);
+    void info(Object message);
+    void warn(Object message);
+    void error(Object message);
+    void error(Object message, Throwable throwable);
 
-    default void trace(Supplier<String> messageSupplier) {
+    default void trace(Supplier<Object> messageSupplier) {
         if (isTraceEnabled())
             trace(messageSupplier.get());
     }
 
-    default void debug(Supplier<String> messageSupplier) {
+    default void debug(Supplier<Object> messageSupplier) {
         if (isDebugEnabled())
             debug(messageSupplier.get());
     }
 
-    default void info(Supplier<String> messageSupplier) {
+    default void info(Supplier<Object> messageSupplier) {
         if (isInfoEnabled())
             info(messageSupplier.get());
     }
 
-    default void warn(Supplier<String> messageSupplier) {
+    default void warn(Supplier<Object> messageSupplier) {
         if (isWarnEnabled())
             warn(messageSupplier.get());
     }
 
-    default void error(Supplier<String> messageSupplier) {
+    default void error(Supplier<Object> messageSupplier) {
         if (isErrorEnabled())
             error(messageSupplier.get());
     }
 
-    default void error(Supplier<String> messageSupplier, Throwable throwable) {
+    default void error(Supplier<Object> messageSupplier, Throwable throwable) {
         if (isErrorEnabled())
             error(messageSupplier.get(), throwable);
     }

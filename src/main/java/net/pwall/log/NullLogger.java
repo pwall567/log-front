@@ -58,27 +58,27 @@ public class NullLogger implements Logger {
     }
 
     @Override
-    public void trace(String message) {
+    public void trace(Object message) {
     }
 
     @Override
-    public void debug(String message) {
+    public void debug(Object message) {
     }
 
     @Override
-    public void info(String message) {
+    public void info(Object message) {
     }
 
     @Override
-    public void warn(String message) {
+    public void warn(Object message) {
     }
 
     @Override
-    public void error(String message) {
+    public void error(Object message) {
     }
 
     @Override
-    public void error(String message, Throwable throwable) {
+    public void error(Object message, Throwable throwable) {
     }
 
 }

@@ -92,44 +92,44 @@ public class ConsoleLogger implements Logger {
     }
 
     @Override
-    public void trace(String message) {
+    public void trace(Object message) {
         if (isTraceEnabled())
             output.println(createMessage(Level.TRACE, message));
     }
 
     @Override
-    public void debug(String message) {
+    public void debug(Object message) {
         if (isDebugEnabled())
             output.println(createMessage(Level.DEBUG, message));
     }
 
     @Override
-    public void info(String message) {
+    public void info(Object message) {
         if (isInfoEnabled())
             output.println(createMessage(Level.INFO, message));
     }
 
     @Override
-    public void warn(String message) {
+    public void warn(Object message) {
         if (isWarnEnabled())
             output.println(createMessage(Level.WARN, message));
     }
 
     @Override
-    public void error(String message) {
+    public void error(Object message) {
         if (isErrorEnabled())
             output.println(createMessage(Level.ERROR, message));
     }
 
     @Override
-    public void error(String message, Throwable throwable) {
+    public void error(Object message, Throwable throwable) {
         if (isErrorEnabled()) {
             output.println(createMessage(Level.ERROR, message));
             throwable.printStackTrace(output);
         }
     }
 
-    private String createMessage(Level level, String message) {
+    private String createMessage(Level level, Object message) {
         return LocalTime.now().toString() + ':' + name + ':' + level.name() + ": " + message;
     }
 
