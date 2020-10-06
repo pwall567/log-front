@@ -47,25 +47,25 @@ This is a work in progress - more information to follow.
 
 ## Dependency Specification
 
-The latest version of the library is 0.1, and it may be obtained from the Maven Central repository.
+The latest version of the library is 0.2, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>0.1</version>
+      <version>0.2</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:0.1'
+    implementation 'net.pwall.log:log-front:0.2'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:0.1")
+    implementation("net.pwall.log:log-front:0.2")
 ```
 
 Peter Wall
 
-2020-10-05
+2020-10-06
