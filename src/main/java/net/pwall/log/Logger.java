@@ -34,6 +34,8 @@ import java.util.function.Supplier;
  */
 public interface Logger {
 
+    String getName();
+
     boolean isTraceEnabled();
     boolean isDebugEnabled();
     boolean isInfoEnabled();
@@ -75,6 +77,36 @@ public interface Logger {
     default void error(Supplier<Object> messageSupplier, Throwable throwable) {
         if (isErrorEnabled())
             error(messageSupplier.get(), throwable);
+    }
+
+    default void log(Level level, Object message) {
+        switch (level) {
+        case TRACE:
+            trace(message);
+        case DEBUG:
+            debug(message);
+        case INFO:
+            info(message);
+        case WARN:
+            warn(message);
+        case ERROR:
+            error(message);
+        }
+    }
+
+    default void log(Level level, Supplier<Object> messageSupplier) {
+        switch (level) {
+        case TRACE:
+            trace(messageSupplier);
+        case DEBUG:
+            debug(messageSupplier);
+        case INFO:
+            info(messageSupplier);
+        case WARN:
+            warn(messageSupplier);
+        case ERROR:
+            error(messageSupplier);
+        }
     }
 
 }

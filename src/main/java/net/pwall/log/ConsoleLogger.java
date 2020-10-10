@@ -30,32 +30,42 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 /**
- * A Logger that outputs to a {@link PrintStream}, usually stdout or stderr.
+ * A Logger that outputs to a {@link PrintStream}, usually {@code stdout} or {@code stderr}.
  *
  * @author  Peter Wall
  */
 public class ConsoleLogger implements Logger {
 
+    public static final Level defaultLevel = Level.WARN;
+    public static final PrintStream defaultOutput = System.out;
+
     private final String name;
     private final PrintStream output;
     private Level level;
+    private char separator;
 
     public ConsoleLogger(String name, Level level, PrintStream output) {
         this.name = name;
         this.level = Objects.requireNonNull(level);
         this.output = Objects.requireNonNull(output);
+        separator = '|';
     }
 
     public ConsoleLogger(String name, Level level) {
-        this(name, level, System.out);
+        this(name, level, defaultOutput);
     }
 
     public ConsoleLogger(String name, PrintStream output) {
-        this(name, Level.WARN, output);
+        this(name, defaultLevel, output);
     }
 
     public ConsoleLogger(String name) {
-        this(name, Level.WARN, System.out);
+        this(name, defaultLevel, defaultOutput);
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     public Level getLevel() {
@@ -64,6 +74,14 @@ public class ConsoleLogger implements Logger {
 
     public void setLevel(Level level) {
         this.level = level;
+    }
+
+    public char getSeparator() {
+        return separator;
+    }
+
+    public void setSeparator(char separator) {
+        this.separator = separator;
     }
 
     @Override
@@ -130,7 +148,7 @@ public class ConsoleLogger implements Logger {
     }
 
     private String createMessage(Level level, Object message) {
-        return LocalTime.now().toString() + ':' + name + ':' + level.name() + ": " + message;
+        return LocalTime.now().toString() + separator + name + separator + level.name() + separator + ' ' + message;
     }
 
 }

@@ -32,11 +32,16 @@ package net.pwall.log;
  */
 public class NullLoggerFactory implements LoggerFactory {
 
+    private static final NullLoggerFactory instance = new NullLoggerFactory();
     private static final NullLogger nullLogger = new NullLogger();
 
     @Override
-    public Logger getLogger(String name) {
+    public NullLogger getLogger(String name) {
         return nullLogger;
+    }
+
+    public static NullLoggerFactory getInstance() {
+        return instance;
     }
 
 }

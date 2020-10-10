@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.pwall.log</groupId>
   <artifactId>log-front</artifactId>
-  <version>0.2</version>
+  <version>0.3</version>
   <name>Logging interface</name>
   <description>Classes to simplify integration with logging systems</description>
   <packaging>jar</packaging>

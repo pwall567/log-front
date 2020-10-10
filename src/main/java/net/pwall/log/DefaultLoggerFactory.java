@@ -52,12 +52,12 @@ public class DefaultLoggerFactory implements LoggerFactory {
         if (slf4jMethod != null) {
             try {
                 Object slf4jLogger = slf4jMethod.invoke(null, name);
-                return new Slf4jLogger(slf4jLogger);
+                return new Slf4jLogger(name, slf4jLogger);
             }
             catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignore) {
             }
         }
-        return new ConsoleLogger(name);
+        return ConsoleLoggerFactory.getDefaultInstance().getLogger(name);
     }
 
 }

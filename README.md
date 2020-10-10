@@ -2,8 +2,20 @@
 
 Classes to simplify integration with logging systems.
 
-This library allows a project to use logging, without any concerns about adding stray dependencies.
-If it finds the slf4j logging classes in the classpath it will use them, otherwise it will log to standard output.
+## Background
+
+This is an attempt to solve a long-standing problem in the creation of utility libraries:
+- the library wishes to make use of logging
+- the library will be only a part of any project that makes use of it, and cannot dictate the form of logging used in
+the project as a whole
+- transitive dependencies are to be avoided if possible
+
+This library provides a simple logging API that may be used by a library.
+The default behaviour is to use reflection to find the `slf4j` classes in the classpath - if they are found all logging
+calls will be redirected to them; otherwise log messages will be output to a `PrintStream` (default `stdout`).
+
+If it is necessary to fit in with an existing logging framework, the API is designed to be simple to implement so that a
+thin interfacing layer can be created accepting this API and invoking the required mechanism.
 
 ## Quick Start
 
@@ -22,9 +34,57 @@ Then, to use the `Logger`:
 
 Your IDE will show the functions available on the `Logger` object.
 
-## To Use `slf4j`
+## Reference
 
-The simplest method is to add `logback` to your build:
+Logging requests are made via the `Logger` interface, and instances of classes implementing this interface are obtained
+from a `LoggerFactory`.
+The API employs a `Level` enum, which corresponds with the logging level mechanism used in other libraries.
+
+### `Logger`
+
+The `Logger` provides logging functions for each of the logging levels, including versions that lazily create the
+message.
+There are additional versions of the `error()` function taking a `Throwable`, as in other logging frameworks.
+
+- `trace(String message)`
+- `debug(String message)`
+- `info(String message)`
+- `warn(String message)`
+- `error(String message)`
+- `error(String message, Throwable t)`
+- `trace(Supplier<Object> messageSupplier)`
+- `debug(Supplier<Object> messageSupplier)`
+- `info(Supplier<Object> messageSupplier)`
+- `warn(Supplier<Object> messageSupplier)`
+- `error(Supplier<Object> messageSupplier)`
+- `error(Supplier<Object> messageSupplier, Throwable t)`
+
+### `LoggerFactory`
+
+There are two variations of `getLogger()`, one taking a `String` parameter and the other taking `Class` (the default
+implementation simply converts the class to its full name)
+
+- `getLogger(String name)`
+- `getLogger(Class<?> javaClass)`
+
+There are also static functions to get loggers of particular types:
+
+- `getDefaultLogger(String name)`
+- `getDefaultLogger(Class<?> javaClass)`
+
+### `Level`
+
+There are five levels:
+
+- TRACE
+- DEBUG
+- INFO
+- WARN
+- ERROR
+
+## `slf4j`
+
+To route logging from this library to `slf4j`, the simplest method is to add `logback` to your build:
 
 ### Maven
 ```xml
@@ -43,29 +103,27 @@ The simplest method is to add `logback` to your build:
     implementation("ch.qos.logback:logback-classic:1.2.3")
 ```
 
-This is a work in progress - more information to follow.
-
 ## Dependency Specification
 
-The latest version of the library is 0.2, and it may be obtained from the Maven Central repository.
+The latest version of the library is 0.3, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>0.2</version>
+      <version>0.3</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:0.2'
+    implementation 'net.pwall.log:log-front:0.3'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:0.2")
+    implementation("net.pwall.log:log-front:0.3")
 ```
 
 Peter Wall
 
-2020-10-06
+2020-10-10

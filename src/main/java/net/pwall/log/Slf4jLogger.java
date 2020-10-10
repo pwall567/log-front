@@ -36,6 +36,7 @@ import java.lang.reflect.Method;
  */
 public class Slf4jLogger implements Logger {
 
+    private final String name;
     private final Object slf4jLogger;
     private final Method isTraceEnabledMethod;
     private final Method isDebugEnabledMethod;
@@ -49,7 +50,8 @@ public class Slf4jLogger implements Logger {
     private final Method errorMethod;
     private final Method errorThrowableMethod;
 
-    public Slf4jLogger(Object slf4jLogger) throws NoSuchMethodException {
+    public Slf4jLogger(String name, Object slf4jLogger) throws NoSuchMethodException {
+        this.name = name;
         this.slf4jLogger = slf4jLogger;
         Class<?> loggerClass = slf4jLogger.getClass();
         isTraceEnabledMethod = loggerClass.getMethod("isTraceEnabled");
@@ -66,12 +68,17 @@ public class Slf4jLogger implements Logger {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public boolean isTraceEnabled() {
         try {
             return (Boolean)isTraceEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.isTraceEnabled()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -81,7 +88,7 @@ public class Slf4jLogger implements Logger {
             return (Boolean)isDebugEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.isDebugEnabled()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -91,7 +98,7 @@ public class Slf4jLogger implements Logger {
             return (Boolean)isInfoEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.isInfoEnabled()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -101,7 +108,7 @@ public class Slf4jLogger implements Logger {
             return (Boolean)isWarnEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.isWarnEnabled()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -111,7 +118,7 @@ public class Slf4jLogger implements Logger {
             return (Boolean)isErrorEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.isErrorEnabled()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -121,7 +128,7 @@ public class Slf4jLogger implements Logger {
             traceMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.trace()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -131,7 +138,7 @@ public class Slf4jLogger implements Logger {
             debugMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.debug()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -141,7 +148,7 @@ public class Slf4jLogger implements Logger {
             infoMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.info()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -151,7 +158,7 @@ public class Slf4jLogger implements Logger {
             warnMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.warn()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -161,7 +168,7 @@ public class Slf4jLogger implements Logger {
             errorMethod.invoke(slf4jLogger, message.toString());
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.error()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -171,7 +178,7 @@ public class Slf4jLogger implements Logger {
             errorThrowableMethod.invoke(slf4jLogger, message.toString(), throwable);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Error accessing slf4j Logger.error()", e);
+            throw new Slf4JLoggerException(e);
         }
     }
 

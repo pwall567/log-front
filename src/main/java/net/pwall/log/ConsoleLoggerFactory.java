@@ -25,6 +25,8 @@
 
 package net.pwall.log;
 
+import java.io.PrintStream;
+
 /**
  * A LoggerFactory that creates {@link ConsoleLogger} objects.
  *
@@ -32,14 +34,26 @@ package net.pwall.log;
  */
 public class ConsoleLoggerFactory implements LoggerFactory {
 
+    private static final ConsoleLoggerFactory defaultInstance = new ConsoleLoggerFactory();
+
     private Level level;
+    private PrintStream output;
+
+    public ConsoleLoggerFactory(Level level, PrintStream output) {
+        this.level = level;
+        this.output = output;
+    }
+
+    public ConsoleLoggerFactory(PrintStream output) {
+        this(ConsoleLogger.defaultLevel, output);
+    }
 
     public ConsoleLoggerFactory(Level level) {
-        this.level = level;
+        this(level, ConsoleLogger.defaultOutput);
     }
 
     public ConsoleLoggerFactory() {
-        this(Level.WARN);
+        this(ConsoleLogger.defaultLevel, ConsoleLogger.defaultOutput);
     }
 
     public Level getLevel() {
@@ -50,9 +64,21 @@ public class ConsoleLoggerFactory implements LoggerFactory {
         this.level = level;
     }
 
+    public PrintStream getOutput() {
+        return output;
+    }
+
+    public void setOutput(PrintStream output) {
+        this.output = output;
+    }
+
     @Override
-    public Logger getLogger(String name) {
-        return new ConsoleLogger(name, level);
+    public ConsoleLogger getLogger(String name) {
+        return new ConsoleLogger(name, level, output);
+    }
+
+    public static ConsoleLoggerFactory getDefaultInstance() {
+        return defaultInstance;
     }
 
 }

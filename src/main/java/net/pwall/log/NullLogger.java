@@ -33,6 +33,11 @@ package net.pwall.log;
 public class NullLogger implements Logger {
 
     @Override
+    public String getName() {
+        return "NullLogger";
+    }
+
+    @Override
     public boolean isTraceEnabled() {
         return false;
     }

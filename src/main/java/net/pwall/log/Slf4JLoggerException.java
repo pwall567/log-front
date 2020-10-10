@@ -1,5 +1,5 @@
 /*
- * @(#) LoggerFactory.java
+ * @(#) Slf4JLoggerException.java
  *
  * log-front  Logging interface
  * Copyright (c) 2020 Peter Wall
@@ -26,40 +26,14 @@
 package net.pwall.log;
 
 /**
- * The LoggerFactory interface allows for the implementation of a variety of processes of Logger object creation.
+ * An exception class to handle errors in accessing slf4j.
  *
  * @author  Peter Wall
  */
-public interface LoggerFactory {
+public class Slf4JLoggerException extends RuntimeException {
 
-    Logger getLogger(String name);
-
-    default Logger getLogger(Class<?> javaClass) {
-        return getLogger(javaClass.getName());
-    }
-
-    static Logger getNullLogger() {
-        return new NullLogger();
-    }
-
-    static LoggerFactory getNullLoggerFactory() {
-        return NullLoggerFactory.getInstance();
-    }
-
-    static ConsoleLogger getConsoleLogger(String name) {
-        return ConsoleLoggerFactory.getDefaultInstance().getLogger(name);
-    }
-
-    static LoggerFactory getDefault() {
-        return new DefaultLoggerFactory();
-    }
-
-    static Logger getDefaultLogger(String name) {
-        return getDefault().getLogger(name);
-    }
-
-    static Logger getDefaultLogger(Class<?> javaClass) {
-        return getDefault().getLogger(javaClass);
+    public Slf4JLoggerException(Exception e) {
+        super("Error accessing slf4j Logger", e);
     }
 
 }
