@@ -1,5 +1,9 @@
 # log-front
 
+[![Build Status](https://travis-ci.org/pwall567/log-front.svg?branch=main)](https://travis-ci.org/pwall567/log-front)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Maven Central](https://img.shields.io/maven-central/v/net.pwall.log/log-front?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.pwall.log%22%20AND%20a:%22log-front%22)
+
 Classes to simplify integration with logging systems.
 
 ## Background

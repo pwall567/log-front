@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [Unreleased]
+### Changed
+- `README.md`: added badges
+
 ## [0.3] - 2020-10-10
 ### Changed
 - `LoggerFactory`: added `getNullLoggerFactory()`
