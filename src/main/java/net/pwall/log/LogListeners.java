@@ -1,8 +1,8 @@
 /*
- * @(#) NullLogger.java
+ * @(#) LogListeners.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,65 +25,43 @@
 
 package net.pwall.log;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * A Null {@link Logger} - all output will be ignored.
+ * A set of static methods that manage {@link LogListener} objects - principally used for testing that log items are
+ * being output as expected.
  *
  * @author  Peter Wall
  */
-public class NullLogger implements Logger {
+public class LogListeners {
 
-    @Override
-    public String getName() {
-        return "NullLogger";
+    private static final List<LogListener> listeners = new ArrayList<>();
+
+    public static void add(LogListener listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
     }
 
-    @Override
-    public boolean isTraceEnabled() {
-        return false;
+    public static void remove(LogListener listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
     }
 
-    @Override
-    public boolean isDebugEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isInfoEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return false;
-    }
-
-    @Override
-    public void trace(Object message) {
-    }
-
-    @Override
-    public void debug(Object message) {
-    }
-
-    @Override
-    public void info(Object message) {
-    }
-
-    @Override
-    public void warn(Object message) {
-    }
-
-    @Override
-    public void error(Object message) {
-    }
-
-    @Override
-    public void error(Object message, Throwable throwable) {
+    public static void invoke(String name, Level level, String text, Throwable throwable) {
+        if (listeners.size() > 0) {
+            LogListener[] array;
+            synchronized (listeners) {
+                array = new LogListener[listeners.size()];
+                array = listeners.toArray(array);
+            }
+            Instant time = Instant.now();
+            for (LogListener listener : array)
+                listener.receive(time, name, level, text, throwable);
+        }
     }
 
 }

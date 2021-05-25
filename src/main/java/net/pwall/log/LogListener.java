@@ -1,8 +1,8 @@
 /*
- * @(#) NullLogger.java
+ * @(#) LogListener.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,65 +25,16 @@
 
 package net.pwall.log;
 
+import java.time.Instant;
+
 /**
- * A Null {@link Logger} - all output will be ignored.
+ * The {@code LogListener} interface defines an object that is called for every log event.
  *
  * @author  Peter Wall
  */
-public class NullLogger implements Logger {
+@FunctionalInterface
+public interface LogListener {
 
-    @Override
-    public String getName() {
-        return "NullLogger";
-    }
-
-    @Override
-    public boolean isTraceEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isDebugEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isInfoEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return false;
-    }
-
-    @Override
-    public void trace(Object message) {
-    }
-
-    @Override
-    public void debug(Object message) {
-    }
-
-    @Override
-    public void info(Object message) {
-    }
-
-    @Override
-    public void warn(Object message) {
-    }
-
-    @Override
-    public void error(Object message) {
-    }
-
-    @Override
-    public void error(Object message, Throwable throwable) {
-    }
+    void receive(Instant time, String name, Level level, String text, Throwable throwable);
 
 }

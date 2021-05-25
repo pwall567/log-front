@@ -1,8 +1,8 @@
 /*
- * @(#) NullLogger.java
+ * @(#) LogListenerTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,67 +23,38 @@
  * SOFTWARE.
  */
 
-package net.pwall.log;
+package net.pwall.log.test;
 
-/**
- * A Null {@link Logger} - all output will be ignored.
- *
- * @author  Peter Wall
- */
-public class NullLogger implements Logger {
+import java.util.Iterator;
 
-    @Override
-    public String getName() {
-        return "NullLogger";
-    }
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-    @Override
-    public boolean isTraceEnabled() {
-        return false;
-    }
+import net.pwall.log.Level;
+import net.pwall.log.LogItem;
+import net.pwall.log.LogList;
+import net.pwall.log.LogListeners;
+import net.pwall.log.Logger;
 
-    @Override
-    public boolean isDebugEnabled() {
-        return false;
-    }
+public class LogListenerTest {
 
-    @Override
-    public boolean isInfoEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return false;
-    }
-
-    @Override
-    public void trace(Object message) {
-    }
-
-    @Override
-    public void debug(Object message) {
-    }
-
-    @Override
-    public void info(Object message) {
-    }
-
-    @Override
-    public void warn(Object message) {
-    }
-
-    @Override
-    public void error(Object message) {
-    }
-
-    @Override
-    public void error(Object message, Throwable throwable) {
+    @Test
+    public void shouldStoreLogItemsInList() {
+        LogList listener = new LogList();
+        LogListeners.add(listener);
+        Logger log = Logger.getDefault("xxx");
+        log.info("message 1");
+        log.warn("message 2");
+        LogListeners.remove(listener);
+        Iterator<LogItem> items = listener.iterator();
+        LogItem first = items.next();
+        assertEquals(first.getName(), "xxx");
+        assertEquals(first.getLevel(), Level.INFO);
+        assertEquals(first.getText(), "message 1");
+        LogItem second = items.next();
+        assertEquals(second.getName(), "xxx");
+        assertEquals(second.getLevel(), Level.WARN);
+        assertEquals(second.getText(), "message 2");
     }
 
 }

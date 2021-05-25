@@ -2,7 +2,7 @@
  * @(#) Slf4jLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2020, 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * A Logger that outputs to slf4j.  To avoid the transitive dependency on that package, all references are made by means
- * of reflection.
+ * A {@link Logger} that outputs to {@code slf4j}.  To avoid a transitive dependency on that package, all references are
+ * made by means of reflection.
  *
  * @author  Peter Wall
  */
@@ -124,8 +124,10 @@ public class Slf4jLogger implements Logger {
 
     @Override
     public void trace(Object message) {
+        String text = message.toString();
+        LogListeners.invoke(name, Level.TRACE, text, null);
         try {
-            traceMethod.invoke(slf4jLogger, message.toString());
+            traceMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new Slf4JLoggerException(e);
@@ -134,8 +136,10 @@ public class Slf4jLogger implements Logger {
 
     @Override
     public void debug(Object message) {
+        String text = message.toString();
+        LogListeners.invoke(name, Level.DEBUG, text, null);
         try {
-            debugMethod.invoke(slf4jLogger, message.toString());
+            debugMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new Slf4JLoggerException(e);
@@ -144,8 +148,10 @@ public class Slf4jLogger implements Logger {
 
     @Override
     public void info(Object message) {
+        String text = message.toString();
+        LogListeners.invoke(name, Level.INFO, text, null);
         try {
-            infoMethod.invoke(slf4jLogger, message.toString());
+            infoMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new Slf4JLoggerException(e);
@@ -154,8 +160,10 @@ public class Slf4jLogger implements Logger {
 
     @Override
     public void warn(Object message) {
+        String text = message.toString();
+        LogListeners.invoke(name, Level.WARN, text, null);
         try {
-            warnMethod.invoke(slf4jLogger, message.toString());
+            warnMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new Slf4JLoggerException(e);
@@ -164,8 +172,10 @@ public class Slf4jLogger implements Logger {
 
     @Override
     public void error(Object message) {
+        String text = message.toString();
+        LogListeners.invoke(name, Level.ERROR, text, null);
         try {
-            errorMethod.invoke(slf4jLogger, message.toString());
+            errorMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new Slf4JLoggerException(e);
@@ -174,8 +184,10 @@ public class Slf4jLogger implements Logger {
 
     @Override
     public void error(Object message, Throwable throwable) {
+        String text = message.toString();
+        LogListeners.invoke(name, Level.ERROR, text, throwable);
         try {
-            errorThrowableMethod.invoke(slf4jLogger, message.toString(), throwable);
+            errorThrowableMethod.invoke(slf4jLogger, text, throwable);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new Slf4JLoggerException(e);

@@ -1,8 +1,8 @@
 /*
- * @(#) NullLogger.java
+ * @(#) LogItem.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,65 +25,46 @@
 
 package net.pwall.log;
 
+import java.time.Instant;
+
 /**
- * A Null {@link Logger} - all output will be ignored.
+ * A log item, as used by the {@link LogList} class.
  *
  * @author  Peter Wall
  */
-public class NullLogger implements Logger {
+public class LogItem {
+    private final Instant time;
+    private final String name;
+    private final Level level;
+    private final String text;
+    private final Throwable throwable;
 
-    @Override
+    public LogItem(Instant time, String name, Level level, String text, Throwable throwable) {
+        this.time = time;
+        this.name = name;
+        this.level = level;
+        this.text = text;
+        this.throwable = throwable;
+    }
+
+    public Instant getTime() {
+        return time;
+    }
+
     public String getName() {
-        return "NullLogger";
+        return name;
     }
 
-    @Override
-    public boolean isTraceEnabled() {
-        return false;
+    public Level getLevel() {
+        return level;
     }
 
-    @Override
-    public boolean isDebugEnabled() {
-        return false;
+    public String getText() {
+        return text;
     }
 
-    @Override
-    public boolean isInfoEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return false;
-    }
-
-    @Override
-    public void trace(Object message) {
-    }
-
-    @Override
-    public void debug(Object message) {
-    }
-
-    @Override
-    public void info(Object message) {
-    }
-
-    @Override
-    public void warn(Object message) {
-    }
-
-    @Override
-    public void error(Object message) {
-    }
-
-    @Override
-    public void error(Object message, Throwable throwable) {
+    public Throwable getThrowable() {
+        return throwable;
     }
 
 }

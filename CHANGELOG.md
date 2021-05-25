@@ -2,6 +2,12 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.0] - 2021-05-24
+### Added
+- `LogListener`, `LogListeners`, `LogList`, `LogItem`
+### Changed
+- several: added log listener functionality
+
 ## [1.0] - 2020-11-22
 ### Changed
 - `README.md`: added badges

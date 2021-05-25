@@ -1,8 +1,8 @@
 /*
- * @(#) NullLogger.java
+ * @(#) LogList.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,65 +25,34 @@
 
 package net.pwall.log;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
- * A Null {@link Logger} - all output will be ignored.
+ * An implementation of {@link LogListener} that stores log items in a list.
  *
  * @author  Peter Wall
  */
-public class NullLogger implements Logger {
+public class LogList implements LogListener, Iterable<LogItem> {
+
+    private final List<LogItem> list = new ArrayList<>();
 
     @Override
-    public String getName() {
-        return "NullLogger";
+    public void receive(Instant time, String name, Level level, String text, Throwable throwable) {
+        synchronized (list) {
+            list.add(new LogItem(time, name, level, text, throwable));
+        }
     }
 
     @Override
-    public boolean isTraceEnabled() {
-        return false;
+    public Iterator<LogItem> iterator() {
+        return list.iterator();
     }
 
-    @Override
-    public boolean isDebugEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isInfoEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return false;
-    }
-
-    @Override
-    public void trace(Object message) {
-    }
-
-    @Override
-    public void debug(Object message) {
-    }
-
-    @Override
-    public void info(Object message) {
-    }
-
-    @Override
-    public void warn(Object message) {
-    }
-
-    @Override
-    public void error(Object message) {
-    }
-
-    @Override
-    public void error(Object message, Throwable throwable) {
+    public List<LogItem> toList() {
+        return new ArrayList<LogItem>(list);
     }
 
 }

@@ -63,15 +63,23 @@ There are additional versions of the `error()` function taking a `Throwable`, as
 - `error(Supplier<Object> messageSupplier)`
 - `error(Supplier<Object> messageSupplier, Throwable t)`
 
+There are also static methods to get default a `Logger` for a specified name or class:
+
+- `getDefault(String name)`
+- `getDefault(Class<?> javaClass)`
+
 ### `LoggerFactory`
 
-There are two variations of `getLogger()`, one taking a `String` parameter and the other taking `Class` (the default
-implementation simply converts the class to its full name)
+A `LoggerFactory` may be obtained by the static method `getDefault()`; alternatively any of the implementing classes
+`ConsoleLoggerFactory`, `DefaultLoggerFactory` or `NullLoggerFactory` may be instantiated directly.
+
+`LoggerFactory` has two variations of the `getLogger()` method, one taking a `String` parameter and the other taking
+`Class` (the default implementation simply converts the class to its full name):
 
 - `getLogger(String name)`
 - `getLogger(Class<?> javaClass)`
 
-There are also static functions to get loggers of particular types:
+There are also static functions to get loggers using the `DefaultLoggerFactory`:
 
 - `getDefaultLogger(String name)`
 - `getDefaultLogger(Class<?> javaClass)`
@@ -85,6 +93,34 @@ There are five levels:
 - INFO
 - WARN
 - ERROR
+
+### `LogListener`
+
+The library provides a built-in mechanism for testing whether log items are output as expected.
+If an object implementing the `LogListener` interface is registered with the system, it will be called for every log
+event.
+A simple implementation `LogList` is provided &ndash; this stores the log items in a list for later examination.
+
+This functionality is best illustrated by example:
+```java
+        LogList listener = new LogList();
+        LogListeners.add(listener);
+        Logger log = Logger.getDefault("xxx");
+        // code that outputs log message to "log"
+        LogListeners.remove(listener);
+        Iterator<LogItem> items = listener.iterator();
+        // the log items will be presented via the iterator
+```
+
+The mechanism is intended to be completely non-intrusive &ndash; it should be possible to write code that outputs log
+messages using `Logger` objects obtained from the default `LoggerFactory`, and then to create tests that intercept the
+log messages and check for correctness.
+If no listeners are used, the overhead of checking for them will be minuscule.
+
+Note that the listener mechanism is global &ndash; if the listeners are not removed they will continue to receive log
+events for subsequent tests.
+This will not be a significant problem unless there are so many events that the system runs into memory issues, but it
+is good practice to clean up after each test.
 
 ## `slf4j`
 
@@ -130,4 +166,4 @@ The latest version of the library is 1.0, and it may be obtained from the Maven 
 
 Peter Wall
 
-2020-11-22
+2021-05-24

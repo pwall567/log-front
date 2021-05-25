@@ -2,7 +2,7 @@
  * @(#) ConsoleLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2020, 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,13 +30,13 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 /**
- * A Logger that outputs to a {@link PrintStream}, usually {@code stdout} or {@code stderr}.
+ * A {@link Logger} that outputs to a {@link PrintStream}, usually {@code stdout} or {@code stderr}.
  *
  * @author  Peter Wall
  */
 public class ConsoleLogger implements Logger {
 
-    public static final Level defaultLevel = Level.WARN;
+    public static final Level defaultLevel = Level.INFO;
     public static final PrintStream defaultOutput = System.out;
 
     private final String name;
@@ -111,44 +111,61 @@ public class ConsoleLogger implements Logger {
 
     @Override
     public void trace(Object message) {
-        if (isTraceEnabled())
-            output.println(createMessage(Level.TRACE, message));
+        if (isTraceEnabled()) {
+            String text = message.toString();
+            LogListeners.invoke(name, Level.TRACE, text, null);
+            output.println(createMessage(Level.TRACE, text));
+        }
     }
 
     @Override
     public void debug(Object message) {
-        if (isDebugEnabled())
-            output.println(createMessage(Level.DEBUG, message));
+        if (isDebugEnabled()) {
+            String text = message.toString();
+            LogListeners.invoke(name, Level.DEBUG, text, null);
+            output.println(createMessage(Level.DEBUG, text));
+        }
     }
 
     @Override
     public void info(Object message) {
-        if (isInfoEnabled())
-            output.println(createMessage(Level.INFO, message));
+        if (isInfoEnabled()) {
+            String text = message.toString();
+            LogListeners.invoke(name, Level.INFO, text, null);
+            output.println(createMessage(Level.INFO, text));
+        }
     }
 
     @Override
     public void warn(Object message) {
-        if (isWarnEnabled())
-            output.println(createMessage(Level.WARN, message));
+        if (isWarnEnabled()) {
+            String text = message.toString();
+            LogListeners.invoke(name, Level.WARN, text, null);
+            output.println(createMessage(Level.WARN, text));
+        }
     }
 
     @Override
     public void error(Object message) {
-        if (isErrorEnabled())
-            output.println(createMessage(Level.ERROR, message));
+        if (isErrorEnabled()) {
+            String text = message.toString();
+            LogListeners.invoke(name, Level.ERROR, text, null);
+            output.println(createMessage(Level.ERROR, text));
+        }
     }
 
     @Override
     public void error(Object message, Throwable throwable) {
         if (isErrorEnabled()) {
-            output.println(createMessage(Level.ERROR, message));
+            String text = message.toString();
+            LogListeners.invoke(name, Level.ERROR, text, null);
+            output.println(createMessage(Level.ERROR, text));
             throwable.printStackTrace(output);
         }
     }
 
-    private String createMessage(Level level, Object message) {
-        return LocalTime.now().toString() + separator + name + separator + level.name() + separator + ' ' + message;
+    private String createMessage(Level level, String text) {
+        return LocalTime.now().toString() + separator + name + separator + level.name() + separator + ' ' + text;
     }
 
 }

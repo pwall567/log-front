@@ -2,7 +2,7 @@
  * @(#) Logger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2020, 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ package net.pwall.log;
 import java.util.function.Supplier;
 
 /**
- * The main Logger interface.
+ * The main {@code Logger} interface.
  *
  * @author  Peter Wall
  */
@@ -107,6 +107,14 @@ public interface Logger {
         case ERROR:
             error(messageSupplier);
         }
+    }
+
+    static Logger getDefault(String name) {
+        return LoggerFactory.getDefaultLogger(name);
+    }
+
+    static Logger getDefault(Class<?> javaClass) {
+        return LoggerFactory.getDefaultLogger(javaClass.getName());
     }
 
 }

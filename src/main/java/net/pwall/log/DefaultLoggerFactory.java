@@ -2,7 +2,7 @@
  * @(#) DefaultLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2020, 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,12 +29,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * The default LoggerFactory, which tries first to create a Logger using slf4j, and if that is not successful, creates a
- * {@link ConsoleLogger}.
+ * The default {@link LoggerFactory}, which tries first to create a {@link Logger} using slf4j, and if that is not
+ * successful, creates a {@link ConsoleLogger}.
  *
  * @author  Peter Wall
  */
 public class DefaultLoggerFactory implements LoggerFactory {
+
+    private static final DefaultLoggerFactory instance = new DefaultLoggerFactory();
 
     private static Method slf4jMethod = null;
 
@@ -58,6 +60,10 @@ public class DefaultLoggerFactory implements LoggerFactory {
             }
         }
         return ConsoleLoggerFactory.getDefaultInstance().getLogger(name);
+    }
+
+    public static DefaultLoggerFactory getInstance() {
+        return instance;
     }
 
 }

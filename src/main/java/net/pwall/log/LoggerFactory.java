@@ -2,7 +2,7 @@
  * @(#) LoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2020, 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,8 @@
 package net.pwall.log;
 
 /**
- * The LoggerFactory interface allows for the implementation of a variety of processes of Logger object creation.
+ * The {@code LoggerFactory} interface allows for the implementation of a variety of processes of {@link Logger} object
+ * creation.
  *
  * @author  Peter Wall
  */
@@ -51,7 +52,7 @@ public interface LoggerFactory {
     }
 
     static LoggerFactory getDefault() {
-        return new DefaultLoggerFactory();
+        return DefaultLoggerFactory.getInstance();
     }
 
     static Logger getDefaultLogger(String name) {
