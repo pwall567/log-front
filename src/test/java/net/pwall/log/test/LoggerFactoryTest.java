@@ -26,12 +26,16 @@
 package net.pwall.log.test;
 
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import net.pwall.log.ConsoleLogger;
 import net.pwall.log.Level;
 import net.pwall.log.Logger;
 import net.pwall.log.LoggerFactory;
+import net.pwall.log.NullLogger;
+import net.pwall.log.NullLoggerFactory;
 
 public class LoggerFactoryTest {
 
@@ -40,7 +44,22 @@ public class LoggerFactoryTest {
         Logger logger = LoggerFactory.getDefaultLogger("xxx");
         assertTrue(logger instanceof ConsoleLogger);
         ((ConsoleLogger)logger).setLevel(Level.INFO);
-        logger.info("Seems to work!");
+        logger.info("getDefaultLogger seems to work!");
+    }
+
+    @Test
+    public void shouldCreateLoggerUsingClassName() {
+        Logger logger = LoggerFactory.getDefault().getLogger(getClass(), Level.DEBUG);
+        assertEquals(getClass().getName(), logger.getName());
+    }
+
+    @Test
+    public void shouldChangeDefaultFactory() {
+        LoggerFactory previousDefault = LoggerFactory.getDefault();
+        LoggerFactory.setDefault(NullLoggerFactory.getInstance());
+        Logger logger = LoggerFactory.getDefaultLogger(getClass());
+        assertTrue(logger instanceof NullLogger);
+        LoggerFactory.setDefault(previousDefault);
     }
 
 }

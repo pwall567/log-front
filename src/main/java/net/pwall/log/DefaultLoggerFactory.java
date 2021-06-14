@@ -27,41 +27,83 @@ package net.pwall.log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
- * The default {@link LoggerFactory}, which tries first to create a {@link Logger} using slf4j, and if that is not
- * successful, creates a {@link ConsoleLogger}.
+ * The default {@link LoggerFactory}, which tries to create a {@link Logger} as follows:
+ * <ol>
+ *   <li>If a custom {@link LoggerFactory} has been provided, call that and return the result</li>
+ *   <li>If <code>slf4j</code> is available on the class path, create an {@link Slf4jLogger}</li>
+ *   <li>If the system property <code>java.util.logging.config.file</code> is present, or if the file
+ *     <code>logging.properties</code> is present as a resource, create a {@link JavaLogger}</li>
+ *   <li>Otherwise, create a {@link ConsoleLogger}</li>
+ * </ol>
  *
  * @author  Peter Wall
  */
-public class DefaultLoggerFactory implements LoggerFactory {
+public class DefaultLoggerFactory extends LoggerFactory {
 
     private static final DefaultLoggerFactory instance = new DefaultLoggerFactory();
 
     private static Method slf4jMethod = null;
+    private static boolean javaLogging = false;
 
     static {
         try {
+            // first, check whether slf4j is present on the classpath
             Class<?> slf4jClass = Class.forName("org.slf4j.LoggerFactory");
             slf4jMethod = slf4jClass.getMethod("getLogger", String.class);
         }
         catch (ClassNotFoundException | NoSuchMethodException ignore) {
+            // slf4j not found; are we using java.util.logging?
+            javaLogging = System.getProperty("java.util.logging.config.file") != null ||
+                    DefaultLoggerFactory.class.getResource("logging.properties") != null;
         }
     }
 
+    /**
+     * Get a {@link Logger} with the specified name.  See the class documentation for the rules used to determine the
+     * type of {@link Logger} returned.
+     *
+     * @param   name    the name
+     * @return          a {@link Logger}
+     * @throws  NullPointerException    if the name is null
+     */
     @Override
     public Logger getLogger(String name) {
+        return getLogger(name, getDefaultLevel());
+    }
+
+    /**
+     * Get a {@link Logger} with the specified name and {@link Level}.  See the class documentation for the rules used
+     * to determine the type of {@link Logger} returned.
+     *
+     * @param   name    the name
+     * @param   level   the {@link Level}
+     * @return          a {@link Logger}
+     * @throws  NullPointerException    if the name is null
+     */
+    @Override
+    public Logger getLogger(String name, Level level) {
+        Objects.requireNonNull(name);
         if (slf4jMethod != null) {
             try {
-                Object slf4jLogger = slf4jMethod.invoke(null, name);
-                return new Slf4jLogger(name, slf4jLogger);
+                return new Slf4jLogger(name, slf4jMethod.invoke(null, name));
             }
             catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignore) {
             }
         }
-        return ConsoleLoggerFactory.getDefaultInstance().getLogger(name);
+        if (javaLogging)
+            return level == null ? new JavaLogger(name) : new JavaLogger(name, level);
+        ConsoleLoggerFactory consoleLoggerFactory = ConsoleLoggerFactory.getInstance();
+        return level == null ? consoleLoggerFactory.getLogger(name) : consoleLoggerFactory.getLogger(name, level);
     }
 
+    /**
+     * Get the shared {@code DefaultLoggerFactory} instance.
+     *
+     * @return      the instance
+     */
     public static DefaultLoggerFactory getInstance() {
         return instance;
     }

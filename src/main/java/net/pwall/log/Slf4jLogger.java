@@ -50,6 +50,13 @@ public class Slf4jLogger implements Logger {
     private final Method errorMethod;
     private final Method errorThrowableMethod;
 
+    /**
+     * Create an {@code Slf4jLogger} with the specified name and underlying {@code Logger} object.
+     *
+     * @param   name            the name
+     * @param   slf4jLogger     the {@code Logger} object (must be of type compatible with {@code org.slf4j.Logger})
+     * @throws  NoSuchMethodException   if the any of the required methods does not exist in the {@code Logger}
+     */
     public Slf4jLogger(String name, Object slf4jLogger) throws NoSuchMethodException {
         this.name = name;
         this.slf4jLogger = slf4jLogger;
@@ -67,11 +74,21 @@ public class Slf4jLogger implements Logger {
         errorThrowableMethod = loggerClass.getMethod("error", String.class, Throwable.class);
     }
 
+    /**
+     * Get the name associated with this {@code Logger}.
+     *
+     * @return      the name
+     */
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * Test whether trace output is enabled for this {@code Logger}.
+     *
+     * @return      {@code true} if trace output is enabled
+     */
     @Override
     public boolean isTraceEnabled() {
         try {
@@ -82,6 +99,11 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Test whether debug output is enabled for this {@code Logger}.
+     *
+     * @return      {@code true} if debug output is enabled
+     */
     @Override
     public boolean isDebugEnabled() {
         try {
@@ -92,6 +114,11 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Test whether info output is enabled for this {@code Logger}.
+     *
+     * @return      {@code true} if info output is enabled
+     */
     @Override
     public boolean isInfoEnabled() {
         try {
@@ -102,6 +129,11 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Test whether warning output is enabled for this {@code Logger}.
+     *
+     * @return      {@code true} if warning output is enabled
+     */
     @Override
     public boolean isWarnEnabled() {
         try {
@@ -112,6 +144,11 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Test whether error output is enabled for this {@code Logger}.
+     *
+     * @return      {@code true} if error output is enabled
+     */
     @Override
     public boolean isErrorEnabled() {
         try {
@@ -122,10 +159,16 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Output a trace message.
+     *
+     * @param   message     the message (will be output using {@link Object#toString()}
+     */
     @Override
     public void trace(Object message) {
         String text = message.toString();
-        LogListeners.invoke(name, Level.TRACE, text, null);
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.TRACE, text, null);
         try {
             traceMethod.invoke(slf4jLogger, text);
         }
@@ -134,10 +177,16 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Output a debug message.
+     *
+     * @param   message     the message (will be output using {@link Object#toString()}
+     */
     @Override
     public void debug(Object message) {
         String text = message.toString();
-        LogListeners.invoke(name, Level.DEBUG, text, null);
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.DEBUG, text, null);
         try {
             debugMethod.invoke(slf4jLogger, text);
         }
@@ -146,10 +195,16 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Output an info message.
+     *
+     * @param   message     the message (will be output using {@link Object#toString()}
+     */
     @Override
     public void info(Object message) {
         String text = message.toString();
-        LogListeners.invoke(name, Level.INFO, text, null);
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.INFO, text, null);
         try {
             infoMethod.invoke(slf4jLogger, text);
         }
@@ -158,10 +213,16 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Output a warning message.
+     *
+     * @param   message     the message (will be output using {@link Object#toString()}
+     */
     @Override
     public void warn(Object message) {
         String text = message.toString();
-        LogListeners.invoke(name, Level.WARN, text, null);
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.WARN, text, null);
         try {
             warnMethod.invoke(slf4jLogger, text);
         }
@@ -170,10 +231,16 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Output an error message.
+     *
+     * @param   message     the message (will be output using {@link Object#toString()}
+     */
     @Override
     public void error(Object message) {
         String text = message.toString();
-        LogListeners.invoke(name, Level.ERROR, text, null);
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.ERROR, text, null);
         try {
             errorMethod.invoke(slf4jLogger, text);
         }
@@ -182,10 +249,17 @@ public class Slf4jLogger implements Logger {
         }
     }
 
+    /**
+     * Output an error message along with a {@link Throwable}.
+     *
+     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   throwable   the {@link Throwable}
+     */
     @Override
     public void error(Object message, Throwable throwable) {
         String text = message.toString();
-        LogListeners.invoke(name, Level.ERROR, text, throwable);
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.ERROR, text, throwable);
         try {
             errorThrowableMethod.invoke(slf4jLogger, text, throwable);
         }

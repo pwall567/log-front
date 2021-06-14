@@ -30,16 +30,40 @@ package net.pwall.log;
  *
  * @author  Peter Wall
  */
-public class NullLoggerFactory implements LoggerFactory {
+public class NullLoggerFactory extends LoggerFactory {
 
     private static final NullLoggerFactory instance = new NullLoggerFactory();
-    private static final NullLogger nullLogger = new NullLogger();
 
+    /**
+     * Get a {@link NullLogger} with the supplied name, using the default {@link Level}.
+     *
+     * @param   name    the name
+     * @return          the {@link NullLogger}
+     * @throws  NullPointerException    if the name is null
+     */
     @Override
     public NullLogger getLogger(String name) {
-        return nullLogger;
+        return new NullLogger(name);
     }
 
+    /**
+     * Get a {@link NullLogger} with the supplied name and {@link Level}.
+     *
+     * @param   name    the name
+     * @param   level   the {@link Level}
+     * @return          the {@link NullLogger}
+     * @throws  NullPointerException    if the name is null
+     */
+    @Override
+    public NullLogger getLogger(String name, Level level) {
+        return new NullLogger(name);
+    }
+
+    /**
+     * Get the shared {@code NullLoggerFactory} instance.
+     *
+     * @return      the shared instance
+     */
     public static NullLoggerFactory getInstance() {
         return instance;
     }

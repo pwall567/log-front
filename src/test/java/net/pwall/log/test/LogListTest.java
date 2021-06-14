@@ -1,5 +1,5 @@
 /*
- * @(#) LogListeners.java
+ * @(#) LogListTest.java
  *
  * log-front  Logging interface
  * Copyright (c) 2021 Peter Wall
@@ -23,44 +23,32 @@
  * SOFTWARE.
  */
 
-package net.pwall.log;
+package net.pwall.log.test;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A set of static methods that manage {@link LogListener} objects - principally used for testing that log items are
- * being output as expected.
- *
- * @author  Peter Wall
- */
-public class LogListeners {
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-    private static final List<LogListener> listeners = new ArrayList<>();
+import net.pwall.log.Level;
+import net.pwall.log.LogItem;
+import net.pwall.log.LogList;
+import net.pwall.log.Logger;
+import net.pwall.log.NullLogger;
 
-    public static void add(LogListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
-    }
+public class LogListTest {
 
-    public static void remove(LogListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
-    }
-
-    public static void invoke(String name, Level level, String text, Throwable throwable) {
-        if (listeners.size() > 0) {
-            LogListener[] array;
-            synchronized (listeners) {
-                array = new LogListener[listeners.size()];
-                array = listeners.toArray(array);
-            }
-            Instant time = Instant.now();
-            for (LogListener listener : array)
-                listener.receive(time, name, level, text, throwable);
+    @Test
+    public void shouldCreateListAndAllowCopies() {
+        Logger nullLogger = new NullLogger("xxx");
+        try (LogList logList = new LogList()) {
+            List<LogItem> list1 = logList.toList();
+            assertEquals(0, list1.size());
+            logList.receive(Instant.now(), nullLogger, Level.INFO, "Testing", null);
+            List<LogItem> list2 = logList.toList();
+            assertEquals(1, list2.size());
+            assertEquals(0, list1.size());
         }
     }
 

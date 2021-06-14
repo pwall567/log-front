@@ -2,9 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [2.0] - 2021-05-24
+## [2.0] - 2021-06-15
 ### Added
 - `LogListener`, `LogListeners`, `LogList`, `LogItem`
+- `JavaLogger`, `JavaLoggerFactory`
 ### Changed
 - several: added log listener functionality
 

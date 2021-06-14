@@ -31,35 +31,120 @@ package net.pwall.log;
  *
  * @author  Peter Wall
  */
-public interface LoggerFactory {
+public abstract class LoggerFactory {
 
-    Logger getLogger(String name);
+    private static LoggerFactory defaultLoggerFactory = null;
 
-    default Logger getLogger(Class<?> javaClass) {
+    private Level defaultLevel = null;
+
+    /**
+     * Get a {@link Logger} with the supplied name, using the default {@link Level}.
+     *
+     * @param   name    the name
+     * @return          the {@link Logger}
+     * @throws  NullPointerException    if the name is null
+     */
+    public abstract Logger getLogger(String name);
+
+    /**
+     * Get a {@link Logger} with the supplied name and {@link Level}.
+     *
+     * @param   name    the name
+     * @param   level   the {@link Level}
+     * @return          the {@link Logger}
+     * @throws  NullPointerException    if the name is null
+     */
+    public abstract Logger getLogger(String name, Level level);
+
+    /**
+     * Get a {@link Logger} for the nominated Java class.
+     *
+     * @param   javaClass   the Java {@link Class}
+     * @return              the {@link Logger}
+     * @throws  NullPointerException    if the Java class is null
+     */
+    public Logger getLogger(Class<?> javaClass) {
         return getLogger(javaClass.getName());
     }
 
-    static Logger getNullLogger() {
-        return new NullLogger();
+    /**
+     * Get a {@link Logger} for the nominated Java class, using the default {@link Level}.
+     *
+     * @param   javaClass   the Java {@link Class}
+     * @param   level       the {@link Level}
+     * @return              the {@link Logger}
+     * @throws  NullPointerException    if the Java class is null
+     */
+    public Logger getLogger(Class<?> javaClass, Level level) {
+        return getLogger(javaClass.getName(), level);
     }
 
-    static LoggerFactory getNullLoggerFactory() {
-        return NullLoggerFactory.getInstance();
+    /**
+     * Get the default {@link Level} to be used by {@link Logger} instances created by this {@code LoggerFactory}.
+     *
+     * @return      the default {@link Level}
+     */
+    public Level getDefaultLevel() {
+        return defaultLevel;
     }
 
-    static ConsoleLogger getConsoleLogger(String name) {
-        return ConsoleLoggerFactory.getDefaultInstance().getLogger(name);
+    /**
+     * Set the default {@link Level} to be used by {@link Logger} instances created by this {@code LoggerFactory}.
+     *
+     * @param   defaultLevel    the new default {@link Level}
+     */
+    public void setDefaultLevel(Level defaultLevel) {
+        this.defaultLevel = defaultLevel;
     }
 
-    static LoggerFactory getDefault() {
-        return DefaultLoggerFactory.getInstance();
+    /**
+     * Get the default {@code LoggerFactory} (usually, but not necessarily, a {@link DefaultLoggerFactory}).
+     *
+     * @return      the default {@code LoggerFactory}
+     */
+    public static LoggerFactory getDefault() {
+        if (defaultLoggerFactory == null)
+            defaultLoggerFactory = DefaultLoggerFactory.getInstance();
+        return defaultLoggerFactory;
     }
 
-    static Logger getDefaultLogger(String name) {
+    /**
+     * Set the default {@code LoggerFactory}.
+     *
+     * @param   loggerFactory   the new default {@code LoggerFactory}
+     */
+    public static void setDefault(LoggerFactory loggerFactory) {
+        defaultLoggerFactory = loggerFactory;
+    }
+
+    /**
+     * Get a {@link ConsoleLogger} with the specified name.
+     * @param   name        the name
+     * @return              a {@link ConsoleLogger}
+     */
+    public static ConsoleLogger getConsoleLogger(String name) {
+        return ConsoleLoggerFactory.getInstance().getLogger(name);
+    }
+
+    /**
+     * Get a {@link Logger} from the default {@code LoggerFactory}, with the supplied name.
+     *
+     * @param   name        the name
+     * @return              a {@link Logger}
+     * @throws  NullPointerException    if the name is null
+     */
+    public static Logger getDefaultLogger(String name) {
         return getDefault().getLogger(name);
     }
 
-    static Logger getDefaultLogger(Class<?> javaClass) {
+    /**
+     * Get a {@link Logger} from the default {@code LoggerFactory}, with the supplied name.
+     *
+     * @param   javaClass   the Java {@link Class}
+     * @return              a {@link Logger}
+     * @throws  NullPointerException    if the Java class is null
+     */
+    public static Logger getDefaultLogger(Class<?> javaClass) {
         return getDefault().getLogger(javaClass);
     }
 

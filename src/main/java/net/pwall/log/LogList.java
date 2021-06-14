@@ -35,24 +35,43 @@ import java.util.List;
  *
  * @author  Peter Wall
  */
-public class LogList implements LogListener, Iterable<LogItem> {
+public class LogList extends LogListener implements Iterable<LogItem> {
 
     private final List<LogItem> list = new ArrayList<>();
 
+    /**
+     * Receive a log event and store a new {@link LogItem} in the list.
+     *
+     * @param   time        the time of the event
+     * @param   logger      the logger object
+     * @param   level       the logging level
+     * @param   text        the text of the message
+     * @param   throwable   a {@link Throwable}, if provided
+     */
     @Override
-    public void receive(Instant time, String name, Level level, String text, Throwable throwable) {
+    public void receive(Instant time, Logger logger, Level level, String text, Throwable throwable) {
         synchronized (list) {
-            list.add(new LogItem(time, name, level, text, throwable));
+            list.add(new LogItem(time, logger.getName(), level, text, throwable));
         }
     }
 
+    /**
+     * Get an {@link Iterator} over the {@link LogItem} list entries.
+     *
+     * @return      the {@link Iterator}
+     */
     @Override
     public Iterator<LogItem> iterator() {
         return list.iterator();
     }
 
+    /**
+     * Get a copy of the list.
+     *
+     * @return      the copy
+     */
     public List<LogItem> toList() {
-        return new ArrayList<LogItem>(list);
+        return new ArrayList<>(list);
     }
 
 }

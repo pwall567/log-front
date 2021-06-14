@@ -1,8 +1,8 @@
 /*
- * @(#) Slf4JLoggerException.java
+ * @(#) JavaLoggerTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,22 +23,27 @@
  * SOFTWARE.
  */
 
-package net.pwall.log;
+package net.pwall.log.test;
 
-/**
- * An exception class to handle errors in accessing {@code slf4j}.
- *
- * @author  Peter Wall
- */
-public class Slf4JLoggerException extends RuntimeException {
+import org.junit.Test;
 
-    /**
-     * Create an {@code Slf4JLoggerException} with the supplied nested exception.
-     *
-     * @param e     the nested exception
-     */
-    public Slf4JLoggerException(Exception e) {
-        super("Error accessing slf4j Logger", e);
+import net.pwall.log.JavaLoggerFactory;
+import net.pwall.log.Logger;
+
+public class JavaLoggerTest {
+
+    @Test
+    public void shouldUseJavaLogger() {
+        Logger logger = JavaLoggerFactory.getJavaLogger("abc");
+        logger.debug("Logged via Java Logging (debug)");
+        logger.info("Logged via Java Logging (info)");
+        logger.warn(() -> "Logged via Java Logging (warn)");
+    }
+
+    @Test
+    public void shouldUseJavaLoggerByClass() {
+        Logger logger = JavaLoggerFactory.getJavaLogger(getClass());
+        logger.info("Logged via Java Logging for class (info)");
     }
 
 }

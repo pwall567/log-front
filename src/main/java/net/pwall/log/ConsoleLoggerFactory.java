@@ -26,59 +26,111 @@
 package net.pwall.log;
 
 import java.io.PrintStream;
+import java.util.Objects;
 
 /**
  * A {@link LoggerFactory} that creates {@link ConsoleLogger} objects.
  *
  * @author  Peter Wall
  */
-public class ConsoleLoggerFactory implements LoggerFactory {
+public class ConsoleLoggerFactory extends LoggerFactory {
 
-    private static final ConsoleLoggerFactory defaultInstance = new ConsoleLoggerFactory();
+    private static final ConsoleLoggerFactory instance = new ConsoleLoggerFactory();
 
-    private Level level;
     private PrintStream output;
 
-    public ConsoleLoggerFactory(Level level, PrintStream output) {
-        this.level = level;
-        this.output = output;
+    /**
+     * Construct a {@code ConsoleLoggerFactory} with the supplied default logging level and output stream.
+     *
+     * @param   defaultLevel            the default logging level
+     * @param   output                  the output stream to be used
+     * @throws  NullPointerException    if the output stream is null
+     */
+    public ConsoleLoggerFactory(Level defaultLevel, PrintStream output) {
+        setDefaultLevel(defaultLevel);
+        setOutput(output);
     }
 
+    /**
+     * Construct a {@code ConsoleLoggerFactory} with the standard default logging level and the supplied output stream.
+     *
+     * @param   output                  the output stream to be used
+     * @throws  NullPointerException    if the output stream is null
+     */
     public ConsoleLoggerFactory(PrintStream output) {
         this(ConsoleLogger.defaultLevel, output);
     }
 
-    public ConsoleLoggerFactory(Level level) {
-        this(level, ConsoleLogger.defaultOutput);
+    /**
+     * Construct a {@code ConsoleLoggerFactory} with the supplied default logging level, using the standard output
+     * stream.
+     *
+     * @param   defaultLevel    the default logging level
+     */
+    public ConsoleLoggerFactory(Level defaultLevel) {
+        this(defaultLevel, ConsoleLogger.defaultOutput);
     }
 
+    /**
+     * Construct a {@code ConsoleLoggerFactory} with the standard default logging level and output stream.
+     */
     public ConsoleLoggerFactory() {
         this(ConsoleLogger.defaultLevel, ConsoleLogger.defaultOutput);
     }
 
-    public Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
+    /**
+     * Get the output stream used by {@link ConsoleLogger} instances created by this {@code ConsoleLoggerFactory}.
+     *
+     * @return      the output  stream
+     */
     public PrintStream getOutput() {
         return output;
     }
 
+    /**
+     * Set the output stream used by {@link ConsoleLogger} instances created by this {@code ConsoleLoggerFactory}.
+     *
+     * @param   output                  the output stream
+     * @throws  NullPointerException    if the output stream is null
+     */
     public void setOutput(PrintStream output) {
-        this.output = output;
+        this.output = Objects.requireNonNull(output);
     }
 
+    /**
+     * Get a {@link ConsoleLogger} with the supplied name and the current default {@link Level}.
+     *
+     * @param   name    the name
+     * @return          a {@link ConsoleLogger}
+     * @throws  NullPointerException    if the name is null
+     */
     @Override
     public ConsoleLogger getLogger(String name) {
-        return new ConsoleLogger(name, level, output);
+        Level level = getDefaultLevel();
+        return new ConsoleLogger(Objects.requireNonNull(name),
+                level == null ? ConsoleLogger.defaultLevel : level, output);
     }
 
-    public static ConsoleLoggerFactory getDefaultInstance() {
-        return defaultInstance;
+    /**
+     * Get a {@link ConsoleLogger} with the supplied name and {@link Level}.
+     *
+     * @param   name    the name
+     * @param   level   the {@link Level}
+     * @return          a {@link ConsoleLogger}
+     * @throws  NullPointerException    if the name is null
+     */
+    @Override
+    public ConsoleLogger getLogger(String name, Level level) {
+        return new ConsoleLogger(Objects.requireNonNull(name), level, output);
+    }
+
+    /**
+     * Get the shared {@code ConsoleLoggerFactory} instance.
+     *
+     * @return      the shared instance
+     */
+    public static ConsoleLoggerFactory getInstance() {
+        return instance;
     }
 
 }

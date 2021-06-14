@@ -16,10 +16,13 @@ the project as a whole
 
 This library provides a simple logging API that may be used by a library.
 The default behaviour is to use reflection to find the `slf4j` classes in the classpath - if they are found all logging
-calls will be redirected to them; otherwise log messages will be output to a `PrintStream` (default `stdout`).
+calls will be redirected to them.
+The second choice is to use the Java logging framework if indicated by the presence of a system property or
+configuration associated with that framework;
+otherwise log messages will be output to a `PrintStream` (default `stdout`).
 
-If it is necessary to fit in with an existing logging framework, the API is designed to be simple to implement so that a
-thin interfacing layer can be created accepting this API and invoking the required mechanism.
+If it is necessary to fit in with an existing logging framework other than `slf4j`, the API is designed to be simple to
+implement so that a thin interfacing layer can be created accepting this API and invoking the required mechanism.
 
 ## Quick Start
 
@@ -28,8 +31,11 @@ To get an instance of `Logger`:
     Logger logger = LoggerFactory.getDefaultLogger("name");
 ```
 
-This will return an `Slf4jLogger` if the slf4j classes are found in the classpath, otherwise it will return a
-`ConsoleLogger`.
+This will return one of the following:
+1. If the `slf4j` classes are found in the classpath, an `Slf4jLogger` will be returned.
+2. If `slf4j` is not found, but either the "`java.util.logging.config.file`" system property is present or a file named
+"`logging.properties`" is present as a resource, then a `JavaLogger` will be returned.
+3. Otherwise, a `ConsoleLogger` will be returned.
 
 Then, to use the `Logger`:
 ```java
@@ -47,7 +53,7 @@ The API employs a `Level` enum, which corresponds with the logging level mechani
 ### `Logger`
 
 The `Logger` provides logging functions for each of the logging levels, including versions that lazily create the
-message.
+message (so that the message formatting is performed only when necessary).
 There are additional versions of the `error()` function taking a `Throwable`, as in other logging frameworks.
 
 - `trace(String message)`
@@ -79,7 +85,7 @@ A `LoggerFactory` may be obtained by the static method `getDefault()`; alternati
 - `getLogger(String name)`
 - `getLogger(Class<?> javaClass)`
 
-There are also static functions to get loggers using the `DefaultLoggerFactory`:
+There are also static functions to get loggers using the default `LoggerFactory`:
 
 - `getDefaultLogger(String name)`
 - `getDefaultLogger(Class<?> javaClass)`
@@ -88,39 +94,47 @@ There are also static functions to get loggers using the `DefaultLoggerFactory`:
 
 There are five levels:
 
-- TRACE
-- DEBUG
-- INFO
-- WARN
-- ERROR
+- `TRACE`
+- `DEBUG`
+- `INFO`
+- `WARN`
+- `ERROR`
+
+As is customary in logging systems, enabling logging for a level enables logging for that level and all higher (more
+serious) levels.
+For example, setting the logging level to `DEBUG` will enable logging for `DEBUG`, `INFO`, `WARN` and `ERROR` levels,
+but not for `TRACE`.
 
 ### `LogListener`
 
 The library provides a built-in mechanism for testing whether log items are output as expected.
-If an object implementing the `LogListener` interface is registered with the system, it will be called for every log
-event.
+If an object extending the `LogListener` abstract base class is created, it will be added to a list of listeners and
+called for every log event (calling `close()` on the listener will remove it from the list).
 A simple implementation `LogList` is provided &ndash; this stores the log items in a list for later examination.
 
 This functionality is best illustrated by example:
 ```java
-        LogList listener = new LogList();
-        LogListeners.add(listener);
-        Logger log = Logger.getDefault("xxx");
-        // code that outputs log message to "log"
-        LogListeners.remove(listener);
-        Iterator<LogItem> items = listener.iterator();
-        // the log items will be presented via the iterator
+        try (LogList logList = new LogList()) {
+            Logger log = Logger.getDefault("xxx");
+            // code that outputs log message to "log"
+            Iterator<LogItem> logItems = logList.iterator();
+            // the log items will be presented via the iterator
+        }
 ```
+
+The `LogListener` class implements the `AutoCloseable` interface, allowing it to be used in a try-with-resources block.
+This ensures that the listener is removed from the list when it is no longer required.
 
 The mechanism is intended to be completely non-intrusive &ndash; it should be possible to write code that outputs log
 messages using `Logger` objects obtained from the default `LoggerFactory`, and then to create tests that intercept the
 log messages and check for correctness.
-If no listeners are used, the overhead of checking for them will be minuscule.
+When the code is run in a production situation with no listeners, the overhead of checking for them will be minuscule.
 
-Note that the listener mechanism is global &ndash; if the listeners are not removed they will continue to receive log
-events for subsequent tests.
-This will not be a significant problem unless there are so many events that the system runs into memory issues, but it
-is good practice to clean up after each test.
+**Note that the listener mechanism is global (and simplistic) &ndash; it is intended solely for unit testing purposes.**
+Only log messages output via this library will be presented to the listener; messages output to the underlying logging
+system by other means will not be visible.
+And because logging systems create their own timestamps, the times on messages captured by this mechanism may differ
+very slightly from the times generated by the underlying system.
 
 ## `slf4j`
 
@@ -145,25 +159,25 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
 
 ## Dependency Specification
 
-The latest version of the library is 1.0, and it may be obtained from the Maven Central repository.
+The latest version of the library is 2.0, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>1.0</version>
+      <version>2.0</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:1.0'
+    implementation 'net.pwall.log:log-front:2.0'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:1.0")
+    implementation("net.pwall.log:log-front:2.0")
 ```
 
 Peter Wall
 
-2021-05-24
+2021-06-15

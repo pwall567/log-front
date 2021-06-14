@@ -33,28 +33,26 @@ import static org.junit.Assert.assertEquals;
 import net.pwall.log.Level;
 import net.pwall.log.LogItem;
 import net.pwall.log.LogList;
-import net.pwall.log.LogListeners;
 import net.pwall.log.Logger;
 
 public class LogListenerTest {
 
     @Test
     public void shouldStoreLogItemsInList() {
-        LogList listener = new LogList();
-        LogListeners.add(listener);
-        Logger log = Logger.getDefault("xxx");
-        log.info("message 1");
-        log.warn("message 2");
-        LogListeners.remove(listener);
-        Iterator<LogItem> items = listener.iterator();
-        LogItem first = items.next();
-        assertEquals(first.getName(), "xxx");
-        assertEquals(first.getLevel(), Level.INFO);
-        assertEquals(first.getText(), "message 1");
-        LogItem second = items.next();
-        assertEquals(second.getName(), "xxx");
-        assertEquals(second.getLevel(), Level.WARN);
-        assertEquals(second.getText(), "message 2");
+        try (LogList list = new LogList()) {
+            Logger log = Logger.getDefault("xxx");
+            log.info("message 1");
+            log.warn("message 2");
+            Iterator<LogItem> items = list.iterator();
+            LogItem first = items.next();
+            assertEquals(first.getName(), "xxx");
+            assertEquals(first.getLevel(), Level.INFO);
+            assertEquals(first.getText(), "message 1");
+            LogItem second = items.next();
+            assertEquals(second.getName(), "xxx");
+            assertEquals(second.getLevel(), Level.WARN);
+            assertEquals(second.getText(), "message 2");
+        }
     }
 
 }
