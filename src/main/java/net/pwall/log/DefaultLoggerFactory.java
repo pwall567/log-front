@@ -25,8 +25,9 @@
 
 package net.pwall.log;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Objects;
 
 /**
@@ -45,16 +46,19 @@ public class DefaultLoggerFactory extends LoggerFactory {
 
     private static final DefaultLoggerFactory instance = new DefaultLoggerFactory();
 
-    private static Method slf4jMethod = null;
+    private static MethodHandle getLoggerMH = null;
     private static boolean javaLogging = false;
 
     static {
         try {
             // first, check whether slf4j is present on the classpath
             Class<?> slf4jClass = Class.forName("org.slf4j.LoggerFactory");
-            slf4jMethod = slf4jClass.getMethod("getLogger", String.class);
+            Class<?> slf4jLoggerClass = Class.forName("org.slf4j.Logger");
+            MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+            getLoggerMH = lookup.findStatic(slf4jClass, "getLogger",
+                    MethodType.methodType(slf4jLoggerClass, String.class));
         }
-        catch (ClassNotFoundException | NoSuchMethodException ignore) {
+        catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException ignore) {
             // slf4j not found; are we using java.util.logging?
             javaLogging = System.getProperty("java.util.logging.config.file") != null ||
                     DefaultLoggerFactory.class.getResource("logging.properties") != null;
@@ -86,11 +90,12 @@ public class DefaultLoggerFactory extends LoggerFactory {
     @Override
     public Logger getLogger(String name, Level level) {
         Objects.requireNonNull(name);
-        if (slf4jMethod != null) {
+        if (getLoggerMH != null) {
             try {
-                return new Slf4jLogger(name, slf4jMethod.invoke(null, name));
+                return new Slf4jLogger(name, getLoggerMH.invoke(name));
             }
-            catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignore) {
+            catch (Throwable e) {
+                e.printStackTrace();
             }
         }
         if (javaLogging)

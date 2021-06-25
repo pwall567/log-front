@@ -33,12 +33,12 @@ package net.pwall.log;
 public class Slf4JLoggerException extends RuntimeException {
 
     /**
-     * Create an {@code Slf4JLoggerException} with the supplied nested exception.
+     * Create an {@code Slf4JLoggerException} with the supplied nested {@link Throwable}.
      *
-     * @param e     the nested exception
+     * @param t     the {@link Throwable}
      */
-    public Slf4JLoggerException(Exception e) {
-        super("Error accessing slf4j Logger", e);
+    public Slf4JLoggerException(Throwable t) {
+        super("Error accessing slf4j Logger", t);
     }
 
 }

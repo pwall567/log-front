@@ -79,42 +79,42 @@ public interface Logger {
     /**
      * Output a trace message.
      *
-     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
      */
     void trace(Object message);
 
     /**
      * Output a debug message.
      *
-     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
      */
     void debug(Object message);
 
     /**
      * Output an info message.
      *
-     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
      */
     void info(Object message);
 
     /**
      * Output a warning message.
      *
-     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
      */
     void warn(Object message);
 
     /**
      * Output an error message.
      *
-     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
      */
     void error(Object message);
 
     /**
      * Output an error message along with a {@link Throwable}.
      *
-     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
      * @param   throwable   the {@link Throwable}
      */
     void error(Object message, Throwable throwable);
@@ -190,7 +190,7 @@ public interface Logger {
      * Output a message with a variable level.
      *
      * @param   level       the {@link Level}
-     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
      */
     default void log(Level level, Object message) {
         switch (level) {

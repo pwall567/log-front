@@ -2,6 +2,11 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.1] - 2021-06-25
+### Changed
+- `ConsoleLogger`: Changed to eliminate inconsistent date formatting
+- `DefaultLoggerFactory`, `Slf4JLogger`: changed Java reflection to use `MethodHandle`
+
 ## [2.0] - 2021-06-15
 ### Added
 - `LogListener`, `LogListeners`, `LogList`, `LogItem`

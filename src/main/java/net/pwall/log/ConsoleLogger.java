@@ -25,9 +25,12 @@
 
 package net.pwall.log;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.time.LocalTime;
 import java.util.Objects;
+
+import net.pwall.util.Strings;
 
 /**
  * A {@link Logger} that outputs to a {@link PrintStream}, usually {@code stdout} or {@code stderr}.
@@ -287,7 +290,22 @@ public class ConsoleLogger implements Logger {
     }
 
     private String createMessage(Level level, String text) {
-        return LocalTime.now().toString() + separator + name + separator + level.name() + separator + ' ' + text;
+        LocalTime now = LocalTime.now();
+        StringBuilder sb = new StringBuilder(120);
+        try {
+            Strings.append2Digits(sb, now.getHour());
+            sb.append(':');
+            Strings.append2Digits(sb, now.getMinute());
+            sb.append(':');
+            Strings.append2Digits(sb, now.getSecond());
+            sb.append('.');
+            Strings.append3Digits(sb, now.getNano() / 1_000_000);
+        }
+        catch (IOException ignore) {
+            // can't happen - StringBuilder doesn't throw IOException
+        }
+        return sb.append(separator).append(name).append(separator).append(level).append(separator).append(' ').
+                append(text).toString();
     }
 
 }

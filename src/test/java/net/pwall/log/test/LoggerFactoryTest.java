@@ -30,20 +30,19 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import net.pwall.log.ConsoleLogger;
 import net.pwall.log.Level;
 import net.pwall.log.Logger;
 import net.pwall.log.LoggerFactory;
 import net.pwall.log.NullLogger;
 import net.pwall.log.NullLoggerFactory;
+import net.pwall.log.Slf4jLogger;
 
 public class LoggerFactoryTest {
 
     @Test
     public void shouldCreateDefaultLogger() {
         Logger logger = LoggerFactory.getDefaultLogger("xxx");
-        assertTrue(logger instanceof ConsoleLogger);
-        ((ConsoleLogger)logger).setLevel(Level.INFO);
+        assertTrue(logger instanceof Slf4jLogger);
         logger.info("getDefaultLogger seems to work!");
     }
 
