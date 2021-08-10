@@ -283,7 +283,7 @@ public class ConsoleLogger implements Logger {
         if (isErrorEnabled()) {
             String text = message.toString();
             if (LogListener.present())
-                LogListener.invokeAll(this, Level.ERROR, text, null);
+                LogListener.invokeAll(this, Level.ERROR, text, throwable);
             output.println(createMessage(Level.ERROR, text));
             throwable.printStackTrace(output);
         }

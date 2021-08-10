@@ -29,11 +29,14 @@ import java.util.Iterator;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 import net.pwall.log.Level;
 import net.pwall.log.LogItem;
 import net.pwall.log.LogList;
 import net.pwall.log.Logger;
+import net.pwall.log.LoggerFactory;
 
 public class LogListenerTest {
 
@@ -43,15 +46,51 @@ public class LogListenerTest {
             Logger log = Logger.getDefault("xxx");
             log.info("message 1");
             log.warn("message 2");
+            IllegalStateException exception = new IllegalStateException("Another dummy");
+            log.error("message 3", exception);
             Iterator<LogItem> items = list.iterator();
             LogItem first = items.next();
-            assertEquals(first.getName(), "xxx");
-            assertEquals(first.getLevel(), Level.INFO);
-            assertEquals(first.getText(), "message 1");
+            assertEquals("xxx", first.getName());
+            assertEquals(Level.INFO, first.getLevel());
+            assertEquals("message 1", first.getText());
+            assertNull(first.getThrowable());
             LogItem second = items.next();
-            assertEquals(second.getName(), "xxx");
-            assertEquals(second.getLevel(), Level.WARN);
-            assertEquals(second.getText(), "message 2");
+            assertEquals("xxx", second.getName());
+            assertEquals(Level.WARN, second.getLevel());
+            assertEquals("message 2", second.getText());
+            assertNull(second.getThrowable());
+            LogItem third = items.next();
+            assertEquals("xxx", third.getName());
+            assertEquals(Level.ERROR, third.getLevel());
+            assertEquals("message 3", third.getText());
+            assertSame(exception, third.getThrowable());
+        }
+    }
+
+    @Test
+    public void shouldStoreLogItemsInListUsingConsoleLogger() {
+        try (LogList list = new LogList()) {
+            Logger log = LoggerFactory.getConsoleLogger("abcd");
+            log.info("console message 1");
+            log.warn("console message 2");
+            IllegalStateException exception = new IllegalStateException("Dummy");
+            log.error("console message 3", exception);
+            Iterator<LogItem> items = list.iterator();
+            LogItem first = items.next();
+            assertEquals("abcd", first.getName());
+            assertEquals(Level.INFO, first.getLevel());
+            assertEquals("console message 1", first.getText());
+            assertNull(first.getThrowable());
+            LogItem second = items.next();
+            assertEquals("abcd", second.getName());
+            assertEquals(Level.WARN, second.getLevel());
+            assertEquals("console message 2", second.getText());
+            assertNull(second.getThrowable());
+            LogItem third = items.next();
+            assertEquals("abcd", third.getName());
+            assertEquals(Level.ERROR, third.getLevel());
+            assertEquals("console message 3", third.getText());
+            assertSame(exception, third.getThrowable());
         }
     }
 
