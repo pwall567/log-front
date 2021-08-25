@@ -26,15 +26,15 @@
 package net.pwall.log.test;
 
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import net.pwall.log.ConsoleLogger;
 import net.pwall.log.ConsoleLoggerFactory;
 import net.pwall.log.Level;
 import net.pwall.log.LoggerFactory;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 public class ConsoleLoggerTest {
 

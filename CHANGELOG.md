@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.3] - 2021-08-26
+### Changed
+- `ConsoleLogger`: switch to IntOutput
+
 ## [2.2] - 2021-08-10
 ### Changed
 - `ConsoleLogger`: bug fix - wasn't passing throwable to log listeners

@@ -30,7 +30,7 @@ import java.io.PrintStream;
 import java.time.LocalTime;
 import java.util.Objects;
 
-import net.pwall.util.Strings;
+import net.pwall.util.IntOutput;
 
 /**
  * A {@link Logger} that outputs to a {@link PrintStream}, usually {@code stdout} or {@code stderr}.
@@ -293,13 +293,13 @@ public class ConsoleLogger implements Logger {
         LocalTime now = LocalTime.now();
         StringBuilder sb = new StringBuilder(120);
         try {
-            Strings.append2Digits(sb, now.getHour());
+            IntOutput.append2Digits(sb, now.getHour());
             sb.append(':');
-            Strings.append2Digits(sb, now.getMinute());
+            IntOutput.append2Digits(sb, now.getMinute());
             sb.append(':');
-            Strings.append2Digits(sb, now.getSecond());
+            IntOutput.append2Digits(sb, now.getSecond());
             sb.append('.');
-            Strings.append3Digits(sb, now.getNano() / 1_000_000);
+            IntOutput.append3Digits(sb, now.getNano() / 1_000_000);
         }
         catch (IOException ignore) {
             // can't happen - StringBuilder doesn't throw IOException

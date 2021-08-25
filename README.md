@@ -1,6 +1,6 @@
 # log-front
 
-[![Build Status](https://travis-ci.com/pwall567/log-front.svg?branch=main)](https://travis-ci.com/pwall567/log-front)
+[![Build Status](https://travis-ci.com/pwall567/log-front.svg?branch=main)](https://app.travis-ci.com/github/pwall567/log-front)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/net.pwall.log/log-front?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.pwall.log%22%20AND%20a:%22log-front%22)
 
@@ -159,25 +159,25 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
 
 ## Dependency Specification
 
-The latest version of the library is 2.2, and it may be obtained from the Maven Central repository.
+The latest version of the library is 2.3, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>2.2</version>
+      <version>2.3</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:2.2'
+    implementation 'net.pwall.log:log-front:2.3'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:2.2")
+    implementation("net.pwall.log:log-front:2.3")
 ```
 
 Peter Wall
 
-2021-08-10
+2021-08-26
