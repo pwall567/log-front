@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.4] - 2021-09-29
+### Changed
+- `DefaultLoggerFactory`, `Slf4JLogger`: reverted change to use `MethodHandle` (caused problems on Android)
+
 ## [2.3] - 2021-08-26
 ### Changed
 - `ConsoleLogger`: switch to IntOutput

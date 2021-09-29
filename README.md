@@ -12,17 +12,19 @@ This is an attempt to solve a long-standing problem in the creation of utility l
 - the library wishes to make use of logging
 - the library will be only a part of any project that makes use of it, and cannot dictate the form of logging used in
 the project as a whole
-- transitive dependencies are to be avoided if possible
+- the library should not bring in transitive dependencies that may not be used, and may conflict with other logging
+mechanisms
 
 This library provides a simple logging API that may be used by a library.
 The default behaviour is to use reflection to find the `slf4j` classes in the classpath - if they are found all logging
 calls will be redirected to them.
-The second choice is to use the Java logging framework if indicated by the presence of a system property or
+The second choice is to use the Java Logging framework if indicated by the presence of a system property or
 configuration associated with that framework;
 otherwise log messages will be output to a `PrintStream` (default `stdout`).
 
-If it is necessary to fit in with an existing logging framework other than `slf4j`, the API is designed to be simple to
-implement so that a thin interfacing layer can be created accepting this API and invoking the required mechanism.
+If it is necessary to fit in with an existing logging framework other than `slf4j` or Java Logging, the API is designed
+to be simple to implement so that a thin interfacing layer can be created, accepting this API and invoking the required
+mechanism.
 
 ## Quick Start
 
@@ -54,14 +56,15 @@ The API employs a `Level` enum, which corresponds with the logging level mechani
 
 The `Logger` provides logging functions for each of the logging levels, including versions that lazily create the
 message (so that the message formatting is performed only when necessary).
+(The function signature takes `Object`; the function will perform `toString()` on the value.)
 There are additional versions of the `error()` function taking a `Throwable`, as in other logging frameworks.
 
-- `trace(String message)`
-- `debug(String message)`
-- `info(String message)`
-- `warn(String message)`
-- `error(String message)`
-- `error(String message, Throwable t)`
+- `trace(Object message)`
+- `debug(Object message)`
+- `info(Object message)`
+- `warn(Object message)`
+- `error(Object message)`
+- `error(Object message, Throwable t)`
 - `trace(Supplier<Object> messageSupplier)`
 - `debug(Supplier<Object> messageSupplier)`
 - `info(Supplier<Object> messageSupplier)`
@@ -69,7 +72,12 @@ There are additional versions of the `error()` function taking a `Throwable`, as
 - `error(Supplier<Object> messageSupplier)`
 - `error(Supplier<Object> messageSupplier, Throwable t)`
 
-There are also static methods to get default a `Logger` for a specified name or class:
+To supply the level as a variable:
+
+- `log(Level level, Object message)`
+- `log(Level level, Supplier<Object> messageSupplier)`
+
+- There are also static methods to get default a `Logger` for a specified name or class:
 
 - `getDefault(String name)`
 - `getDefault(Class<?> javaClass)`
@@ -159,25 +167,25 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
 
 ## Dependency Specification
 
-The latest version of the library is 2.3, and it may be obtained from the Maven Central repository.
+The latest version of the library is 2.4, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>2.3</version>
+      <version>2.4</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:2.3'
+    implementation 'net.pwall.log:log-front:2.4'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:2.3")
+    implementation("net.pwall.log:log-front:2.4")
 ```
 
 Peter Wall
 
-2021-08-26
+2021-09-29

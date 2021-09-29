@@ -25,35 +25,30 @@
 
 package net.pwall.log;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * A {@link Logger} that outputs to {@code slf4j}.  To avoid a transitive dependency on that package, all references are
- * made by means of a {@link MethodHandle}.
+ * made by means of reflection.
  *
  * @author  Peter Wall
  */
 public class Slf4jLogger implements Logger {
 
-    private static final MethodType booleanMethodType = MethodType.methodType(boolean.class);
-    private static final MethodType outputMethodType = MethodType.methodType(void.class, String.class);
-    private static final MethodType outputThrowableMethodType =
-            MethodType.methodType(void.class, String.class, Throwable.class);
-
     private final String name;
-    private final MethodHandle isTraceEnabledMH;
-    private final MethodHandle isDebugEnabledMH;
-    private final MethodHandle isInfoEnabledMH;
-    private final MethodHandle isWarnEnabledMH;
-    private final MethodHandle isErrorEnabledMH;
-    private final MethodHandle traceMH;
-    private final MethodHandle debugMH;
-    private final MethodHandle infoMH;
-    private final MethodHandle warnMH;
-    private final MethodHandle errorMH;
-    private final MethodHandle errorThrowableMH;
+    private final Object slf4jLogger;
+    private final Method isTraceEnabledMethod;
+    private final Method isDebugEnabledMethod;
+    private final Method isInfoEnabledMethod;
+    private final Method isWarnEnabledMethod;
+    private final Method isErrorEnabledMethod;
+    private final Method traceMethod;
+    private final Method debugMethod;
+    private final Method infoMethod;
+    private final Method warnMethod;
+    private final Method errorMethod;
+    private final Method errorThrowableMethod;
 
     /**
      * Create an {@code Slf4jLogger} with the specified name and underlying {@code Logger} object.
@@ -61,22 +56,22 @@ public class Slf4jLogger implements Logger {
      * @param   name            the name
      * @param   slf4jLogger     the {@code Logger} object (must be of type compatible with {@code org.slf4j.Logger})
      * @throws  NoSuchMethodException   if the any of the required methods does not exist in the {@code Logger}
-     * @throws  IllegalAccessException  if there are errors accessing the {@code Logger}
      */
-    public Slf4jLogger(String name, Object slf4jLogger) throws NoSuchMethodException, IllegalAccessException {
+    public Slf4jLogger(String name, Object slf4jLogger) throws NoSuchMethodException {
         this.name = name;
-        MethodHandles.Lookup lookup = MethodHandles.publicLookup();
-        isTraceEnabledMH = lookup.bind(slf4jLogger, "isTraceEnabled", booleanMethodType);
-        isDebugEnabledMH = lookup.bind(slf4jLogger, "isDebugEnabled", booleanMethodType);
-        isInfoEnabledMH = lookup.bind(slf4jLogger, "isInfoEnabled", booleanMethodType);
-        isWarnEnabledMH = lookup.bind(slf4jLogger, "isWarnEnabled", booleanMethodType);
-        isErrorEnabledMH = lookup.bind(slf4jLogger, "isErrorEnabled", booleanMethodType);
-        traceMH = lookup.bind(slf4jLogger, "trace", outputMethodType);
-        debugMH = lookup.bind(slf4jLogger, "debug", outputMethodType);
-        infoMH = lookup.bind(slf4jLogger, "info", outputMethodType);
-        warnMH = lookup.bind(slf4jLogger, "warn", outputMethodType);
-        errorMH = lookup.bind(slf4jLogger, "error", outputMethodType);
-        errorThrowableMH = lookup.bind(slf4jLogger, "error", outputThrowableMethodType);
+        this.slf4jLogger = slf4jLogger;
+        Class<?> loggerClass = slf4jLogger.getClass();
+        isTraceEnabledMethod = loggerClass.getMethod("isTraceEnabled");
+        isDebugEnabledMethod = loggerClass.getMethod("isDebugEnabled");
+        isInfoEnabledMethod = loggerClass.getMethod("isInfoEnabled");
+        isWarnEnabledMethod = loggerClass.getMethod("isWarnEnabled");
+        isErrorEnabledMethod = loggerClass.getMethod("isErrorEnabled");
+        traceMethod = loggerClass.getMethod("trace", String.class);
+        debugMethod = loggerClass.getMethod("debug", String.class);
+        infoMethod = loggerClass.getMethod("info", String.class);
+        warnMethod = loggerClass.getMethod("warn", String.class);
+        errorMethod = loggerClass.getMethod("error", String.class);
+        errorThrowableMethod = loggerClass.getMethod("error", String.class, Throwable.class);
     }
 
     /**
@@ -97,10 +92,10 @@ public class Slf4jLogger implements Logger {
     @Override
     public boolean isTraceEnabled() {
         try {
-            return (Boolean)isTraceEnabledMH.invoke();
+            return (Boolean)isTraceEnabledMethod.invoke(slf4jLogger);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -112,10 +107,10 @@ public class Slf4jLogger implements Logger {
     @Override
     public boolean isDebugEnabled() {
         try {
-            return (Boolean)isDebugEnabledMH.invoke();
+            return (Boolean)isDebugEnabledMethod.invoke(slf4jLogger);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -127,10 +122,10 @@ public class Slf4jLogger implements Logger {
     @Override
     public boolean isInfoEnabled() {
         try {
-            return (Boolean)isInfoEnabledMH.invoke();
+            return (Boolean)isInfoEnabledMethod.invoke(slf4jLogger);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -142,10 +137,10 @@ public class Slf4jLogger implements Logger {
     @Override
     public boolean isWarnEnabled() {
         try {
-            return (Boolean)isWarnEnabledMH.invoke();
+            return (Boolean)isWarnEnabledMethod.invoke(slf4jLogger);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -157,10 +152,10 @@ public class Slf4jLogger implements Logger {
     @Override
     public boolean isErrorEnabled() {
         try {
-            return (Boolean)isErrorEnabledMH.invoke();
+            return (Boolean)isErrorEnabledMethod.invoke(slf4jLogger);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -175,10 +170,10 @@ public class Slf4jLogger implements Logger {
         if (LogListener.present())
             LogListener.invokeAll(this, Level.TRACE, text, null);
         try {
-            traceMH.invoke(text);
+            traceMethod.invoke(slf4jLogger, text);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -193,10 +188,10 @@ public class Slf4jLogger implements Logger {
         if (LogListener.present())
             LogListener.invokeAll(this, Level.DEBUG, text, null);
         try {
-            debugMH.invoke(text);
+            debugMethod.invoke(slf4jLogger, text);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -211,10 +206,10 @@ public class Slf4jLogger implements Logger {
         if (LogListener.present())
             LogListener.invokeAll(this, Level.INFO, text, null);
         try {
-            infoMH.invoke(text);
+            infoMethod.invoke(slf4jLogger, text);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -229,10 +224,10 @@ public class Slf4jLogger implements Logger {
         if (LogListener.present())
             LogListener.invokeAll(this, Level.WARN, text, null);
         try {
-            warnMH.invoke(text);
+            warnMethod.invoke(slf4jLogger, text);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -247,10 +242,10 @@ public class Slf4jLogger implements Logger {
         if (LogListener.present())
             LogListener.invokeAll(this, Level.ERROR, text, null);
         try {
-            errorMH.invoke(text);
+            errorMethod.invoke(slf4jLogger, text);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
@@ -266,10 +261,10 @@ public class Slf4jLogger implements Logger {
         if (LogListener.present())
             LogListener.invokeAll(this, Level.ERROR, text, throwable);
         try {
-            errorThrowableMH.invoke(text, throwable);
+            errorThrowableMethod.invoke(slf4jLogger, text, throwable);
         }
-        catch (Throwable t) {
-            throw new Slf4JLoggerException(t);
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4JLoggerException(e);
         }
     }
 
