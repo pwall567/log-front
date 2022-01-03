@@ -10,10 +10,13 @@ Classes to simplify integration with logging systems.
 
 This is an attempt to solve a long-standing problem in the creation of utility libraries:
 - the library wishes to make use of logging
+- the library wishes to have its own logging integrated with the logging output by the overall project
 - the library will be only a part of any project that makes use of it, and cannot dictate the form of logging used in
 the project as a whole
-- the library should not bring in transitive dependencies that may not be used, and may conflict with other logging
-mechanisms
+- the library must not bring in transitive dependencies that may cause conflicts, or that may cause conditional loading
+to make incorrect assumptions about the form of logging in use
+- the library must be simple to integrate, and must not require `<exclusions>` (Maven) or `exclude` (Gradle) to avoid
+incorrect dependency usage
 
 This library provides a simple logging API that may be used by a library.
 The default behaviour is to use reflection to find the `slf4j` classes in the classpath &ndash; if they are found all
@@ -26,11 +29,14 @@ If it is necessary to fit in with an existing logging framework other than `slf4
 to be simple to implement so that a thin interfacing layer can be created, accepting this API and invoking the required
 target logging mechanism.
 
+(The name `log-front` is a play on the name of the popular [Logback](https://logback.qos.ch/) project;
+also on the fact that it is a front-end &ndash; a fa&ccedil;ade &ndash; to an underlying logging system.)
+
 ## Quick Start
 
 To get an instance of `Logger`:
 ```java
-    Logger logger = LoggerFactory.getDefaultLogger("name");
+    Logger log = Logger.getDefault("name");
 ```
 
 This will return one of the following:
@@ -41,7 +47,7 @@ This will return one of the following:
 
 Then, to use the `Logger`:
 ```java
-    logger.info("Message"); // etc.
+    log.info("Message"); // etc.
 ```
 
 Your IDE will show the functions available on the `Logger` object.
@@ -49,7 +55,7 @@ Your IDE will show the functions available on the `Logger` object.
 ## Reference
 
 Logging requests are made via the `Logger` interface, and instances of classes implementing this interface are obtained
-from a `LoggerFactory`.
+from a `LoggerFactory` (or from the static method `Logger.getDefault()`).
 The API employs a `Level` enum, which corresponds with the logging level mechanism used in other libraries.
 
 ### `Logger`
@@ -79,8 +85,8 @@ To supply the level as a variable:
 
 - There are also static methods to get a default `Logger` for a specified name or class:
 
-- `getDefault(String name)`
-- `getDefault(Class<?> javaClass)`
+- `Logger.getDefault(String name)`
+- `Logger.getDefault(Class<?> javaClass)`
 
 ### `LoggerFactory`
 
@@ -95,8 +101,14 @@ A `LoggerFactory` may be obtained by the static method `getDefault()`; alternati
 
 There are also static functions to get loggers using the default `LoggerFactory`:
 
-- `getDefaultLogger(String name)`
-- `getDefaultLogger(Class<?> javaClass)`
+- `LoggerFactory.getDefaultLogger(String name)`
+- `LoggerFactory.getDefaultLogger(Class<?> javaClass)`
+
+It is also possible to set the default `LoggerFactory`.
+For example, the following will cause `log-front` to use Java Logging as the default:
+```java
+    LoggerFactory.setDefault(JavaLoggerFactory.getInstance());
+```
 
 ### `Level`
 
@@ -190,4 +202,4 @@ The latest version of the library is 2.4, and it may be obtained from the Maven 
 
 Peter Wall
 
-2021-12-22
+2022-01-03
