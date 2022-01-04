@@ -1,8 +1,8 @@
 /*
- * @(#) Slf4JLoggerException.java
+ * @(#) LoggerException.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,19 +26,18 @@
 package net.pwall.log;
 
 /**
- * An exception class to handle errors in accessing {@code slf4j}.
+ * Parent class for exceptions thrown by library.
  *
  * @author  Peter Wall
  */
-public class Slf4JLoggerException extends RuntimeException {
+public class LoggerException extends RuntimeException {
 
-    /**
-     * Create an {@code Slf4JLoggerException} with the supplied nested {@link Throwable}.
-     *
-     * @param t     the {@link Throwable}
-     */
-    public Slf4JLoggerException(Throwable t) {
-        super("Error accessing slf4j Logger", t);
+    public LoggerException(String message) {
+        super(message);
+    }
+
+    public LoggerException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

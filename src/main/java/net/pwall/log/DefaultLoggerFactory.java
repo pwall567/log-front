@@ -2,7 +2,7 @@
  * @(#) DefaultLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@
 package net.pwall.log;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 /**
@@ -45,14 +44,13 @@ public class DefaultLoggerFactory extends LoggerFactory {
 
     private static final DefaultLoggerFactory instance = new DefaultLoggerFactory();
 
-    private static Method slf4jMethod = null;
+    private static Slf4jProxy slf4jProxy = null;
     private static boolean javaLogging = false;
 
     static {
         try {
             // first, check whether slf4j is present on the classpath
-            Class<?> slf4jClass = Class.forName("org.slf4j.LoggerFactory");
-            slf4jMethod = slf4jClass.getMethod("getLogger", String.class);
+            slf4jProxy = new Slf4jProxy();
         }
         catch (ClassNotFoundException | NoSuchMethodException ignore) {
             // slf4j not found; are we using java.util.logging?
@@ -86,9 +84,9 @@ public class DefaultLoggerFactory extends LoggerFactory {
     @Override
     public Logger getLogger(String name, Level level) {
         Objects.requireNonNull(name);
-        if (slf4jMethod != null) {
+        if (slf4jProxy != null) {
             try {
-                return new Slf4jLogger(name, slf4jMethod.invoke(null, name));
+                return new Slf4jLogger(name, slf4jProxy);
             }
             catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignore) {
             }

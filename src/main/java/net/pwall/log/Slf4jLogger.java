@@ -2,7 +2,7 @@
  * @(#) Slf4jLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@
 package net.pwall.log;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * A {@link Logger} that outputs to {@code slf4j}.  To avoid a transitive dependency on that package, all references are
@@ -37,41 +36,23 @@ import java.lang.reflect.Method;
 public class Slf4jLogger implements Logger {
 
     private final String name;
+    private final Slf4jProxy slf4jProxy;
     private final Object slf4jLogger;
-    private final Method isTraceEnabledMethod;
-    private final Method isDebugEnabledMethod;
-    private final Method isInfoEnabledMethod;
-    private final Method isWarnEnabledMethod;
-    private final Method isErrorEnabledMethod;
-    private final Method traceMethod;
-    private final Method debugMethod;
-    private final Method infoMethod;
-    private final Method warnMethod;
-    private final Method errorMethod;
-    private final Method errorThrowableMethod;
 
     /**
      * Create an {@code Slf4jLogger} with the specified name and underlying {@code Logger} object.
      *
      * @param   name            the name
-     * @param   slf4jLogger     the {@code Logger} object (must be of type compatible with {@code org.slf4j.Logger})
-     * @throws  NoSuchMethodException   if the any of the required methods does not exist in the {@code Logger}
+     * @param   slf4jProxy      the {@link Slf4jProxy}
+     * @throws  NoSuchMethodException       if the any of the required methods does not exist in the {@code Logger}
+     * @throws  InvocationTargetException   if thrown by the underlying system
+     * @throws  IllegalAccessException      if thrown by the underlying system
      */
-    public Slf4jLogger(String name, Object slf4jLogger) throws NoSuchMethodException {
+    public Slf4jLogger(String name, Slf4jProxy slf4jProxy)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         this.name = name;
-        this.slf4jLogger = slf4jLogger;
-        Class<?> loggerClass = slf4jLogger.getClass();
-        isTraceEnabledMethod = loggerClass.getMethod("isTraceEnabled");
-        isDebugEnabledMethod = loggerClass.getMethod("isDebugEnabled");
-        isInfoEnabledMethod = loggerClass.getMethod("isInfoEnabled");
-        isWarnEnabledMethod = loggerClass.getMethod("isWarnEnabled");
-        isErrorEnabledMethod = loggerClass.getMethod("isErrorEnabled");
-        traceMethod = loggerClass.getMethod("trace", String.class);
-        debugMethod = loggerClass.getMethod("debug", String.class);
-        infoMethod = loggerClass.getMethod("info", String.class);
-        warnMethod = loggerClass.getMethod("warn", String.class);
-        errorMethod = loggerClass.getMethod("error", String.class);
-        errorThrowableMethod = loggerClass.getMethod("error", String.class, Throwable.class);
+        this.slf4jProxy = slf4jProxy;
+        slf4jLogger = slf4jProxy.getLogger(name);
     }
 
     /**
@@ -91,12 +72,7 @@ public class Slf4jLogger implements Logger {
      */
     @Override
     public boolean isTraceEnabled() {
-        try {
-            return (Boolean)isTraceEnabledMethod.invoke(slf4jLogger);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        return slf4jProxy.isTraceEnabled(slf4jLogger);
     }
 
     /**
@@ -106,12 +82,7 @@ public class Slf4jLogger implements Logger {
      */
     @Override
     public boolean isDebugEnabled() {
-        try {
-            return (Boolean)isDebugEnabledMethod.invoke(slf4jLogger);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        return slf4jProxy.isDebugEnabled(slf4jLogger);
     }
 
     /**
@@ -121,12 +92,7 @@ public class Slf4jLogger implements Logger {
      */
     @Override
     public boolean isInfoEnabled() {
-        try {
-            return (Boolean)isInfoEnabledMethod.invoke(slf4jLogger);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        return slf4jProxy.isInfoEnabled(slf4jLogger);
     }
 
     /**
@@ -136,12 +102,7 @@ public class Slf4jLogger implements Logger {
      */
     @Override
     public boolean isWarnEnabled() {
-        try {
-            return (Boolean)isWarnEnabledMethod.invoke(slf4jLogger);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        return slf4jProxy.isWarnEnabled(slf4jLogger);
     }
 
     /**
@@ -151,12 +112,7 @@ public class Slf4jLogger implements Logger {
      */
     @Override
     public boolean isErrorEnabled() {
-        try {
-            return (Boolean)isErrorEnabledMethod.invoke(slf4jLogger);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        return slf4jProxy.isErrorEnabled(slf4jLogger);
     }
 
     /**
@@ -169,12 +125,7 @@ public class Slf4jLogger implements Logger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(this, Level.TRACE, text, null);
-        try {
-            traceMethod.invoke(slf4jLogger, text);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        slf4jProxy.trace(slf4jLogger, text);
     }
 
     /**
@@ -187,12 +138,7 @@ public class Slf4jLogger implements Logger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(this, Level.DEBUG, text, null);
-        try {
-            debugMethod.invoke(slf4jLogger, text);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        slf4jProxy.debug(slf4jLogger, text);
     }
 
     /**
@@ -205,12 +151,7 @@ public class Slf4jLogger implements Logger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(this, Level.INFO, text, null);
-        try {
-            infoMethod.invoke(slf4jLogger, text);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        slf4jProxy.info(slf4jLogger, text);
     }
 
     /**
@@ -223,12 +164,7 @@ public class Slf4jLogger implements Logger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(this, Level.WARN, text, null);
-        try {
-            warnMethod.invoke(slf4jLogger, text);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        slf4jProxy.warn(slf4jLogger, text);
     }
 
     /**
@@ -241,12 +177,7 @@ public class Slf4jLogger implements Logger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(this, Level.ERROR, text, null);
-        try {
-            errorMethod.invoke(slf4jLogger, text);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        slf4jProxy.error(slf4jLogger, text);
     }
 
     /**
@@ -260,12 +191,7 @@ public class Slf4jLogger implements Logger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(this, Level.ERROR, text, throwable);
-        try {
-            errorThrowableMethod.invoke(slf4jLogger, text, throwable);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4JLoggerException(e);
-        }
+        slf4jProxy.error(slf4jLogger, text, throwable);
     }
 
 }

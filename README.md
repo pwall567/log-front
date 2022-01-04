@@ -181,25 +181,25 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
 
 ## Dependency Specification
 
-The latest version of the library is 2.4, and it may be obtained from the Maven Central repository.
+The latest version of the library is 2.5, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>2.4</version>
+      <version>2.5</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:2.4'
+    implementation 'net.pwall.log:log-front:2.5'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:2.4")
+    implementation("net.pwall.log:log-front:2.5")
 ```
 
 Peter Wall
 
-2022-01-03
+2022-01-04

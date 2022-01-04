@@ -2,6 +2,12 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [Unreleased]
+### Added
+- `Slf4jProxy`, `LoggerException`
+### Changed
+- `Slf4JLogger`, `Slf4JLoggerException`, `DefaultLoggerFactory`: improved reflection handling
+
 ## [2.4] - 2021-09-29
 ### Changed
 - `DefaultLoggerFactory`, `Slf4JLogger`: reverted change to use `MethodHandle` (caused problems on Android)
