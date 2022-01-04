@@ -2,7 +2,7 @@
  * @(#) ConsoleLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -208,7 +208,7 @@ public class ConsoleLogger implements Logger {
             String text = message.toString();
             if (LogListener.present())
                 LogListener.invokeAll(this, Level.TRACE, text, null);
-            output.println(createMessage(Level.TRACE, text));
+            writeOutput(createMessage(Level.TRACE, text));
         }
     }
 
@@ -223,7 +223,7 @@ public class ConsoleLogger implements Logger {
             String text = message.toString();
             if (LogListener.present())
                 LogListener.invokeAll(this, Level.DEBUG, text, null);
-            output.println(createMessage(Level.DEBUG, text));
+            writeOutput(createMessage(Level.DEBUG, text));
         }
     }
 
@@ -238,7 +238,7 @@ public class ConsoleLogger implements Logger {
             String text = message.toString();
             if (LogListener.present())
                 LogListener.invokeAll(this, Level.INFO, text, null);
-            output.println(createMessage(Level.INFO, text));
+            writeOutput(createMessage(Level.INFO, text));
         }
     }
 
@@ -253,7 +253,7 @@ public class ConsoleLogger implements Logger {
             String text = message.toString();
             if (LogListener.present())
                 LogListener.invokeAll(this, Level.WARN, text, null);
-            output.println(createMessage(Level.WARN, text));
+            writeOutput(createMessage(Level.WARN, text));
         }
     }
 
@@ -268,7 +268,7 @@ public class ConsoleLogger implements Logger {
             String text = message.toString();
             if (LogListener.present())
                 LogListener.invokeAll(this, Level.ERROR, text, null);
-            output.println(createMessage(Level.ERROR, text));
+            writeOutput(createMessage(Level.ERROR, text));
         }
     }
 
@@ -284,8 +284,10 @@ public class ConsoleLogger implements Logger {
             String text = message.toString();
             if (LogListener.present())
                 LogListener.invokeAll(this, Level.ERROR, text, throwable);
-            output.println(createMessage(Level.ERROR, text));
+            writeOutput(createMessage(Level.ERROR, text));
             throwable.printStackTrace(output);
+            if (output.checkError())
+                throw new RuntimeException("Error writing ConsoleLogger");
         }
     }
 
@@ -306,6 +308,12 @@ public class ConsoleLogger implements Logger {
         }
         return sb.append(separator).append(name).append(separator).append(level).append(separator).append(' ').
                 append(text).toString();
+    }
+
+    private void writeOutput(String text) {
+        output.println(text);
+        if (output.checkError())
+            throw new LoggerException("Error writing ConsoleLogger");
     }
 
 }

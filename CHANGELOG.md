@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - `Slf4jProxy`, `LoggerException`
 ### Changed
 - `Slf4JLogger`, `Slf4JLoggerException`, `DefaultLoggerFactory`: improved reflection handling
+- `ConsoleLogger`: Added error handling
 
 ## [2.4] - 2021-09-29
 ### Changed
