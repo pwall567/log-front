@@ -2,7 +2,7 @@
  * @(#) JavaLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021 Peter Wall
+ * Copyright (c) 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -129,7 +129,10 @@ public class JavaLogger implements Logger {
      */
     @Override
     public void trace(Object message) {
-        javaLogger.log(createLogRecord(java.util.logging.Level.FINER, message.toString()));
+        String text = message.toString();
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.TRACE, text, null);
+        javaLogger.log(createLogRecord(java.util.logging.Level.FINER, text));
     }
 
     /**
@@ -139,7 +142,10 @@ public class JavaLogger implements Logger {
      */
     @Override
     public void debug(Object message) {
-        javaLogger.log(createLogRecord(java.util.logging.Level.FINE, message.toString()));
+        String text = message.toString();
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.DEBUG, text, null);
+        javaLogger.log(createLogRecord(java.util.logging.Level.FINE, text));
     }
 
     /**
@@ -149,7 +155,10 @@ public class JavaLogger implements Logger {
      */
     @Override
     public void info(Object message) {
-        javaLogger.log(createLogRecord(java.util.logging.Level.INFO, message.toString()));
+        String text = message.toString();
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.INFO, text, null);
+        javaLogger.log(createLogRecord(java.util.logging.Level.INFO, text));
     }
 
     /**
@@ -159,7 +168,10 @@ public class JavaLogger implements Logger {
      */
     @Override
     public void warn(Object message) {
-        javaLogger.log(createLogRecord(java.util.logging.Level.WARNING, message.toString()));
+        String text = message.toString();
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.WARN, text, null);
+        javaLogger.log(createLogRecord(java.util.logging.Level.WARNING, text));
     }
 
     /**
@@ -169,7 +181,10 @@ public class JavaLogger implements Logger {
      */
     @Override
     public void error(Object message) {
-        javaLogger.log(createLogRecord(java.util.logging.Level.SEVERE, message.toString()));
+        String text = message.toString();
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.ERROR, text, null);
+        javaLogger.log(createLogRecord(java.util.logging.Level.SEVERE, text));
     }
 
     /**
@@ -180,7 +195,10 @@ public class JavaLogger implements Logger {
      */
     @Override
     public void error(Object message, Throwable throwable) {
-        LogRecord logRecord = createLogRecord(java.util.logging.Level.SEVERE, message.toString());
+        String text = message.toString();
+        if (LogListener.present())
+            LogListener.invokeAll(this, Level.ERROR, text, throwable);
+        LogRecord logRecord = createLogRecord(java.util.logging.Level.SEVERE, text);
         logRecord.setThrown(throwable);
         javaLogger.log(logRecord);
     }
