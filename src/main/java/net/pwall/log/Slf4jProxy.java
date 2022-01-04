@@ -77,6 +77,8 @@ public class Slf4jProxy {
      *
      * @param   name        the name
      * @return              a {@code Logger}
+     * @throws  InvocationTargetException   if thrown by underlying system
+     * @throws  IllegalAccessException      if thrown by underlying system
      */
     public Object getLogger(String name) throws InvocationTargetException, IllegalAccessException {
         return getLoggerMethod.invoke(null, name);
