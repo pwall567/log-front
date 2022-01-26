@@ -166,40 +166,40 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.9</version>
+      <version>1.2.10</version>
       <scope>runtime</scope>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    runtimeOnly 'ch.qos.logback:logback-classic:1.2.9'
+    runtimeOnly 'ch.qos.logback:logback-classic:1.2.10'
 ```
 ### Gradle (kts)
 ```kotlin
-    runtimeOnly("ch.qos.logback:logback-classic:1.2.9")
+    runtimeOnly("ch.qos.logback:logback-classic:1.2.10")
 ```
 
 ## Dependency Specification
 
-The latest version of the library is 2.5, and it may be obtained from the Maven Central repository.
+The latest version of the library is 2.6, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>2.5</version>
+      <version>2.6</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:2.5'
+    implementation 'net.pwall.log:log-front:2.6'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:2.5")
+    implementation("net.pwall.log:log-front:2.6")
 ```
 
 Peter Wall
 
-2022-01-04
+2022-01-26

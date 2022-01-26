@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.6] - 2022-01-26
+### Changed
+- `pom.xml`: bumped dependency versions
+
 ## [2.5] - 2022-01-04
 ### Added
 - `Slf4jProxy`, `LoggerException`
