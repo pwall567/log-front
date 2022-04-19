@@ -286,6 +286,7 @@ public interface Logger {
      * Get a default {@code Logger} for the supplied Java {@link Class}.
      *
      * @param   javaClass   the Java {@link Class}
+     * @param   clock       the {@link Clock}
      * @return              the {@code Logger}
      */
     static Logger getDefault(Class<?> javaClass, Clock clock) {
