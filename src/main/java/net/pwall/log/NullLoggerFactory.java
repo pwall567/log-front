@@ -2,7 +2,7 @@
  * @(#) NullLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,25 +25,22 @@
 
 package net.pwall.log;
 
+import java.time.Clock;
+
 /**
  * A {@link LoggerFactory} that returns only a {@link NullLogger}.
  *
  * @author  Peter Wall
  */
-public class NullLoggerFactory extends LoggerFactory {
+public class NullLoggerFactory extends LoggerFactory<NullLogger> {
 
     private static final NullLoggerFactory instance = new NullLoggerFactory();
 
     /**
-     * Get a {@link NullLogger} with the supplied name, using the default {@link Level}.
-     *
-     * @param   name    the name
-     * @return          the {@link NullLogger}
-     * @throws  NullPointerException    if the name is null
+     * Construct a {@code NullLoggerFactory}.
      */
-    @Override
-    public NullLogger getLogger(String name) {
-        return new NullLogger(name);
+    public NullLoggerFactory() {
+        super(Level.INFO, systemClock);
     }
 
     /**
@@ -51,11 +48,12 @@ public class NullLoggerFactory extends LoggerFactory {
      *
      * @param   name    the name
      * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
      * @return          the {@link NullLogger}
      * @throws  NullPointerException    if the name is null
      */
     @Override
-    public NullLogger getLogger(String name, Level level) {
+    public NullLogger getLogger(String name, Level level, Clock clock) {
         return new NullLogger(name);
     }
 

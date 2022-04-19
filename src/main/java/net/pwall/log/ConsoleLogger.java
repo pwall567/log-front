@@ -25,28 +25,26 @@
 
 package net.pwall.log;
 
-import java.io.IOException;
 import java.io.PrintStream;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
-
-import net.pwall.util.IntOutput;
 
 /**
  * A {@link Logger} that outputs to a {@link PrintStream}, usually {@code stdout} or {@code stderr}.
  *
  * @author  Peter Wall
  */
-public class ConsoleLogger implements Logger {
+public class ConsoleLogger extends AbstractLogger {
 
     /** Default logging level for {@code ConsoleLogger} */
     public static final Level defaultLevel = Level.INFO;
     /** Default output stream for {@code ConsoleLogger} */
     public static final PrintStream defaultOutput = System.out;
 
-    private final String name;
     private final PrintStream output;
-    private Level level;
     private char separator;
 
     /**
@@ -54,10 +52,11 @@ public class ConsoleLogger implements Logger {
      *
      * @param   name    the name to be associated with logging messages
      * @param   level   the minimum level to be output
+     * @param   clock   the {@link Clock}
      * @param   output  the output stream
      */
-    public ConsoleLogger(String name, Level level, PrintStream output) {
-        this.name = Objects.requireNonNull(name);
+    public ConsoleLogger(String name, Level level, Clock clock, PrintStream output) {
+        super(name, level, clock);
         this.output = Objects.requireNonNull(output);
         setLevel(level);
         separator = '|';
@@ -70,7 +69,7 @@ public class ConsoleLogger implements Logger {
      * @param   level   the minimum level to be output
      */
     public ConsoleLogger(String name, Level level) {
-        this(name, level, defaultOutput);
+        this(name, level, LoggerFactory.systemClock, defaultOutput);
     }
 
     /**
@@ -80,7 +79,7 @@ public class ConsoleLogger implements Logger {
      * @param   output  the output stream
      */
     public ConsoleLogger(String name, PrintStream output) {
-        this(name, defaultLevel, output);
+        this(name, defaultLevel, LoggerFactory.systemClock, output);
     }
 
     /**
@@ -89,35 +88,7 @@ public class ConsoleLogger implements Logger {
      * @param   name    the name to be associated with logging messages
      */
     public ConsoleLogger(String name) {
-        this(name, defaultLevel, defaultOutput);
-    }
-
-    /**
-     * Get the name associated with this {@code ConsoleLogger}.
-     *
-     * @return      the name
-     */
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Get the minimum level to be output by this {@code ConsoleLogger}.
-     *
-     * @return      the level
-     */
-    public Level getLevel() {
-        return level;
-    }
-
-    /**
-     * Set the minimum level to be output by this {@code ConsoleLogger}.
-     *
-     * @param   level   the new level
-     */
-    public void setLevel(Level level) {
-        this.level = Objects.requireNonNull(level);
+        this(name, defaultLevel, LoggerFactory.systemClock, defaultOutput);
     }
 
     /**
@@ -154,7 +125,7 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public boolean isTraceEnabled() {
-        return level.getValue() <= Level.TRACE.getValue();
+        return getLevel().getValue() <= Level.TRACE.getValue();
     }
 
     /**
@@ -164,7 +135,7 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public boolean isDebugEnabled() {
-        return level.getValue() <= Level.DEBUG.getValue();
+        return getLevel().getValue() <= Level.DEBUG.getValue();
     }
 
     /**
@@ -174,7 +145,7 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public boolean isInfoEnabled() {
-        return level.getValue() <= Level.INFO.getValue();
+        return getLevel().getValue() <= Level.INFO.getValue();
     }
 
     /**
@@ -184,7 +155,7 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public boolean isWarnEnabled() {
-        return level.getValue() <= Level.WARN.getValue();
+        return getLevel().getValue() <= Level.WARN.getValue();
     }
 
     /**
@@ -194,7 +165,7 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public boolean isErrorEnabled() {
-        return level.getValue() <= Level.ERROR.getValue();
+        return getLevel().getValue() <= Level.ERROR.getValue();
     }
 
     /**
@@ -204,12 +175,8 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public void trace(Object message) {
-        if (isTraceEnabled()) {
-            String text = message.toString();
-            if (LogListener.present())
-                LogListener.invokeAll(this, Level.TRACE, text, null);
-            writeOutput(createMessage(Level.TRACE, text));
-        }
+        if (isTraceEnabled())
+            outputLog(Level.TRACE, message, null);
     }
 
     /**
@@ -219,12 +186,8 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public void debug(Object message) {
-        if (isDebugEnabled()) {
-            String text = message.toString();
-            if (LogListener.present())
-                LogListener.invokeAll(this, Level.DEBUG, text, null);
-            writeOutput(createMessage(Level.DEBUG, text));
-        }
+        if (isDebugEnabled())
+            outputLog(Level.DEBUG, message, null);
     }
 
     /**
@@ -234,12 +197,8 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public void info(Object message) {
-        if (isInfoEnabled()) {
-            String text = message.toString();
-            if (LogListener.present())
-                LogListener.invokeAll(this, Level.INFO, text, null);
-            writeOutput(createMessage(Level.INFO, text));
-        }
+        if (isInfoEnabled())
+            outputLog(Level.INFO, message, null);
     }
 
     /**
@@ -249,12 +208,8 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public void warn(Object message) {
-        if (isWarnEnabled()) {
-            String text = message.toString();
-            if (LogListener.present())
-                LogListener.invokeAll(this, Level.WARN, text, null);
-            writeOutput(createMessage(Level.WARN, text));
-        }
+        if (isWarnEnabled())
+            outputLog(Level.WARN, message, null);
     }
 
     /**
@@ -264,12 +219,8 @@ public class ConsoleLogger implements Logger {
      */
     @Override
     public void error(Object message) {
-        if (isErrorEnabled()) {
-            String text = message.toString();
-            if (LogListener.present())
-                LogListener.invokeAll(this, Level.ERROR, text, null);
-            writeOutput(createMessage(Level.ERROR, text));
-        }
+        if (isErrorEnabled())
+            outputLog(Level.ERROR, message, null);
     }
 
     /**
@@ -281,37 +232,25 @@ public class ConsoleLogger implements Logger {
     @Override
     public void error(Object message, Throwable throwable) {
         if (isErrorEnabled()) {
-            String text = message.toString();
-            if (LogListener.present())
-                LogListener.invokeAll(this, Level.ERROR, text, throwable);
-            writeOutput(createMessage(Level.ERROR, text));
+            outputLog(Level.ERROR, message, throwable);
             throwable.printStackTrace(output);
             if (output.checkError())
                 throw new RuntimeException("Error writing ConsoleLogger");
         }
     }
 
-    private String createMessage(Level level, String text) {
-        LocalTime now = LocalTime.now();
+    private void outputLog(Level level, Object message, Throwable throwable) {
+        long time = getClock().millis();
+        String text = message.toString();
+        if (LogListener.present())
+            LogListener.invokeAll(time, this, level, text, throwable);
+        LocalTime localTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), getClock().getZone()).toLocalTime();
         StringBuilder sb = new StringBuilder(120);
-        try {
-            IntOutput.append2Digits(sb, now.getHour());
-            sb.append(':');
-            IntOutput.append2Digits(sb, now.getMinute());
-            sb.append(':');
-            IntOutput.append2Digits(sb, now.getSecond());
-            sb.append('.');
-            IntOutput.append3Digits(sb, now.getNano() / 1_000_000);
-        }
-        catch (IOException ignore) {
-            // can't happen - StringBuilder doesn't throw IOException
-        }
-        return sb.append(separator).append(name).append(separator).append(level).append(separator).append(' ').
-                append(text).toString();
-    }
-
-    private void writeOutput(String text) {
-        output.println(text);
+        LogItem.appendTime(sb, localTime);
+        sb.append(separator).append(getName());
+        sb.append(separator).append(level);
+        sb.append(separator).append(' ').append(text);
+        output.println(sb);
         if (output.checkError())
             throw new LoggerException("Error writing ConsoleLogger");
     }

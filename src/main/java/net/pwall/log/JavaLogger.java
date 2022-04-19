@@ -25,7 +25,7 @@
 
 package net.pwall.log;
 
-import java.util.Objects;
+import java.time.Clock;
 import java.util.logging.LogRecord;
 
 /**
@@ -33,11 +33,25 @@ import java.util.logging.LogRecord;
  *
  * @author  Peter Wall
  */
-public class JavaLogger implements Logger {
+public class JavaLogger extends AbstractLogger {
 
     private static final String logPackageName = "net.pwall.log";
 
     private final java.util.logging.Logger javaLogger;
+
+    /**
+     * Create a {@code JavaLogger} with the supplied name, {@link Level} and {@link Clock}.
+     *
+     * @param   name    the name
+     * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
+     * @throws  NullPointerException    if any of the parameters is null
+     */
+    public JavaLogger(String name, Level level, Clock clock) {
+        super(name, level, clock);
+        javaLogger = java.util.logging.Logger.getLogger(name);
+        javaLogger.setLevel(convertLevel(level));
+    }
 
     /**
      * Create a {@code JavaLogger} with the supplied name and {@link Level}.
@@ -47,9 +61,7 @@ public class JavaLogger implements Logger {
      * @throws  NullPointerException    if the name is null
      */
     public JavaLogger(String name, Level level) {
-        Objects.requireNonNull(level);
-        javaLogger = java.util.logging.Logger.getLogger(name);
-        javaLogger.setLevel(convertLevel(level));
+        this(name, level, LoggerFactory.systemClock);
     }
 
     /**
@@ -59,17 +71,18 @@ public class JavaLogger implements Logger {
      * @throws  NullPointerException    if the name is null
      */
     public JavaLogger(String name) {
-        javaLogger = java.util.logging.Logger.getLogger(name);
+        this(name, Level.INFO, LoggerFactory.systemClock);
     }
 
     /**
-     * Get the name associated with this {@code JavaLogger}.
+     * Set the minimum level to be output by this {@code JavaLogger}.
      *
-     * @return      the name
+     * @param   level   the new level
      */
     @Override
-    public String getName() {
-        return javaLogger.getName();
+    public void setLevel(Level level) {
+        super.setLevel(level);
+        javaLogger.setLevel(convertLevel(level));
     }
 
     /**
@@ -131,7 +144,7 @@ public class JavaLogger implements Logger {
     public void trace(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.TRACE, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.TRACE, text, null);
         javaLogger.log(createLogRecord(java.util.logging.Level.FINER, text));
     }
 
@@ -144,7 +157,7 @@ public class JavaLogger implements Logger {
     public void debug(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.DEBUG, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.DEBUG, text, null);
         javaLogger.log(createLogRecord(java.util.logging.Level.FINE, text));
     }
 
@@ -157,7 +170,7 @@ public class JavaLogger implements Logger {
     public void info(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.INFO, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.INFO, text, null);
         javaLogger.log(createLogRecord(java.util.logging.Level.INFO, text));
     }
 
@@ -170,7 +183,7 @@ public class JavaLogger implements Logger {
     public void warn(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.WARN, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.WARN, text, null);
         javaLogger.log(createLogRecord(java.util.logging.Level.WARNING, text));
     }
 
@@ -183,7 +196,7 @@ public class JavaLogger implements Logger {
     public void error(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.ERROR, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
         javaLogger.log(createLogRecord(java.util.logging.Level.SEVERE, text));
     }
 
@@ -197,7 +210,7 @@ public class JavaLogger implements Logger {
     public void error(Object message, Throwable throwable) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.ERROR, text, throwable);
+            LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, throwable);
         LogRecord logRecord = createLogRecord(java.util.logging.Level.SEVERE, text);
         logRecord.setThrown(throwable);
         javaLogger.log(logRecord);

@@ -2,7 +2,7 @@
  * @(#) LogListener.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021 Peter Wall
+ * Copyright (c) 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@
 
 package net.pwall.log;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,13 +62,13 @@ public abstract class LogListener implements AutoCloseable {
     /**
      * Receive a log event.
      *
-     * @param   time        the time of the event
+     * @param   time        the time of the event in milliseconds
      * @param   logger      the logger object
      * @param   level       the logging level
      * @param   text        the text of the message
      * @param   throwable   a {@link Throwable}, if provided
      */
-    public abstract void receive(Instant time, Logger logger, Level level, String text, Throwable throwable);
+    public abstract void receive(long time, Logger logger, Level level, String text, Throwable throwable);
 
     /**
      * Add a listener to the list.
@@ -106,12 +105,13 @@ public abstract class LogListener implements AutoCloseable {
      * Invoke all listeners.  For reasons of efficiency, this should be called only after {@link #present()} has
      * returned {@code true}.
      *
+     * @param   time        the time of the log in milliseconds
      * @param   logger      the originating {@link Logger}
      * @param   level       the level
      * @param   text        the text of the log message
      * @param   throwable   the {@link Throwable}, if present
      */
-    public static void invokeAll(Logger logger, Level level, String text, Throwable throwable) {
+    public static void invokeAll(long time, Logger logger, Level level, String text, Throwable throwable) {
         // this is optimised for the most common case of a single listener
         LogListener single = null;
         LogListener[] array = emptyArray;
@@ -125,7 +125,6 @@ public abstract class LogListener implements AutoCloseable {
                 array = listeners.toArray(array);
             }
         }
-        Instant time = Instant.now();
         if (single != null)
             single.receive(time, logger, level, text, throwable);
         else

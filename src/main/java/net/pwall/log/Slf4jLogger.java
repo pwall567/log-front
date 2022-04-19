@@ -26,6 +26,7 @@
 package net.pwall.log;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.Clock;
 
 /**
  * A {@link Logger} that outputs to {@code slf4j}.  To avoid a transitive dependency on that package, all references are
@@ -33,36 +34,27 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author  Peter Wall
  */
-public class Slf4jLogger implements Logger {
+public class Slf4jLogger extends AbstractLogger {
 
-    private final String name;
     private final Slf4jProxy slf4jProxy;
     private final Object slf4jLogger;
 
     /**
-     * Create an {@code Slf4jLogger} with the specified name and underlying {@code Logger} object.
+     * Create an {@code Slf4jLogger} with the specified name, {@link Level}, {@link Clock} and underlying {@code Logger}
+     * object.
      *
      * @param   name            the name
+     * @param   level           the {@link Level}
+     * @param   clock           the {@link Clock}
      * @param   slf4jProxy      the {@link Slf4jProxy}
-     * @throws  NoSuchMethodException       if the any of the required methods does not exist in the {@code Logger}
      * @throws  InvocationTargetException   if thrown by the underlying system
      * @throws  IllegalAccessException      if thrown by the underlying system
      */
-    public Slf4jLogger(String name, Slf4jProxy slf4jProxy)
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        this.name = name;
+    public Slf4jLogger(String name, Level level, Clock clock, Slf4jProxy slf4jProxy)
+            throws InvocationTargetException, IllegalAccessException {
+        super(name, level, clock);
         this.slf4jProxy = slf4jProxy;
         slf4jLogger = slf4jProxy.getLogger(name);
-    }
-
-    /**
-     * Get the name associated with this {@code Logger}.
-     *
-     * @return      the name
-     */
-    @Override
-    public String getName() {
-        return name;
     }
 
     /**
@@ -124,7 +116,7 @@ public class Slf4jLogger implements Logger {
     public void trace(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.TRACE, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.TRACE, text, null);
         slf4jProxy.trace(slf4jLogger, text);
     }
 
@@ -137,7 +129,7 @@ public class Slf4jLogger implements Logger {
     public void debug(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.DEBUG, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.DEBUG, text, null);
         slf4jProxy.debug(slf4jLogger, text);
     }
 
@@ -150,7 +142,7 @@ public class Slf4jLogger implements Logger {
     public void info(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.INFO, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.INFO, text, null);
         slf4jProxy.info(slf4jLogger, text);
     }
 
@@ -163,7 +155,7 @@ public class Slf4jLogger implements Logger {
     public void warn(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.WARN, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.WARN, text, null);
         slf4jProxy.warn(slf4jLogger, text);
     }
 
@@ -176,7 +168,7 @@ public class Slf4jLogger implements Logger {
     public void error(Object message) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.ERROR, text, null);
+            LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
         slf4jProxy.error(slf4jLogger, text);
     }
 
@@ -190,7 +182,7 @@ public class Slf4jLogger implements Logger {
     public void error(Object message, Throwable throwable) {
         String text = message.toString();
         if (LogListener.present())
-            LogListener.invokeAll(this, Level.ERROR, text, throwable);
+            LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, throwable);
         slf4jProxy.error(slf4jLogger, text, throwable);
     }
 

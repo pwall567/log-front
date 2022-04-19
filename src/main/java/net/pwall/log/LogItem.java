@@ -2,7 +2,7 @@
  * @(#) LogItem.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021 Peter Wall
+ * Copyright (c) 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,13 @@
 
 package net.pwall.log;
 
+import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
+
+import net.pwall.util.IntOutput;
 
 /**
  * A log item, as used by the {@link LogList} class.  This is an immutable value object.
@@ -38,7 +42,7 @@ public class LogItem {
 
     private static final ZoneId defaultZoneId = ZoneId.systemDefault();
 
-    private final Instant time;
+    private final long time;
     private final String name;
     private final Level level;
     private final String text;
@@ -47,13 +51,13 @@ public class LogItem {
     /**
      * Create a {@code LogItem}.
      *
-     * @param   time        the time of the log event
+     * @param   time        the time of the log event in milliseconds
      * @param   name        the name of the {@link Logger}
      * @param   level       the {@link Level} of the log event
      * @param   text        the text of the log event
      * @param   throwable   an optional {@link Throwable}
      */
-    public LogItem(Instant time, String name, Level level, String text, Throwable throwable) {
+    public LogItem(long time, String name, Level level, String text, Throwable throwable) {
         this.time = time;
         this.name = name;
         this.level = level;
@@ -66,7 +70,7 @@ public class LogItem {
      *
      * @return      the time
      */
-    public Instant getTime() {
+    public long getTime() {
         return time;
     }
 
@@ -124,7 +128,8 @@ public class LogItem {
      */
     public String toString(char separator) {
         StringBuilder sb = new StringBuilder();
-        sb.append(ZonedDateTime.ofInstant(time, defaultZoneId).toLocalTime()).append(separator);
+        appendTime(sb, OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), defaultZoneId).toLocalTime());
+        sb.append(separator);
         sb.append(name).append(separator);
         sb.append(level).append(separator);
         sb.append(text);
@@ -133,6 +138,27 @@ public class LogItem {
             sb.append(separator).append(throwable.getMessage());
         }
         return sb.toString();
+    }
+
+    /**
+     * Append a {@link LocalTime} to a {@link StringBuilder} in RFC 3339 format (with 3 digits of fractional seconds).
+     *
+     * @param   sb          the {@link StringBuilder}
+     * @param   localTime   the {@link LocalTime}
+     */
+    public static void appendTime(StringBuilder sb, LocalTime localTime) {
+        try {
+            IntOutput.append2Digits(sb, localTime.getHour());
+            sb.append(':');
+            IntOutput.append2Digits(sb, localTime.getMinute());
+            sb.append(':');
+            IntOutput.append2Digits(sb, localTime.getSecond());
+            sb.append('.');
+            IntOutput.append3Digits(sb, localTime.getNano() / 1_000_000);
+        }
+        catch (IOException ignore) {
+            // can't happen - StringBuilder doesn't throw IOException
+        }
     }
 
 }

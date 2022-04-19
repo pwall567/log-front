@@ -2,7 +2,7 @@
  * @(#) LogItemTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021 Peter Wall
+ * Copyright (c) 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@
 
 package net.pwall.log.test;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -51,16 +50,16 @@ public class LogItemTest {
         LocalDate localDate = LocalDate.now();
         LocalTime localTime = LocalTime.of(12, 34, 56, 789000000);
         ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, zone);
-        Instant instant = zonedDateTime.toInstant();
-        LogItem logItem1 = new LogItem(instant, name, level, text, null);
-        assertEquals(instant, logItem1.getTime());
+        long time = zonedDateTime.toInstant().toEpochMilli();
+        LogItem logItem1 = new LogItem(time, name, level, text, null);
+        assertEquals(time, logItem1.getTime());
         assertEquals(name, logItem1.getName());
         assertEquals(level, logItem1.getLevel());
         assertEquals(text, logItem1.getText());
         assertNull(logItem1.getThrowable());
         Throwable throwable = new Throwable("Error text");
-        LogItem logItem2 = new LogItem(instant, name, level, text, throwable);
-        assertEquals(instant, logItem2.getTime());
+        LogItem logItem2 = new LogItem(time, name, level, text, throwable);
+        assertEquals(time, logItem2.getTime());
         assertEquals(name, logItem2.getName());
         assertEquals(level, logItem2.getLevel());
         assertEquals(text, logItem2.getText());
@@ -72,11 +71,12 @@ public class LogItemTest {
         LocalDate localDate = LocalDate.now();
         LocalTime localTime = LocalTime.of(12, 34, 56, 789000000);
         ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, zone);
-        LogItem logItem1 = new LogItem(zonedDateTime.toInstant(), name, level, text, null);
+        long time = zonedDateTime.toInstant().toEpochMilli();
+        LogItem logItem1 = new LogItem(time, name, level, text, null);
         assertEquals(logItem1.toString(), "12:34:56.789 DummyName INFO Dummy text");
         assertEquals(logItem1.toString('|'), "12:34:56.789|DummyName|INFO|Dummy text");
         Throwable throwable = new Throwable("Error text");
-        LogItem logItem2 = new LogItem(zonedDateTime.toInstant(), name, level, text, throwable);
+        LogItem logItem2 = new LogItem(time, name, level, text, throwable);
         assertEquals(logItem2.toString(), "12:34:56.789 DummyName INFO Dummy text java.lang.Throwable Error text");
         assertEquals(logItem2.toString('|'), "12:34:56.789|DummyName|INFO|Dummy text|java.lang.Throwable|Error text");
     }

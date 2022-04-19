@@ -2,7 +2,7 @@
  * @(#) ConsoleLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 package net.pwall.log;
 
 import java.io.PrintStream;
+import java.time.Clock;
 import java.util.Objects;
 
 /**
@@ -33,11 +34,25 @@ import java.util.Objects;
  *
  * @author  Peter Wall
  */
-public class ConsoleLoggerFactory extends LoggerFactory {
+public class ConsoleLoggerFactory extends LoggerFactory<ConsoleLogger> {
 
     private static final ConsoleLoggerFactory instance = new ConsoleLoggerFactory();
 
     private PrintStream output;
+
+    /**
+     * Construct a {@code ConsoleLoggerFactory} with the supplied default logging level, default clock and output
+     * stream.
+     *
+     * @param   defaultLevel            the default logging level
+     * @param   defaultClock            the default {@link Clock}
+     * @param   output                  the output stream to be used
+     * @throws  NullPointerException    if the output stream is null
+     */
+    public ConsoleLoggerFactory(Level defaultLevel, Clock defaultClock, PrintStream output) {
+        super(defaultLevel, defaultClock);
+        setOutput(output);
+    }
 
     /**
      * Construct a {@code ConsoleLoggerFactory} with the supplied default logging level and output stream.
@@ -47,8 +62,7 @@ public class ConsoleLoggerFactory extends LoggerFactory {
      * @throws  NullPointerException    if the output stream is null
      */
     public ConsoleLoggerFactory(Level defaultLevel, PrintStream output) {
-        setDefaultLevel(defaultLevel);
-        setOutput(output);
+        this(defaultLevel, systemClock, output);
     }
 
     /**
@@ -58,7 +72,7 @@ public class ConsoleLoggerFactory extends LoggerFactory {
      * @throws  NullPointerException    if the output stream is null
      */
     public ConsoleLoggerFactory(PrintStream output) {
-        this(ConsoleLogger.defaultLevel, output);
+        this(ConsoleLogger.defaultLevel, systemClock, output);
     }
 
     /**
@@ -68,14 +82,14 @@ public class ConsoleLoggerFactory extends LoggerFactory {
      * @param   defaultLevel    the default logging level
      */
     public ConsoleLoggerFactory(Level defaultLevel) {
-        this(defaultLevel, ConsoleLogger.defaultOutput);
+        this(defaultLevel, systemClock, ConsoleLogger.defaultOutput);
     }
 
     /**
      * Construct a {@code ConsoleLoggerFactory} with the standard default logging level and output stream.
      */
     public ConsoleLoggerFactory() {
-        this(ConsoleLogger.defaultLevel, ConsoleLogger.defaultOutput);
+        this(ConsoleLogger.defaultLevel, systemClock, ConsoleLogger.defaultOutput);
     }
 
     /**
@@ -98,20 +112,6 @@ public class ConsoleLoggerFactory extends LoggerFactory {
     }
 
     /**
-     * Get a {@link ConsoleLogger} with the supplied name and the current default {@link Level}.
-     *
-     * @param   name    the name
-     * @return          a {@link ConsoleLogger}
-     * @throws  NullPointerException    if the name is null
-     */
-    @Override
-    public ConsoleLogger getLogger(String name) {
-        Level level = getDefaultLevel();
-        return new ConsoleLogger(Objects.requireNonNull(name),
-                level == null ? ConsoleLogger.defaultLevel : level, output);
-    }
-
-    /**
      * Get a {@link ConsoleLogger} with the supplied name and {@link Level}.
      *
      * @param   name    the name
@@ -120,8 +120,8 @@ public class ConsoleLoggerFactory extends LoggerFactory {
      * @throws  NullPointerException    if the name is null
      */
     @Override
-    public ConsoleLogger getLogger(String name, Level level) {
-        return new ConsoleLogger(Objects.requireNonNull(name), level, output);
+    public ConsoleLogger getLogger(String name, Level level, Clock clock) {
+        return new ConsoleLogger(Objects.requireNonNull(name), level, clock, output);
     }
 
     /**

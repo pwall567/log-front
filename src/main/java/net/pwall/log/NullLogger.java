@@ -32,9 +32,7 @@ import java.util.function.Supplier;
  *
  * @author  Peter Wall
  */
-public class NullLogger implements Logger {
-
-    private final String name;
+public class NullLogger extends AbstractLogger {
 
     /**
      * Create a {@code NullLogger} with the supplied name.
@@ -42,17 +40,7 @@ public class NullLogger implements Logger {
      * @param   name    the name
      */
     public NullLogger(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Get the name associated with this {@code NullLogger}.
-     *
-     * @return      the name
-     */
-    @Override
-    public String getName() {
-        return name;
+        super(name, Level.INFO, LoggerFactory.systemClock);
     }
 
     /**

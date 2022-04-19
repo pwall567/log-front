@@ -2,7 +2,7 @@
  * @(#) LoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,26 +25,45 @@
 
 package net.pwall.log;
 
+import java.time.Clock;
+
 /**
  * The {@code LoggerFactory} interface allows for the implementation of a variety of processes of {@link Logger} object
  * creation.
  *
  * @author  Peter Wall
+ * @param   <L>     the Logger type
  */
-public abstract class LoggerFactory {
+public abstract class LoggerFactory<L extends Logger> {
 
-    private static LoggerFactory defaultLoggerFactory = null;
+    public static final Clock systemClock = Clock.systemDefaultZone();
 
-    private Level defaultLevel = null;
+    private static LoggerFactory<?> defaultLoggerFactory = null;
+
+    private Level defaultLevel;
+    private Clock defaultClock;
 
     /**
-     * Get a {@link Logger} with the supplied name, using the default {@link Level}.
+     * Construct a {@code LoggerFactory} with the supplied default {@link Level} and {@link Clock}.
+     *
+     * @param   defaultLevel    the default {@link Level}
+     * @param   defaultClock    the default {@link Clock}
+     */
+    public LoggerFactory(Level defaultLevel, Clock defaultClock) {
+        this.defaultLevel = defaultLevel;
+        this.defaultClock = defaultClock;
+    }
+
+    /**
+     * Get a {@link Logger} with the supplied name, {@link Level} and {@link Clock}.
      *
      * @param   name    the name
+     * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
      * @return          the {@link Logger}
      * @throws  NullPointerException    if the name is null
      */
-    public abstract Logger getLogger(String name);
+    public abstract L getLogger(String name, Level level, Clock clock);
 
     /**
      * Get a {@link Logger} with the supplied name and {@link Level}.
@@ -54,7 +73,32 @@ public abstract class LoggerFactory {
      * @return          the {@link Logger}
      * @throws  NullPointerException    if the name is null
      */
-    public abstract Logger getLogger(String name, Level level);
+    public L getLogger(String name, Level level) {
+        return getLogger(name, level, defaultClock);
+    }
+
+    /**
+     * Get a {@link Logger} with the supplied name and {@link Clock}.
+     *
+     * @param   name    the name
+     * @param   clock   the {@link Level}
+     * @return          the {@link Logger}
+     * @throws  NullPointerException    if the name is null
+     */
+    public L getLogger(String name, Clock clock) {
+        return getLogger(name, defaultLevel, clock);
+    }
+
+    /**
+     * Get a {@link Logger} with the supplied name, using the default {@link Level} and {@link Clock}.
+     *
+     * @param   name    the name
+     * @return          the {@link Logger}
+     * @throws  NullPointerException    if the name is null
+     */
+    public L getLogger(String name) {
+        return getLogger(name, defaultLevel, defaultClock);
+    }
 
     /**
      * Get a {@link Logger} for the nominated Java class.
@@ -63,20 +107,47 @@ public abstract class LoggerFactory {
      * @return              the {@link Logger}
      * @throws  NullPointerException    if the Java class is null
      */
-    public Logger getLogger(Class<?> javaClass) {
-        return getLogger(javaClass.getName());
+    public L getLogger(Class<?> javaClass) {
+        return getLogger(javaClass.getName(), defaultLevel, defaultClock);
     }
 
     /**
-     * Get a {@link Logger} for the nominated Java class, using the default {@link Level}.
+     * Get a {@link Logger} for the nominated Java class, using the specified {@link Level} and the default
+     * {@link Clock}.
      *
      * @param   javaClass   the Java {@link Class}
      * @param   level       the {@link Level}
      * @return              the {@link Logger}
      * @throws  NullPointerException    if the Java class is null
      */
-    public Logger getLogger(Class<?> javaClass, Level level) {
-        return getLogger(javaClass.getName(), level);
+    public L getLogger(Class<?> javaClass, Level level) {
+        return getLogger(javaClass.getName(), level, defaultClock);
+    }
+
+    /**
+     * Get a {@link Logger} for the nominated Java class, using the default {@link Level} and the specified
+     * {@link Clock}.
+     *
+     * @param   javaClass   the Java {@link Class}
+     * @param   clock       the {@link Clock}
+     * @return              the {@link Logger}
+     * @throws  NullPointerException    if the Java class is null
+     */
+    public L getLogger(Class<?> javaClass, Clock clock) {
+        return getLogger(javaClass.getName(), defaultLevel, clock);
+    }
+
+    /**
+     * Get a {@link Logger} for the nominated Java class, using the default {@link Level} and {@link Clock}.
+     *
+     * @param   javaClass   the Java {@link Class}
+     * @param   level       the {@link Level}
+     * @param   clock       the {@link Clock}
+     * @return              the {@link Logger}
+     * @throws  NullPointerException    if the Java class is null
+     */
+    public L getLogger(Class<?> javaClass, Level level, Clock clock) {
+        return getLogger(javaClass.getName(), level, clock);
     }
 
     /**
@@ -98,13 +169,31 @@ public abstract class LoggerFactory {
     }
 
     /**
+     * Get the default {@link Clock} to be used by {@link Logger} instances created by this {@code LoggerFactory}.
+     *
+     * @return      the default {@link Clock}
+     */
+    public Clock getDefaultClock() {
+        return defaultClock;
+    }
+
+    /**
+     * Set the default {@link Clock} to be used by {@link Logger} instances created by this {@code LoggerFactory}.
+     *
+     * @param   defaultClock    the new default {@link Clock}
+     */
+    public void setDefaultClock(Clock defaultClock) {
+        this.defaultClock = defaultClock;
+    }
+
+    /**
      * Get the default {@code LoggerFactory} (usually, but not necessarily, a {@link DefaultLoggerFactory}).
      *
      * @return      the default {@code LoggerFactory}
      */
-    public static LoggerFactory getDefault() {
+    public static LoggerFactory<?> getDefault() {
         if (defaultLoggerFactory == null)
-            defaultLoggerFactory = DefaultLoggerFactory.getInstance();
+            defaultLoggerFactory = new DefaultLoggerFactory(Level.INFO, systemClock);
         return defaultLoggerFactory;
     }
 
@@ -113,7 +202,7 @@ public abstract class LoggerFactory {
      *
      * @param   loggerFactory   the new default {@code LoggerFactory}
      */
-    public static void setDefault(LoggerFactory loggerFactory) {
+    public static void setDefault(LoggerFactory<?> loggerFactory) {
         defaultLoggerFactory = loggerFactory;
     }
 

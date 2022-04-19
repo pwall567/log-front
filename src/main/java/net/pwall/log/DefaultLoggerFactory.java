@@ -25,7 +25,7 @@
 
 package net.pwall.log;
 
-import java.lang.reflect.InvocationTargetException;
+import java.time.Clock;
 import java.util.Objects;
 
 /**
@@ -40,9 +40,7 @@ import java.util.Objects;
  *
  * @author  Peter Wall
  */
-public class DefaultLoggerFactory extends LoggerFactory {
-
-    private static final DefaultLoggerFactory instance = new DefaultLoggerFactory();
+public class DefaultLoggerFactory extends LoggerFactory<Logger> {
 
     private static Slf4jProxy slf4jProxy = null;
     private static boolean javaLogging = false;
@@ -52,7 +50,7 @@ public class DefaultLoggerFactory extends LoggerFactory {
             // first, check whether slf4j is present on the classpath
             slf4jProxy = new Slf4jProxy();
         }
-        catch (ClassNotFoundException | NoSuchMethodException ignore) {
+        catch (Exception ignore) {
             // slf4j not found; are we using java.util.logging?
             javaLogging = System.getProperty("java.util.logging.config.file") != null ||
                     DefaultLoggerFactory.class.getResource("logging.properties") != null;
@@ -60,50 +58,39 @@ public class DefaultLoggerFactory extends LoggerFactory {
     }
 
     /**
-     * Get a {@link Logger} with the specified name.  See the class documentation for the rules used to determine the
-     * type of {@link Logger} returned.
+     * Construct a {@code DefaultLoggerFactory}
      *
-     * @param   name    the name
-     * @return          a {@link Logger}
-     * @throws  NullPointerException    if the name is null
+     * @param   defaultLevel    the default {@link Level}
+     * @param   defaultClock    the default {@link Clock}
      */
-    @Override
-    public Logger getLogger(String name) {
-        return getLogger(name, getDefaultLevel());
+    public DefaultLoggerFactory(Level defaultLevel, Clock defaultClock) {
+        super(defaultLevel, defaultClock);
     }
 
     /**
-     * Get a {@link Logger} with the specified name and {@link Level}.  See the class documentation for the rules used
-     * to determine the type of {@link Logger} returned.
+     * Get a {@link Logger} with the specified name, {@link Level} and {@link Clock}.  See the class documentation for
+     * the rules used to determine the type of {@link Logger} returned.
      *
      * @param   name    the name
      * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
      * @return          a {@link Logger}
      * @throws  NullPointerException    if the name is null
      */
     @Override
-    public Logger getLogger(String name, Level level) {
+    public Logger getLogger(String name, Level level, Clock clock) {
         Objects.requireNonNull(name);
         if (slf4jProxy != null) {
             try {
-                return new Slf4jLogger(name, slf4jProxy);
+                return new Slf4jLogger(name, level, clock, slf4jProxy);
             }
-            catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignore) {
+            catch (Exception ignore) {
             }
         }
         if (javaLogging)
-            return level == null ? new JavaLogger(name) : new JavaLogger(name, level);
+            return new JavaLogger(name, level, clock);
         ConsoleLoggerFactory consoleLoggerFactory = ConsoleLoggerFactory.getInstance();
-        return level == null ? consoleLoggerFactory.getLogger(name) : consoleLoggerFactory.getLogger(name, level);
-    }
-
-    /**
-     * Get the shared {@code DefaultLoggerFactory} instance.
-     *
-     * @return      the instance
-     */
-    public static DefaultLoggerFactory getInstance() {
-        return instance;
+        return consoleLoggerFactory.getLogger(name, level, clock);
     }
 
 }

@@ -2,7 +2,7 @@
  * @(#) JavaLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021 Peter Wall
+ * Copyright (c) 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,38 +25,36 @@
 
 package net.pwall.log;
 
+import java.time.Clock;
+
 /**
  * A {@link LoggerFactory} that creates {@link JavaLogger} objects.
  *
  * @author  Peter Wall
  */
-public class JavaLoggerFactory extends LoggerFactory {
+public class JavaLoggerFactory extends LoggerFactory<JavaLogger> {
 
     private static final JavaLoggerFactory instance = new JavaLoggerFactory();
 
     /**
-     * Get a {@link JavaLogger} with the supplied name, using the default {@link Level}.
-     *
-     * @param   name    the name
-     * @return          the {@link JavaLogger}
-     * @throws  NullPointerException    if the name is null
+     * Construct a {@code JavaLoggerFactory} with the default {@link Level} and {@link Clock}.
      */
-    @Override
-    public JavaLogger getLogger(String name) {
-        return getLogger(name, getDefaultLevel());
+    public JavaLoggerFactory() {
+        super(Level.INFO, systemClock);
     }
 
     /**
-     * Get a {@link JavaLogger} with the supplied name and {@link Level}.
+     * Get a {@link JavaLogger} with the supplied name, {@link Level} and {@link Clock}.
      *
      * @param   name    the name
      * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
      * @return          the {@link JavaLogger}
      * @throws  NullPointerException    if the name is null
      */
     @Override
-    public JavaLogger getLogger(String name, Level level) {
-        return level == null ? new JavaLogger(name) : new JavaLogger(name, level);
+    public JavaLogger getLogger(String name, Level level, Clock clock) {
+        return new JavaLogger(name, level, clock);
     }
 
     /**

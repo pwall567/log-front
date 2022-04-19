@@ -2,7 +2,7 @@
  * @(#) LogList.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021 Peter Wall
+ * Copyright (c) 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@
 
 package net.pwall.log;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +48,7 @@ public class LogList extends LogListener implements Iterable<LogItem> {
      * @param   throwable   a {@link Throwable}, if provided
      */
     @Override
-    public void receive(Instant time, Logger logger, Level level, String text, Throwable throwable) {
+    public void receive(long time, Logger logger, Level level, String text, Throwable throwable) {
         synchronized (list) {
             list.add(new LogItem(time, logger.getName(), level, text, throwable));
         }

@@ -2,7 +2,7 @@
  * @(#) LogListTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021 Peter Wall
+ * Copyright (c) 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@
 
 package net.pwall.log.test;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class LogListTest {
         try (LogList logList = new LogList()) {
             List<LogItem> list1 = logList.toList();
             assertEquals(0, list1.size());
-            logList.receive(Instant.now(), nullLogger, Level.INFO, "Testing", null);
+            logList.receive(System.currentTimeMillis(), nullLogger, Level.INFO, "Testing", null);
             List<LogItem> list2 = logList.toList();
             assertEquals(1, list2.size());
             assertEquals(0, list1.size());

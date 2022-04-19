@@ -2,7 +2,7 @@
  * @(#) Logger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 
 package net.pwall.log;
 
+import java.time.Clock;
 import java.util.function.Supplier;
 
 /**
@@ -40,6 +41,27 @@ public interface Logger {
      * @return      the name
      */
     String getName();
+
+    /**
+     * Get the minimum level to be output by this {@code Logger}.
+     *
+     * @return      the {@link Level}
+     */
+    Level getLevel();
+
+    /**
+     * Set the minimum level to be output by this {@code Logger}.
+     *
+     * @param   level   the new {@link Level}
+     */
+    void setLevel(Level level);
+
+    /**
+     * Get the {@link Clock} used by this {@code Logger}.
+     *
+     * @return      the {@link Clock}
+     */
+    Clock getClock();
 
     /**
      * Test whether trace output is enabled for this {@code Logger}.
@@ -236,7 +258,18 @@ public interface Logger {
      * @return          the {@code Logger}
      */
     static Logger getDefault(String name) {
-        return LoggerFactory.getDefaultLogger(name);
+        return LoggerFactory.getDefault().getLogger(name);
+    }
+
+    /**
+     * Get a default {@code Logger} with the supplied name and {@link Clock}.
+     *
+     * @param   name    the name
+     * @param   clock   the {@link Clock}
+     * @return          the {@code Logger}
+     */
+    static Logger getDefault(String name, Clock clock) {
+        return LoggerFactory.getDefault().getLogger(name, clock);
     }
 
     /**
@@ -246,7 +279,17 @@ public interface Logger {
      * @return              the {@code Logger}
      */
     static Logger getDefault(Class<?> javaClass) {
-        return LoggerFactory.getDefaultLogger(javaClass.getName());
+        return LoggerFactory.getDefault().getLogger(javaClass.getName());
+    }
+
+    /**
+     * Get a default {@code Logger} for the supplied Java {@link Class}.
+     *
+     * @param   javaClass   the Java {@link Class}
+     * @return              the {@code Logger}
+     */
+    static Logger getDefault(Class<?> javaClass, Clock clock) {
+        return LoggerFactory.getDefault().getLogger(javaClass.getName(), clock);
     }
 
 }

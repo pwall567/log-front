@@ -2,7 +2,7 @@
  * @(#) LoggerFactoryTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2020, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,13 @@
 
 package net.pwall.log.test;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import net.pwall.log.Level;
@@ -47,17 +52,36 @@ public class LoggerFactoryTest {
 
     @Test
     public void shouldCreateLoggerUsingClassName() {
-        Logger logger = LoggerFactory.getDefault().getLogger(getClass(), Level.DEBUG);
+        Logger logger = LoggerFactory.getDefault().getLogger(getClass(), Level.DEBUG, Clock.systemDefaultZone());
         assertEquals(getClass().getName(), logger.getName());
     }
 
     @Test
     public void shouldChangeDefaultFactory() {
-        LoggerFactory previousDefault = LoggerFactory.getDefault();
+        LoggerFactory<?> previousDefault = LoggerFactory.getDefault();
         LoggerFactory.setDefault(NullLoggerFactory.getInstance());
         Logger logger = LoggerFactory.getDefaultLogger(getClass());
         assertTrue(logger instanceof NullLogger);
         LoggerFactory.setDefault(previousDefault);
+    }
+
+    @Test
+    public void shouldChangeDefaultLevel() {
+        LoggerFactory<?> loggerFactory = LoggerFactory.getDefault();
+        assertEquals(Level.INFO, loggerFactory.getDefaultLevel());
+        loggerFactory.setDefaultLevel(Level.DEBUG);
+        Logger logger = loggerFactory.getLogger("cactus");
+        assertEquals(Level.DEBUG, logger.getLevel());
+    }
+
+    @Test
+    public void shouldChangeDefaultClock() {
+        LoggerFactory<?> loggerFactory = LoggerFactory.getDefault();
+        assertSame(LoggerFactory.systemClock, loggerFactory.getDefaultClock());
+        Clock fixedClock = Clock.fixed(Instant.now(), ZoneOffset.UTC);
+        loggerFactory.setDefaultClock(fixedClock);
+        Logger logger = loggerFactory.getLogger("cactus");
+        assertSame(fixedClock, logger.getClock());
     }
 
 }
