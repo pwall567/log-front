@@ -2,6 +2,13 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [3.0] - 2022-04-19
+### Added
+- `AbstractLogger`: abstract base class for `Logger` implementations
+### Changed
+- multiple classes: added support for `Clock`; improved time handling
+- `pom.xml`: bumped dependency versions
+
 ## [2.6] - 2022-01-26
 ### Changed
 - `pom.xml`: bumped dependency versions
