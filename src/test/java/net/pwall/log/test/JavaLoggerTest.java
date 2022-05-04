@@ -46,4 +46,10 @@ public class JavaLoggerTest {
         logger.info("Logged via Java Logging for class (info)");
     }
 
+    @Test
+    public void shouldOutputMultiLineFromJavaLogger() {
+        Logger logger = JavaLoggerFactory.getJavaLogger(getClass());
+        logger.info("JavaLogger multi-line\nline2");
+    }
+
 }

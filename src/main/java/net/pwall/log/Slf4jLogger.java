@@ -117,7 +117,7 @@ public class Slf4jLogger extends AbstractLogger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.TRACE, text, null);
-        slf4jProxy.trace(slf4jLogger, text);
+        outputMultiLine(text, s -> slf4jProxy.trace(slf4jLogger, s));
     }
 
     /**
@@ -130,7 +130,7 @@ public class Slf4jLogger extends AbstractLogger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.DEBUG, text, null);
-        slf4jProxy.debug(slf4jLogger, text);
+        outputMultiLine(text, s -> slf4jProxy.debug(slf4jLogger, s));
     }
 
     /**
@@ -143,7 +143,7 @@ public class Slf4jLogger extends AbstractLogger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.INFO, text, null);
-        slf4jProxy.info(slf4jLogger, text);
+        outputMultiLine(text, s -> slf4jProxy.info(slf4jLogger, s));
     }
 
     /**
@@ -156,7 +156,7 @@ public class Slf4jLogger extends AbstractLogger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.WARN, text, null);
-        slf4jProxy.warn(slf4jLogger, text);
+        outputMultiLine(text, s -> slf4jProxy.warn(slf4jLogger, s));
     }
 
     /**
@@ -169,7 +169,7 @@ public class Slf4jLogger extends AbstractLogger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
-        slf4jProxy.error(slf4jLogger, text);
+        outputMultiLine(text, s -> slf4jProxy.error(slf4jLogger, s));
     }
 
     /**
@@ -183,7 +183,7 @@ public class Slf4jLogger extends AbstractLogger {
         String text = message.toString();
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, throwable);
-        slf4jProxy.error(slf4jLogger, text, throwable);
+        outputMultiLine(text, s -> slf4jProxy.error(slf4jLogger, s, throwable));
     }
 
 }

@@ -29,6 +29,12 @@ If it is necessary to fit in with an existing logging framework other than `slf4
 to be simple to implement so that a thin interfacing layer can be created, accepting this API and invoking the required
 target logging mechanism.
 
+New from version 4.0 onward is multi-line logging.
+This is a security measure &ndash; if an attacker is aware that input text is included in a log message, they may try to
+create fake log events by including a newline followed by what looks like a log message prefix in their text.
+The library now splits messages containing line terminators into separate invocations of the underlying log
+implementation, so each line of the log has the correct prefix.
+
 (The name `log-front` is a play on the name of the popular [Logback](https://logback.qos.ch/) project;
 also on the fact that it is a front-end &ndash; a fa&ccedil;ade &ndash; to an underlying logging system.)
 
@@ -182,6 +188,15 @@ Name        | Type         | Description
 
 ## `slf4j`
 
+The `slf4j` library, if used, is accessed entirely through reflection.
+This is not as inefficient as it sounds &ndash; the lookup process to find the method references is performed once only,
+and the method invocation through these references is the least costly aspect of reflection.
+
+The reason for this design decision (as opposed to making the `slf4j` library an optional dependency) is to avoid any
+potential problems with vulnerabilities resulting from the use of a specific version of `slf4j`.
+Whilst there would be no actual vulnerability from using `slf4j` in this way, some vulnerability scanners might detect
+the library reference and report a problem.
+
 To route logging from this library to `slf4j`, the simplest method is to add `logback` to your build (check
 [Maven Central](https://mvnrepository.com/artifact/ch.qos.logback/logback-classic) for the latest version):
 
@@ -205,25 +220,25 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
 
 ## Dependency Specification
 
-The latest version of the library is 2.6, and it may be obtained from the Maven Central repository.
+The latest version of the library is 4.0, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>3.0</version>
+      <version>4.0</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:3.0'
+    implementation 'net.pwall.log:log-front:4.0'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:3.0")
+    implementation("net.pwall.log:log-front:4.0")
 ```
 
 Peter Wall
 
-2022-04-19
+2022-05-03

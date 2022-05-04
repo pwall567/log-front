@@ -89,4 +89,11 @@ public class ConsoleLoggerTest {
         logger.trace("This should be NOT visible");
     }
 
+    @Test
+    public void shouldOutputMultiLine() {
+        ConsoleLogger logger = LoggerFactory.getConsoleLogger("Octopus");
+        assertEquals(Level.INFO, logger.getLevel());
+        logger.info("testing outputMultiLine\nline 2\nline 3\r\nline 4 (Last line)");
+    }
+
 }

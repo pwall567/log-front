@@ -245,14 +245,16 @@ public class ConsoleLogger extends AbstractLogger {
         if (LogListener.present())
             LogListener.invokeAll(time, this, level, text, throwable);
         LocalTime localTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), getClock().getZone()).toLocalTime();
-        StringBuilder sb = new StringBuilder(120);
-        LogItem.appendTime(sb, localTime);
-        sb.append(separator).append(getName());
-        sb.append(separator).append(level);
-        sb.append(separator).append(' ').append(text);
-        output.println(sb);
-        if (output.checkError())
-            throw new LoggerException("Error writing ConsoleLogger");
+        outputMultiLine(text, line -> {
+            StringBuilder sb = new StringBuilder(120);
+            LogItem.appendTime(sb, localTime);
+            sb.append(separator).append(getName());
+            sb.append(separator).append(level);
+            sb.append(separator).append(' ').append(line);
+            output.println(sb);
+            if (output.checkError())
+                throw new LoggerException("Error writing ConsoleLogger");
+        });
     }
 
 }

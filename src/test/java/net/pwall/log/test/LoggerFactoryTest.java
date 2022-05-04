@@ -51,6 +51,13 @@ public class LoggerFactoryTest {
     }
 
     @Test
+    public void shouldOutputMultiLineUsingSlf4jLogger() {
+        Logger logger = LoggerFactory.getDefaultLogger("yyy");
+        assertTrue(logger instanceof Slf4jLogger);
+        logger.info("Slf4jLogger multi-line\nline 2\nline 3 and end\n");
+    }
+
+    @Test
     public void shouldCreateLoggerUsingClassName() {
         Logger logger = LoggerFactory.getDefault().getLogger(getClass(), Level.DEBUG, Clock.systemDefaultZone());
         assertEquals(getClass().getName(), logger.getName());

@@ -2,6 +2,13 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [4.0] - 2022-05-03
+### Added
+- `SourceDetails`: holder for class and method name
+### Changed
+- `AbstractLogger`, `ConsoleLogger`, `JavaLogger`, `Slf4jLogger`: added multi-line output
+- `pom.xml`: bumped dependency versions
+
 ## [3.0] - 2022-04-19
 ### Added
 - `AbstractLogger`: abstract base class for `Logger` implementations

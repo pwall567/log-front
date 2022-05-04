@@ -27,6 +27,7 @@ package net.pwall.log;
 
 import java.time.Clock;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Abstract base class for {@link Logger} implementations.
@@ -91,6 +92,42 @@ public abstract class AbstractLogger implements Logger {
     @Override
     public Clock getClock() {
         return clock;
+    }
+
+    protected static void outputMultiLine(String message, Consumer<String> outputFunction) {
+        int n = message.length();
+        if (n == 0) {
+            outputFunction.accept(message);
+            return;
+        }
+        int i = 0;
+        int j = i;
+        while (true) {
+            while (true) {
+                if (j == n) {
+                    outputFunction.accept(message.substring(i));
+                    return;
+                }
+                char ch = message.charAt(j++);
+                if (ch == '\n') {
+                    outputFunction.accept(message.substring(i, j - 1));
+                    if (j < n && message.charAt(j) == '\r')
+                        j++;
+                    if (j < n)
+                        break;
+                    return;
+                }
+                if (ch == '\r') {
+                    outputFunction.accept(message.substring(i, j - 1));
+                    if (j < n && message.charAt(j) == '\n')
+                        j++;
+                    if (j < n)
+                        break;
+                    return;
+                }
+            }
+            i = j;
+        }
     }
 
 }
