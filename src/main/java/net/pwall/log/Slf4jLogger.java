@@ -114,7 +114,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void trace(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.TRACE, text, null);
         outputMultiLine(text, s -> slf4jProxy.trace(slf4jLogger, s));
@@ -127,7 +127,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void debug(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.DEBUG, text, null);
         outputMultiLine(text, s -> slf4jProxy.debug(slf4jLogger, s));
@@ -140,7 +140,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void info(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.INFO, text, null);
         outputMultiLine(text, s -> slf4jProxy.info(slf4jLogger, s));
@@ -153,7 +153,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void warn(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.WARN, text, null);
         outputMultiLine(text, s -> slf4jProxy.warn(slf4jLogger, s));
@@ -166,7 +166,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void error(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
         outputMultiLine(text, s -> slf4jProxy.error(slf4jLogger, s));
@@ -180,7 +180,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void error(Object message, Throwable throwable) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, throwable);
         outputMultiLine(text, s -> slf4jProxy.error(slf4jLogger, s, throwable));

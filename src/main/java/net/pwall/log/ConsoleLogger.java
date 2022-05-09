@@ -241,7 +241,7 @@ public class ConsoleLogger extends AbstractLogger {
 
     private void outputLog(Level level, Object message, Throwable throwable) {
         long time = getClock().millis();
-        String text = message.toString();
+        String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(time, this, level, text, throwable);
         LocalTime localTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), getClock().getZone()).toLocalTime();

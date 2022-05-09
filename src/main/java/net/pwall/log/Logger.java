@@ -218,12 +218,16 @@ public interface Logger {
         switch (level) {
         case TRACE:
             trace(message);
+            break;
         case DEBUG:
             debug(message);
+            break;
         case INFO:
             info(message);
+            break;
         case WARN:
             warn(message);
+            break;
         case ERROR:
             error(message);
         }
@@ -240,12 +244,16 @@ public interface Logger {
         switch (level) {
         case TRACE:
             trace(messageSupplier);
+            break;
         case DEBUG:
             debug(messageSupplier);
+            break;
         case INFO:
             info(messageSupplier);
+            break;
         case WARN:
             warn(messageSupplier);
+            break;
         case ERROR:
             error(messageSupplier);
         }

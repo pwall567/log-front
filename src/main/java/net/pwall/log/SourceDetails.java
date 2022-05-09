@@ -32,7 +32,7 @@ package net.pwall.log;
  */
 public class SourceDetails {
 
-    private static final String logPackageName = "net.pwall.log";
+    private static final String logPackageName = "net.pwall.log"; // must match the package of this class
 
     private final String className;
     private final String methodName;

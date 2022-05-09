@@ -140,18 +140,12 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void trace(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.TRACE, text, null);
         SourceDetails sourceDetails = SourceDetails.findSourceDetails();
-        outputMultiLine(text, s -> {
-            LogRecord logRecord = new LogRecord(java.util.logging.Level.FINER, s);
-            logRecord.setMillis(millis);
-            logRecord.setSourceClassName(sourceDetails.getClassName());
-            logRecord.setSourceMethodName(sourceDetails.getMethodName());
-            javaLogger.log(logRecord);
-        });
+        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.FINER, s, millis, sourceDetails, null));
     }
 
     /**
@@ -161,18 +155,12 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void debug(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.DEBUG, text, null);
         SourceDetails sourceDetails = SourceDetails.findSourceDetails();
-        outputMultiLine(text, s -> {
-            LogRecord logRecord = new LogRecord(java.util.logging.Level.FINE, s);
-            logRecord.setMillis(millis);
-            logRecord.setSourceClassName(sourceDetails.getClassName());
-            logRecord.setSourceMethodName(sourceDetails.getMethodName());
-            javaLogger.log(logRecord);
-        });
+        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.FINE, s, millis, sourceDetails, null));
     }
 
     /**
@@ -182,18 +170,12 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void info(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.INFO, text, null);
         SourceDetails sourceDetails = SourceDetails.findSourceDetails();
-        outputMultiLine(text, s -> {
-            LogRecord logRecord = new LogRecord(java.util.logging.Level.INFO, s);
-            logRecord.setMillis(millis);
-            logRecord.setSourceClassName(sourceDetails.getClassName());
-            logRecord.setSourceMethodName(sourceDetails.getMethodName());
-            javaLogger.log(logRecord);
-        });
+        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.INFO, s, millis, sourceDetails, null));
     }
 
     /**
@@ -203,18 +185,12 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void warn(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.WARN, text, null);
         SourceDetails sourceDetails = SourceDetails.findSourceDetails();
-        outputMultiLine(text, s -> {
-            LogRecord logRecord = new LogRecord(java.util.logging.Level.WARNING, s);
-            logRecord.setMillis(millis);
-            logRecord.setSourceClassName(sourceDetails.getClassName());
-            logRecord.setSourceMethodName(sourceDetails.getMethodName());
-            javaLogger.log(logRecord);
-        });
+        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.WARNING, s, millis, sourceDetails, null));
     }
 
     /**
@@ -224,41 +200,38 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void error(Object message) {
-        String text = message.toString();
+        String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.ERROR, text, null);
         SourceDetails sourceDetails = SourceDetails.findSourceDetails();
-        outputMultiLine(text, s -> {
-            LogRecord logRecord = new LogRecord(java.util.logging.Level.SEVERE, s);
-            logRecord.setMillis(millis);
-            logRecord.setSourceClassName(sourceDetails.getClassName());
-            logRecord.setSourceMethodName(sourceDetails.getMethodName());
-            javaLogger.log(logRecord);
-        });
+        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.SEVERE, s, millis, sourceDetails, null));
     }
 
     /**
      * Output an error message along with a {@link Throwable}.
      *
      * @param   message     the message (will be output using {@link Object#toString()}
-     * @param   throwable   the {@link Throwable}
+     * @param   thrown      the {@link Throwable}
      */
     @Override
-    public void error(Object message, Throwable throwable) {
-        String text = message.toString();
+    public void error(Object message, Throwable thrown) {
+        String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
-            LogListener.invokeAll(millis, this, Level.ERROR, text, throwable);
+            LogListener.invokeAll(millis, this, Level.ERROR, text, thrown);
         SourceDetails sourceDetails = SourceDetails.findSourceDetails();
-        outputMultiLine(text, s -> {
-            LogRecord logRecord = new LogRecord(java.util.logging.Level.SEVERE, s);
-            logRecord.setMillis(millis);
-            logRecord.setSourceClassName(sourceDetails.getClassName());
-            logRecord.setSourceMethodName(sourceDetails.getMethodName());
-            logRecord.setThrown(throwable);
-            javaLogger.log(logRecord);
-        });
+        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.SEVERE, s, millis, sourceDetails, thrown));
+    }
+
+    private void outputLogRecord(java.util.logging.Level level, String message, long millis,
+            SourceDetails sourceDetails, Throwable throwable) {
+        LogRecord logRecord = new LogRecord(level, message);
+        logRecord.setMillis(millis);
+        logRecord.setSourceClassName(sourceDetails.getClassName());
+        logRecord.setSourceMethodName(sourceDetails.getMethodName());
+        logRecord.setThrown(throwable);
+        javaLogger.log(logRecord);
     }
 
     private static java.util.logging.Level convertLevel(Level level) {
