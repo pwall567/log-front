@@ -1,8 +1,8 @@
 /*
- * @(#) Level.java
+ * @(#) LogFormatter.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,27 +25,25 @@
 
 package net.pwall.log;
 
+import java.util.function.IntConsumer;
+
 /**
- * The logging level.
+ * Log Formatter interface.
  *
  * @author  Peter Wall
  */
-public enum Level {
+public interface LogFormatter {
 
-    TRACE(10),
-    DEBUG(20),
-    INFO(30),
-    WARN(40),
-    ERROR(50);
-
-    private final int value;
-
-    Level(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
+    /**
+     * Format a log message.
+     *
+     * @param   millis      the time of the log message as milliseconds from the start of the epoch
+     * @param   logger      the {@link Logger} that originated the log event
+     * @param   level       the {@link Level}
+     * @param   message     the message
+     * @param   throwable   an optional {@link Throwable}
+     * @param   outFunction the {@link IntConsumer} to use to output the message
+     */
+    void format(long millis, Logger logger, Level level, Object message, Throwable throwable, IntConsumer outFunction);
 
 }

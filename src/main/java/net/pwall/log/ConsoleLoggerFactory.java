@@ -30,11 +30,12 @@ import java.time.Clock;
 import java.util.Objects;
 
 /**
- * A {@link LoggerFactory} that creates {@link ConsoleLogger} objects.
+ * A {@link LoggerFactory} that creates {@link ConsoleLogger} objects.  This has largely been superseded by the
+ * {@link FormattingLoggerFactory}, and may be deprecated in future.
  *
  * @author  Peter Wall
  */
-public class ConsoleLoggerFactory extends LoggerFactory<ConsoleLogger> {
+public class ConsoleLoggerFactory extends AbstractLoggerFactory<ConsoleLogger> {
 
     private static final ConsoleLoggerFactory instance = new ConsoleLoggerFactory();
 
@@ -72,7 +73,7 @@ public class ConsoleLoggerFactory extends LoggerFactory<ConsoleLogger> {
      * @throws  NullPointerException    if the output stream is null
      */
     public ConsoleLoggerFactory(PrintStream output) {
-        this(ConsoleLogger.defaultLevel, systemClock, output);
+        this(systemDefaultLevel, systemClock, output);
     }
 
     /**
@@ -89,7 +90,7 @@ public class ConsoleLoggerFactory extends LoggerFactory<ConsoleLogger> {
      * Construct a {@code ConsoleLoggerFactory} with the standard default logging level and output stream.
      */
     public ConsoleLoggerFactory() {
-        this(ConsoleLogger.defaultLevel, systemClock, ConsoleLogger.defaultOutput);
+        this(systemDefaultLevel, systemClock, ConsoleLogger.defaultOutput);
     }
 
     /**
@@ -117,11 +118,16 @@ public class ConsoleLoggerFactory extends LoggerFactory<ConsoleLogger> {
      * @param   name    the name
      * @param   level   the {@link Level}
      * @return          a {@link ConsoleLogger}
-     * @throws  NullPointerException    if the name is null
+     * @throws  LoggerException     if the name is null, empty or contains non-ASCII characters
      */
     @Override
     public ConsoleLogger getLogger(String name, Level level, Clock clock) {
-        return new ConsoleLogger(Objects.requireNonNull(name), level, clock, output);
+        ConsoleLogger logger = getCachedLogger(name);
+        if (logger != null)
+            return logger;
+        logger = new ConsoleLogger(name, level, clock, output);
+        putCachedLogger(name, logger);
+        return logger;
     }
 
     /**

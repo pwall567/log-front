@@ -44,13 +44,13 @@ public class LogList extends LogListener implements Iterable<LogItem> {
      * @param   time        the time of the event
      * @param   logger      the logger object
      * @param   level       the logging level
-     * @param   text        the text of the message
+     * @param   message     the message
      * @param   throwable   a {@link Throwable}, if provided
      */
     @Override
-    public void receive(long time, Logger logger, Level level, String text, Throwable throwable) {
+    public void receive(long time, Logger logger, Level level, Object message, Throwable throwable) {
         synchronized (list) {
-            list.add(new LogItem(time, logger.getName(), level, text, throwable));
+            list.add(new LogItem(time, logger.getName(), level, message, throwable));
         }
     }
 

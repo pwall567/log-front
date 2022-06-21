@@ -35,6 +35,7 @@ import org.junit.Test;
 import net.pwall.log.LogItem;
 import net.pwall.log.LogList;
 import net.pwall.log.Logger;
+import net.pwall.log.Log;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -42,13 +43,13 @@ public class LoggerTest {
 
     @Test
     public void shouldGetDefaultLoggerByName() {
-        Logger logger = Logger.getDefault("koala");
+        Logger logger = Log.getLogger("koala");
         assertEquals("koala", logger.getName());
     }
 
     @Test
     public void shouldGetDefaultLoggerByClass() {
-        Logger logger = Logger.getDefault(LoggerTest.class);
+        Logger logger = Log.getLogger(LoggerTest.class);
         assertEquals("net.pwall.log.test.LoggerTest", logger.getName());
     }
 
@@ -56,7 +57,7 @@ public class LoggerTest {
     public void shouldGetDefaultLoggerWithClock() {
         OffsetDateTime time = OffsetDateTime.of(2022, 4, 12, 22, 41, 3, 456_000_000, ZoneOffset.ofHours(10));
         Clock clock = Clock.fixed(time.toInstant(), time.getOffset());
-        Logger logger = Logger.getDefault("wombat", clock);
+        Logger logger = Log.getDefaultLoggerFactory().getLogger("wombat", clock);
         try (LogList logList = new LogList()) {
             logger.info("Hello!");
             Iterator<LogItem> iterator = logList.iterator();
@@ -71,7 +72,7 @@ public class LoggerTest {
     public void shouldGetDefaultLoggerByClassWithClock() {
         OffsetDateTime time = OffsetDateTime.of(2022, 4, 15, 10, 48, 8, 0, ZoneOffset.ofHours(10));
         Clock clock = Clock.fixed(time.toInstant(), time.getOffset());
-        Logger logger = Logger.getDefault(LoggerTest.class, clock);
+        Logger logger = Log.getDefaultLoggerFactory().getLogger(LoggerTest.class, clock);
         try (LogList logList = new LogList()) {
             logger.info(123);
             Iterator<LogItem> iterator = logList.iterator();

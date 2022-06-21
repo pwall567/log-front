@@ -50,7 +50,7 @@ public class Slf4jLogger extends AbstractLogger {
      * @throws  InvocationTargetException   if thrown by the underlying system
      * @throws  IllegalAccessException      if thrown by the underlying system
      */
-    public Slf4jLogger(String name, Level level, Clock clock, Slf4jProxy slf4jProxy)
+    Slf4jLogger(String name, Level level, Clock clock, Slf4jProxy slf4jProxy)
             throws InvocationTargetException, IllegalAccessException {
         super(name, level, clock);
         this.slf4jProxy = slf4jProxy;
@@ -179,7 +179,7 @@ public class Slf4jLogger extends AbstractLogger {
      * @param   throwable   the {@link Throwable}
      */
     @Override
-    public void error(Object message, Throwable throwable) {
+    public void error(Throwable throwable, Object message) {
         String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, throwable);

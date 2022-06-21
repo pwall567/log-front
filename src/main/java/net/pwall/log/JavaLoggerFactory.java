@@ -32,7 +32,7 @@ import java.time.Clock;
  *
  * @author  Peter Wall
  */
-public class JavaLoggerFactory extends LoggerFactory<JavaLogger> {
+public class JavaLoggerFactory extends AbstractLoggerFactory<JavaLogger> {
 
     private static final JavaLoggerFactory instance = new JavaLoggerFactory();
 
@@ -40,7 +40,7 @@ public class JavaLoggerFactory extends LoggerFactory<JavaLogger> {
      * Construct a {@code JavaLoggerFactory} with the default {@link Level} and {@link Clock}.
      */
     public JavaLoggerFactory() {
-        super(Level.INFO, systemClock);
+        super(systemDefaultLevel, systemClock);
     }
 
     /**
@@ -50,11 +50,16 @@ public class JavaLoggerFactory extends LoggerFactory<JavaLogger> {
      * @param   level   the {@link Level}
      * @param   clock   the {@link Clock}
      * @return          the {@link JavaLogger}
-     * @throws  NullPointerException    if the name is null
+     * @throws  LoggerException     if the name is null, empty or contains non-ASCII characters
      */
     @Override
     public JavaLogger getLogger(String name, Level level, Clock clock) {
-        return new JavaLogger(name, level, clock);
+        JavaLogger logger = getCachedLogger(name);
+        if (logger != null)
+            return logger;
+        logger = new JavaLogger(name, level, clock);
+        putCachedLogger(name, logger);
+        return logger;
     }
 
     /**

@@ -5,9 +5,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.pwall.log</groupId>
   <artifactId>log-front</artifactId>
-  <version>4.0</version>
+  <version>5.0</version>
   <name>Logging interface</name>
-  <description>Classes to simplify integration with logging systems</description>
+  <description>Simple logging interface and basic implementation</description>
   <packaging>jar</packaging>
   <url>https://github.com/pwall567/log-front</url>
 
@@ -52,6 +52,11 @@
   </pluginRepositories>
 
   <dependencies>
+    <dependency>
+      <groupId>net.pwall.log</groupId>
+      <artifactId>log-front-api</artifactId>
+      <version>1.2</version>
+    </dependency>
     <dependency>
       <groupId>net.pwall.util</groupId>
       <artifactId>int-output</artifactId>

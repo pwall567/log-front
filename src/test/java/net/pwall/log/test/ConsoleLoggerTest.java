@@ -2,7 +2,7 @@
  * @(#) ConsoleLoggerTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021 Peter Wall
+ * Copyright (c) 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,13 +34,13 @@ import static org.junit.Assert.assertTrue;
 import net.pwall.log.ConsoleLogger;
 import net.pwall.log.ConsoleLoggerFactory;
 import net.pwall.log.Level;
-import net.pwall.log.LoggerFactory;
 
 public class ConsoleLoggerTest {
 
     @Test
     public void shouldCreateConsoleLogger() {
-        ConsoleLogger logger = LoggerFactory.getConsoleLogger("Hippo");
+        ConsoleLoggerFactory consoleLoggerFactory = new ConsoleLoggerFactory();
+        ConsoleLogger logger =  consoleLoggerFactory.getLogger("Hippo");
         assertEquals(Level.INFO, logger.getLevel());
         logger.info("getConsoleLogger seems to work");
     }
@@ -66,7 +66,8 @@ public class ConsoleLoggerTest {
 
     @Test
     public void shouldUseDefaultLevel() {
-        ConsoleLogger logger = LoggerFactory.getConsoleLogger("Giraffe");
+        ConsoleLoggerFactory consoleLoggerFactory = new ConsoleLoggerFactory();
+        ConsoleLogger logger = consoleLoggerFactory.getLogger("Giraffe");
         assertFalse(logger.isTraceEnabled());
         assertFalse(logger.isDebugEnabled());
         assertTrue(logger.isInfoEnabled());
@@ -78,7 +79,8 @@ public class ConsoleLoggerTest {
 
     @Test
     public void shouldAllowChangeOfLevel() {
-        ConsoleLogger logger = LoggerFactory.getConsoleLogger("Zebra");
+        ConsoleLoggerFactory consoleLoggerFactory = new ConsoleLoggerFactory();
+        ConsoleLogger logger = consoleLoggerFactory.getLogger("Zebra");
         logger.setLevel(Level.DEBUG);
         assertFalse(logger.isTraceEnabled());
         assertTrue(logger.isDebugEnabled());
@@ -91,7 +93,8 @@ public class ConsoleLoggerTest {
 
     @Test
     public void shouldOutputMultiLine() {
-        ConsoleLogger logger = LoggerFactory.getConsoleLogger("Octopus");
+        ConsoleLoggerFactory consoleLoggerFactory = ConsoleLoggerFactory.getInstance();
+        ConsoleLogger logger = consoleLoggerFactory.getLogger("Octopus");
         assertEquals(Level.INFO, logger.getLevel());
         logger.info("testing outputMultiLine\nline 2\nline 3\r\nline 4 (Last line)");
     }

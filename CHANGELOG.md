@@ -2,6 +2,24 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [5.0] - 2022-06-21
+### Added
+- `AbstractLoggerFactory`: abstract base class for `LoggerFactory` implementations
+- `AbstractFormatter`: abstract base class for `LogFormatter` implementations
+- `Log`: static functions
+- `LogAppender`, `PrintStreamAppender`: new appender interface and implementation
+- `LogFormatter`, `BasicFormatter`: new formatter interface and implementation
+- `FormattingLogger`, `FormattingLoggerFactory`: logger utilising appender and formatter
+### Changed
+- `DynamicLoggerFactory`: renamed from `DefaultLoggerFactory`
+- `ConsoleLogger`, `ConsoleLoggerFactory`, `JavaLogger`, `JavaLoggerFactory`, `Slf4jLogger`: modified to use
+  `log-front-api`
+- `pom.xml`: added dependency on `log-front-api`
+- `DynamicLoggerFactory`: modified to use `FormattingLogger`
+### Removed
+- `Level`, `Logger`, `LoggerFactory`, `NullLogger`, `NullLoggerFactory`: now uses versions from `log-front-api` instead
+- `SourceDetails`: functionality now part of `log-front-api`
+
 ## [4.0] - 2022-05-03
 ### Added
 - `SourceDetails`: holder for class and method name

@@ -55,14 +55,14 @@ public class LogItemTest {
         assertEquals(time, logItem1.getTime());
         assertEquals(name, logItem1.getName());
         assertEquals(level, logItem1.getLevel());
-        assertEquals(text, logItem1.getText());
+        assertEquals(text, logItem1.getMessage().toString());
         assertNull(logItem1.getThrowable());
         Throwable throwable = new Throwable("Error text");
         LogItem logItem2 = new LogItem(time, name, level, text, throwable);
         assertEquals(time, logItem2.getTime());
         assertEquals(name, logItem2.getName());
         assertEquals(level, logItem2.getLevel());
-        assertEquals(text, logItem2.getText());
+        assertEquals(text, logItem2.getMessage().toString());
         assertSame(throwable, logItem2.getThrowable());
     }
 

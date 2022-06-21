@@ -26,21 +26,19 @@
 package net.pwall.log;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
- * A {@link Logger} that outputs to a {@link PrintStream}, usually {@code stdout} or {@code stderr}.
+ * A {@link Logger} that outputs to a {@link PrintStream}, usually {@code stdout} or {@code stderr}.  This has largely
+ * been superseded by the {@link FormattingLogger}, and may be deprecated in future.
  *
  * @author  Peter Wall
  */
 public class ConsoleLogger extends AbstractLogger {
 
-    /** Default logging level for {@code ConsoleLogger} */
-    public static final Level defaultLevel = Level.INFO;
     /** Default output stream for {@code ConsoleLogger} */
     public static final PrintStream defaultOutput = System.out;
 
@@ -55,40 +53,11 @@ public class ConsoleLogger extends AbstractLogger {
      * @param   clock   the {@link Clock}
      * @param   output  the output stream
      */
-    public ConsoleLogger(String name, Level level, Clock clock, PrintStream output) {
+    ConsoleLogger(String name, Level level, Clock clock, PrintStream output) {
         super(name, level, clock);
         this.output = Objects.requireNonNull(output);
         setLevel(level);
         separator = '|';
-    }
-
-    /**
-     * Create a {@code ConsoleLogger} with the supplied name and level and the default output stream.
-     *
-     * @param   name    the name to be associated with logging messages
-     * @param   level   the minimum level to be output
-     */
-    public ConsoleLogger(String name, Level level) {
-        this(name, level, LoggerFactory.systemClock, defaultOutput);
-    }
-
-    /**
-     * Create a {@code ConsoleLogger} with the supplied name and output stream and the default level.
-     *
-     * @param   name    the name to be associated with logging messages
-     * @param   output  the output stream
-     */
-    public ConsoleLogger(String name, PrintStream output) {
-        this(name, defaultLevel, LoggerFactory.systemClock, output);
-    }
-
-    /**
-     * Create a {@code ConsoleLogger} with the supplied name and the default level and output stream.
-     *
-     * @param   name    the name to be associated with logging messages
-     */
-    public ConsoleLogger(String name) {
-        this(name, defaultLevel, LoggerFactory.systemClock, defaultOutput);
     }
 
     /**
@@ -116,56 +85,6 @@ public class ConsoleLogger extends AbstractLogger {
      */
     public void setSeparator(char separator) {
         this.separator = separator;
-    }
-
-    /**
-     * Test whether trace output is enabled for this {@code ConsoleLogger}.
-     *
-     * @return      {@code true} if trace output is enabled
-     */
-    @Override
-    public boolean isTraceEnabled() {
-        return getLevel().getValue() <= Level.TRACE.getValue();
-    }
-
-    /**
-     * Test whether debug output is enabled for this {@code ConsoleLogger}.
-     *
-     * @return      {@code true} if debug output is enabled
-     */
-    @Override
-    public boolean isDebugEnabled() {
-        return getLevel().getValue() <= Level.DEBUG.getValue();
-    }
-
-    /**
-     * Test whether info output is enabled for this {@code ConsoleLogger}.
-     *
-     * @return      {@code true} if info output is enabled
-     */
-    @Override
-    public boolean isInfoEnabled() {
-        return getLevel().getValue() <= Level.INFO.getValue();
-    }
-
-    /**
-     * Test whether warning output is enabled for this {@code ConsoleLogger}.
-     *
-     * @return      {@code true} if warning output is enabled
-     */
-    @Override
-    public boolean isWarnEnabled() {
-        return getLevel().getValue() <= Level.WARN.getValue();
-    }
-
-    /**
-     * Test whether error output is enabled for this {@code ConsoleLogger}.
-     *
-     * @return      {@code true} if error output is enabled
-     */
-    @Override
-    public boolean isErrorEnabled() {
-        return getLevel().getValue() <= Level.ERROR.getValue();
     }
 
     /**
@@ -230,24 +149,29 @@ public class ConsoleLogger extends AbstractLogger {
      * @param   throwable   the {@link Throwable}
      */
     @Override
-    public void error(Object message, Throwable throwable) {
+    public void error(Throwable throwable, Object message) {
         if (isErrorEnabled()) {
-            outputLog(Level.ERROR, message, throwable);
-            throwable.printStackTrace(output);
-            if (output.checkError())
-                throw new RuntimeException("Error writing ConsoleLogger");
+            int dayMillis = outputLog(Level.ERROR, message, throwable);
+            StringWriter sw = new StringWriter();
+            throwable.printStackTrace(new PrintWriter(sw));
+            outputMulti(dayMillis, Level.ERROR, sw.toString());
         }
     }
 
-    private void outputLog(Level level, Object message, Throwable throwable) {
+    private int outputLog(Level level, Object message, Throwable throwable) {
         long time = getClock().millis();
         String text = String.valueOf(message);
         if (LogListener.present())
             LogListener.invokeAll(time, this, level, text, throwable);
-        LocalTime localTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), getClock().getZone()).toLocalTime();
-        outputMultiLine(text, line -> {
+        int dayMillis = AbstractFormatter.getDayMillis(time, getClock().getZone());
+        outputMulti(dayMillis, level, text);
+        return dayMillis;
+    }
+
+    private void outputMulti(int dayMillis, Level level, String text) {
+        AbstractLogger.outputMultiLine(text, line -> {
             StringBuilder sb = new StringBuilder(120);
-            LogItem.appendTime(sb, localTime);
+            AbstractFormatter.outputTime(dayMillis, ch -> sb.append((char)ch));
             sb.append(separator).append(getName());
             sb.append(separator).append(level);
             sb.append(separator).append(' ').append(line);

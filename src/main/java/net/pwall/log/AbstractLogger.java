@@ -46,12 +46,11 @@ public abstract class AbstractLogger implements Logger {
      * @param   name    the name
      * @param   level   the {@link Level}
      * @param   clock   the {@link Clock}
-     * @throws  NullPointerException    if any of the parameters is null
      */
     protected AbstractLogger(String name, Level level, Clock clock) {
-        this.name = Objects.requireNonNull(name);
-        this.level = Objects.requireNonNull(level);
-        this.clock = Objects.requireNonNull(clock);
+        this.name = name;
+        this.level = level;
+        this.clock = clock;
     }
 
     /**
@@ -94,6 +93,13 @@ public abstract class AbstractLogger implements Logger {
         return clock;
     }
 
+    /**
+     * Split a line containing newline characters into separate log entries, so that malicious code can not create
+     * deceptive log lines.
+     *
+     * @param   message         the log message
+     * @param   outputFunction  an output function that takes a single line (which by now will not contain newline)
+     */
     protected static void outputMultiLine(String message, Consumer<String> outputFunction) {
         int n = message.length();
         if (n == 0) {

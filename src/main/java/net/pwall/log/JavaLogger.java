@@ -45,31 +45,10 @@ public class JavaLogger extends AbstractLogger {
      * @param   clock   the {@link Clock}
      * @throws  NullPointerException    if any of the parameters is null
      */
-    public JavaLogger(String name, Level level, Clock clock) {
+    JavaLogger(String name, Level level, Clock clock) {
         super(name, level, clock);
         javaLogger = java.util.logging.Logger.getLogger(name);
         javaLogger.setLevel(convertLevel(level));
-    }
-
-    /**
-     * Create a {@code JavaLogger} with the supplied name and {@link Level}.
-     *
-     * @param   name    the name
-     * @param   level   the {@link Level}
-     * @throws  NullPointerException    if the name is null
-     */
-    public JavaLogger(String name, Level level) {
-        this(name, level, LoggerFactory.systemClock);
-    }
-
-    /**
-     * Create a {@code JavaLogger} with the supplied name, using the default level.
-     *
-     * @param   name    the name
-     * @throws  NullPointerException    if the name is null
-     */
-    public JavaLogger(String name) {
-        this(name, Level.INFO, LoggerFactory.systemClock);
     }
 
     /**
@@ -144,7 +123,7 @@ public class JavaLogger extends AbstractLogger {
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.TRACE, text, null);
-        SourceDetails sourceDetails = SourceDetails.findSourceDetails();
+        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
         outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.FINER, s, millis, sourceDetails, null));
     }
 
@@ -159,7 +138,7 @@ public class JavaLogger extends AbstractLogger {
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.DEBUG, text, null);
-        SourceDetails sourceDetails = SourceDetails.findSourceDetails();
+        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
         outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.FINE, s, millis, sourceDetails, null));
     }
 
@@ -174,7 +153,7 @@ public class JavaLogger extends AbstractLogger {
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.INFO, text, null);
-        SourceDetails sourceDetails = SourceDetails.findSourceDetails();
+        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
         outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.INFO, s, millis, sourceDetails, null));
     }
 
@@ -189,7 +168,7 @@ public class JavaLogger extends AbstractLogger {
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.WARN, text, null);
-        SourceDetails sourceDetails = SourceDetails.findSourceDetails();
+        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
         outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.WARNING, s, millis, sourceDetails, null));
     }
 
@@ -204,32 +183,32 @@ public class JavaLogger extends AbstractLogger {
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.ERROR, text, null);
-        SourceDetails sourceDetails = SourceDetails.findSourceDetails();
+        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
         outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.SEVERE, s, millis, sourceDetails, null));
     }
 
     /**
      * Output an error message along with a {@link Throwable}.
      *
-     * @param   message     the message (will be output using {@link Object#toString()}
      * @param   thrown      the {@link Throwable}
+     * @param   message     the message (will be output using {@link Object#toString()}
      */
     @Override
-    public void error(Object message, Throwable thrown) {
+    public void error(Throwable thrown, Object message) {
         String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
             LogListener.invokeAll(millis, this, Level.ERROR, text, thrown);
-        SourceDetails sourceDetails = SourceDetails.findSourceDetails();
+        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
         outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.SEVERE, s, millis, sourceDetails, thrown));
     }
 
     private void outputLogRecord(java.util.logging.Level level, String message, long millis,
-            SourceDetails sourceDetails, Throwable throwable) {
+            StackTraceElement callerInfo, Throwable throwable) {
         LogRecord logRecord = new LogRecord(level, message);
         logRecord.setMillis(millis);
-        logRecord.setSourceClassName(sourceDetails.getClassName());
-        logRecord.setSourceMethodName(sourceDetails.getMethodName());
+        logRecord.setSourceClassName(callerInfo.getClassName());
+        logRecord.setSourceMethodName(callerInfo.getMethodName());
         logRecord.setThrown(throwable);
         javaLogger.log(logRecord);
     }

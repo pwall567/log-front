@@ -25,13 +25,7 @@
 
 package net.pwall.log;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-
-import net.pwall.util.IntOutput;
 
 /**
  * A log item, as used by the {@link LogList} class.  This is an immutable value object.
@@ -45,7 +39,7 @@ public class LogItem {
     private final long time;
     private final String name;
     private final Level level;
-    private final String text;
+    private final Object message;
     private final Throwable throwable;
 
     /**
@@ -54,14 +48,14 @@ public class LogItem {
      * @param   time        the time of the log event in milliseconds
      * @param   name        the name of the {@link Logger}
      * @param   level       the {@link Level} of the log event
-     * @param   text        the text of the log event
+     * @param   message     the text of the log event
      * @param   throwable   an optional {@link Throwable}
      */
-    public LogItem(long time, String name, Level level, String text, Throwable throwable) {
+    public LogItem(long time, String name, Level level, Object message, Throwable throwable) {
         this.time = time;
         this.name = name;
         this.level = level;
-        this.text = text;
+        this.message = message;
         this.throwable = throwable;
     }
 
@@ -97,8 +91,8 @@ public class LogItem {
      *
      * @return      the text
      */
-    public String getText() {
-        return text;
+    public Object getMessage() {
+        return message;
     }
 
     /**
@@ -128,37 +122,17 @@ public class LogItem {
      */
     public String toString(char separator) {
         StringBuilder sb = new StringBuilder();
-        appendTime(sb, OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), defaultZoneId).toLocalTime());
+        int dayMillis = AbstractFormatter.getDayMillis(time, defaultZoneId);
+        AbstractFormatter.outputTime(dayMillis, ch -> sb.append((char)ch));
         sb.append(separator);
         sb.append(name).append(separator);
         sb.append(level).append(separator);
-        sb.append(text);
+        sb.append(message);
         if (throwable != null) {
             sb.append(separator).append(throwable.getClass().getName());
             sb.append(separator).append(throwable.getMessage());
         }
         return sb.toString();
-    }
-
-    /**
-     * Append a {@link LocalTime} to a {@link StringBuilder} in RFC 3339 format (with 3 digits of fractional seconds).
-     *
-     * @param   sb          the {@link StringBuilder}
-     * @param   localTime   the {@link LocalTime}
-     */
-    public static void appendTime(StringBuilder sb, LocalTime localTime) {
-        try {
-            IntOutput.append2Digits(sb, localTime.getHour());
-            sb.append(':');
-            IntOutput.append2Digits(sb, localTime.getMinute());
-            sb.append(':');
-            IntOutput.append2Digits(sb, localTime.getSecond());
-            sb.append('.');
-            IntOutput.append3Digits(sb, localTime.getNano() / 1_000_000);
-        }
-        catch (IOException ignore) {
-            // can't happen - StringBuilder doesn't throw IOException
-        }
     }
 
 }

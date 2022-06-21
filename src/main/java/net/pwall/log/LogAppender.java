@@ -1,8 +1,8 @@
 /*
- * @(#) NullLoggerFactory.java
+ * @(#) LogAppender.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022 Peter Wall
+ * Copyright (c) 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,45 +25,37 @@
 
 package net.pwall.log;
 
-import java.time.Clock;
-
 /**
- * A {@link LoggerFactory} that returns only a {@link NullLogger}.
+ * Log Appender interface.
  *
  * @author  Peter Wall
+ * @param   <F>     the {@link LogFormatter} type
  */
-public class NullLoggerFactory extends LoggerFactory<NullLogger> {
-
-    private static final NullLoggerFactory instance = new NullLoggerFactory();
+public interface LogAppender<F extends LogFormatter> extends AutoCloseable {
 
     /**
-     * Construct a {@code NullLoggerFactory}.
-     */
-    public NullLoggerFactory() {
-        super(Level.INFO, systemClock);
-    }
-
-    /**
-     * Get a {@link NullLogger} with the supplied name and {@link Level}.
+     * Output a single log message.
      *
-     * @param   name    the name
-     * @param   level   the {@link Level}
-     * @param   clock   the {@link Clock}
-     * @return          the {@link NullLogger}
-     * @throws  NullPointerException    if the name is null
+     * @param   millis      the time of the event in milliseconds from the standard era
+     * @param   logger      the {@link Logger}
+     * @param   level       the {@link Level}
+     * @param   message     the message
+     * @param   throwable   an optional {@link Throwable}
      */
-    @Override
-    public NullLogger getLogger(String name, Level level, Clock clock) {
-        return new NullLogger(name);
-    }
+    void output(long millis, Logger logger, Level level, Object message, Throwable throwable);
 
     /**
-     * Get the shared {@code NullLoggerFactory} instance.
+     * Get the {@link LogFormatter} used by this {@code LogAppender}.
      *
-     * @return      the shared instance
+     * @return      the {@link LogFormatter}
      */
-    public static NullLoggerFactory getInstance() {
-        return instance;
+    F getFormatter();
+
+    /**
+     * Close the appender.  Default information does nothing.
+     */
+    default void close() {
+        // do nothing
     }
 
 }

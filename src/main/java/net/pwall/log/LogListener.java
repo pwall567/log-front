@@ -65,10 +65,10 @@ public abstract class LogListener implements AutoCloseable {
      * @param   time        the time of the event in milliseconds
      * @param   logger      the logger object
      * @param   level       the logging level
-     * @param   text        the text of the message
+     * @param   message     the message
      * @param   throwable   a {@link Throwable}, if provided
      */
-    public abstract void receive(long time, Logger logger, Level level, String text, Throwable throwable);
+    public abstract void receive(long time, Logger logger, Level level, Object message, Throwable throwable);
 
     /**
      * Add a listener to the list.
@@ -108,10 +108,10 @@ public abstract class LogListener implements AutoCloseable {
      * @param   time        the time of the log in milliseconds
      * @param   logger      the originating {@link Logger}
      * @param   level       the level
-     * @param   text        the text of the log message
+     * @param   message     the log message
      * @param   throwable   the {@link Throwable}, if present
      */
-    public static void invokeAll(long time, Logger logger, Level level, String text, Throwable throwable) {
+    public static void invokeAll(long time, Logger logger, Level level, Object message, Throwable throwable) {
         // this is optimised for the most common case of a single listener
         LogListener single = null;
         LogListener[] array = emptyArray;
@@ -126,10 +126,10 @@ public abstract class LogListener implements AutoCloseable {
             }
         }
         if (single != null)
-            single.receive(time, logger, level, text, throwable);
+            single.receive(time, logger, level, message, throwable);
         else
             for (LogListener listener : array)
-                listener.receive(time, logger, level, text, throwable);
+                listener.receive(time, logger, level, message, throwable);
     }
 
 }

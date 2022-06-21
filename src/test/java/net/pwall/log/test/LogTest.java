@@ -1,8 +1,8 @@
 /*
- * @(#) LoggerFactoryTest.java
+ * @(#) LogTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2022 Peter Wall
+ * Copyright (c) 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,70 +25,46 @@
 
 package net.pwall.log.test;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import net.pwall.log.Level;
+import net.pwall.log.Log;
 import net.pwall.log.Logger;
 import net.pwall.log.LoggerFactory;
 import net.pwall.log.NullLogger;
 import net.pwall.log.NullLoggerFactory;
 import net.pwall.log.Slf4jLogger;
 
-public class LoggerFactoryTest {
+public class LogTest {
 
     @Test
     public void shouldCreateDefaultLogger() {
-        Logger logger = LoggerFactory.getDefaultLogger("xxx");
+        Logger logger = Log.getLogger("xxx");
         assertTrue(logger instanceof Slf4jLogger);
         logger.info("getDefaultLogger seems to work!");
     }
 
     @Test
     public void shouldOutputMultiLineUsingSlf4jLogger() {
-        Logger logger = LoggerFactory.getDefaultLogger("yyy");
+        Logger logger = Log.getLogger("yyy");
         assertTrue(logger instanceof Slf4jLogger);
         logger.info("Slf4jLogger multi-line\nline 2\nline 3 and end\n");
     }
 
     @Test
     public void shouldCreateLoggerUsingClassName() {
-        Logger logger = LoggerFactory.getDefault().getLogger(getClass(), Level.DEBUG, Clock.systemDefaultZone());
+        Logger logger = Log.getLogger(getClass());
         assertEquals(getClass().getName(), logger.getName());
     }
 
     @Test
     public void shouldChangeDefaultFactory() {
-        LoggerFactory<?> previousDefault = LoggerFactory.getDefault();
-        LoggerFactory.setDefault(NullLoggerFactory.getInstance());
-        Logger logger = LoggerFactory.getDefaultLogger(getClass());
+        LoggerFactory<?> previousDefault = Log.getDefaultLoggerFactory();
+        Log.setDefaultLoggerFactory(new NullLoggerFactory());
+        Logger logger = Log.getLogger(getClass());
         assertTrue(logger instanceof NullLogger);
-        LoggerFactory.setDefault(previousDefault);
-    }
-
-    @Test
-    public void shouldChangeDefaultLevel() {
-        LoggerFactory<?> loggerFactory = LoggerFactory.getDefault();
-        assertEquals(Level.INFO, loggerFactory.getDefaultLevel());
-        loggerFactory.setDefaultLevel(Level.DEBUG);
-        Logger logger = loggerFactory.getLogger("cactus");
-        assertEquals(Level.DEBUG, logger.getLevel());
-    }
-
-    @Test
-    public void shouldChangeDefaultClock() {
-        LoggerFactory<?> loggerFactory = LoggerFactory.getDefault();
-        assertSame(LoggerFactory.systemClock, loggerFactory.getDefaultClock());
-        Clock fixedClock = Clock.fixed(Instant.now(), ZoneOffset.UTC);
-        loggerFactory.setDefaultClock(fixedClock);
-        Logger logger = loggerFactory.getLogger("cactus");
-        assertSame(fixedClock, logger.getClock());
+        Log.setDefaultLoggerFactory(previousDefault);
     }
 
 }

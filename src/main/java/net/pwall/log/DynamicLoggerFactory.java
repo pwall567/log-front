@@ -1,5 +1,5 @@
 /*
- * @(#) DefaultLoggerFactory.java
+ * @(#) DynamicLoggerFactory.java
  *
  * log-front  Logging interface
  * Copyright (c) 2020, 2021, 2022 Peter Wall
@@ -26,12 +26,10 @@
 package net.pwall.log;
 
 import java.time.Clock;
-import java.util.Objects;
 
 /**
- * The default {@link LoggerFactory}, which tries to create a {@link Logger} as follows:
+ * The dynamic {@link LoggerFactory}, which tries to create a {@link Logger} as follows:
  * <ol>
- *   <li>If a custom {@link LoggerFactory} has been provided, call that and return the result</li>
  *   <li>If <code>slf4j</code> is available on the class path, create an {@link Slf4jLogger}</li>
  *   <li>If the system property <code>java.util.logging.config.file</code> is present, or if the file
  *     <code>logging.properties</code> is present as a resource, create a {@link JavaLogger}</li>
@@ -40,10 +38,12 @@ import java.util.Objects;
  *
  * @author  Peter Wall
  */
-public class DefaultLoggerFactory extends LoggerFactory<Logger> {
+public class DynamicLoggerFactory extends AbstractLoggerFactory<Logger> {
 
     private static Slf4jProxy slf4jProxy = null;
     private static boolean javaLogging = false;
+
+    private FormattingLoggerFactory<?, ?> formattingLoggerFactory = null;
 
     static {
         try {
@@ -53,18 +53,45 @@ public class DefaultLoggerFactory extends LoggerFactory<Logger> {
         catch (Exception ignore) {
             // slf4j not found; are we using java.util.logging?
             javaLogging = System.getProperty("java.util.logging.config.file") != null ||
-                    DefaultLoggerFactory.class.getResource("logging.properties") != null;
+                    DynamicLoggerFactory.class.getResource("logging.properties") != null;
         }
     }
 
     /**
-     * Construct a {@code DefaultLoggerFactory}
+     * Construct a {@code DefaultLoggerFactory} with the supplied default {@link Level} and {@link Clock}.
      *
      * @param   defaultLevel    the default {@link Level}
      * @param   defaultClock    the default {@link Clock}
      */
-    public DefaultLoggerFactory(Level defaultLevel, Clock defaultClock) {
+    public DynamicLoggerFactory(Level defaultLevel, Clock defaultClock) {
         super(defaultLevel, defaultClock);
+    }
+
+    /**
+     * Construct a {@code DefaultLoggerFactory} with the supplied default {@link Level} and the system default
+     * {@link Clock}.
+     *
+     * @param   defaultLevel    the default {@link Level}
+     */
+    public DynamicLoggerFactory(Level defaultLevel) {
+        super(defaultLevel, systemClock);
+    }
+
+    /**
+     * Construct a {@code DefaultLoggerFactory} with the system default {@link Level} and the supplied default
+     * {@link Clock}.
+     *
+     * @param   defaultClock    the default {@link Clock}
+     */
+    public DynamicLoggerFactory(Clock defaultClock) {
+        super(systemDefaultLevel, defaultClock);
+    }
+
+    /**
+     * Construct a {@code DefaultLoggerFactory} with the system default {@link Level} and {@link Clock}.
+     */
+    public DynamicLoggerFactory() {
+        super(systemDefaultLevel, systemClock);
     }
 
     /**
@@ -75,11 +102,19 @@ public class DefaultLoggerFactory extends LoggerFactory<Logger> {
      * @param   level   the {@link Level}
      * @param   clock   the {@link Clock}
      * @return          a {@link Logger}
-     * @throws  NullPointerException    if the name is null
+     * @throws  LoggerException     if the name is null, empty or contains non-ASCII characters
      */
     @Override
     public Logger getLogger(String name, Level level, Clock clock) {
-        Objects.requireNonNull(name);
+        Logger logger = getCachedLogger(name);
+        if (logger != null)
+            return logger;
+        logger = getSpecificLogger(name, level, clock);
+        putCachedLogger(name, logger);
+        return logger;
+    }
+
+    private Logger getSpecificLogger(String name, Level level, Clock clock) {
         if (slf4jProxy != null) {
             try {
                 return new Slf4jLogger(name, level, clock, slf4jProxy);
@@ -89,8 +124,13 @@ public class DefaultLoggerFactory extends LoggerFactory<Logger> {
         }
         if (javaLogging)
             return new JavaLogger(name, level, clock);
-        ConsoleLoggerFactory consoleLoggerFactory = ConsoleLoggerFactory.getInstance();
-        return consoleLoggerFactory.getLogger(name, level, clock);
+        return getFormattingLoggerFactory().getLogger(name, level, clock);
+    }
+
+    private synchronized FormattingLoggerFactory<?, ?> getFormattingLoggerFactory() {
+        if (formattingLoggerFactory == null)
+            formattingLoggerFactory = FormattingLoggerFactory.getBasic();
+        return formattingLoggerFactory;
     }
 
 }
