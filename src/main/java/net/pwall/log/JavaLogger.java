@@ -113,18 +113,24 @@ public class JavaLogger extends AbstractLogger {
     }
 
     /**
+     * Test whether the specified level is enabled for this {@code Logger}.
+     *
+     * @param   level   the {@link Level}
+     * @return          {@code true} if output of the specified level is enabled
+     */
+    @Override
+    public boolean isEnabled(Level level) {
+        return javaLogger.isLoggable(convertLevel(level));
+    }
+
+    /**
      * Output a trace message.
      *
      * @param   message     the message (will be output using {@link Object#toString()}
      */
     @Override
     public void trace(Object message) {
-        String text = String.valueOf(message);
-        long millis = getClock().millis();
-        if (LogListener.present())
-            LogListener.invokeAll(millis, this, Level.TRACE, text, null);
-        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
-        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.FINER, s, millis, sourceDetails, null));
+        log(Level.TRACE, java.util.logging.Level.FINER, message, null);
     }
 
     /**
@@ -134,12 +140,7 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void debug(Object message) {
-        String text = String.valueOf(message);
-        long millis = getClock().millis();
-        if (LogListener.present())
-            LogListener.invokeAll(millis, this, Level.DEBUG, text, null);
-        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
-        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.FINE, s, millis, sourceDetails, null));
+        log(Level.DEBUG, java.util.logging.Level.FINE, message, null);
     }
 
     /**
@@ -149,12 +150,7 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void info(Object message) {
-        String text = String.valueOf(message);
-        long millis = getClock().millis();
-        if (LogListener.present())
-            LogListener.invokeAll(millis, this, Level.INFO, text, null);
-        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
-        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.INFO, s, millis, sourceDetails, null));
+        log(Level.INFO, java.util.logging.Level.INFO, message, null);
     }
 
     /**
@@ -164,12 +160,7 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void warn(Object message) {
-        String text = String.valueOf(message);
-        long millis = getClock().millis();
-        if (LogListener.present())
-            LogListener.invokeAll(millis, this, Level.WARN, text, null);
-        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
-        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.WARNING, s, millis, sourceDetails, null));
+        log(Level.WARN, java.util.logging.Level.WARNING, message, null);
     }
 
     /**
@@ -179,12 +170,7 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void error(Object message) {
-        String text = String.valueOf(message);
-        long millis = getClock().millis();
-        if (LogListener.present())
-            LogListener.invokeAll(millis, this, Level.ERROR, text, null);
-        StackTraceElement sourceDetails = LoggerFactory.callerInfo();
-        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.SEVERE, s, millis, sourceDetails, null));
+        log(Level.ERROR, java.util.logging.Level.SEVERE, message, null);
     }
 
     /**
@@ -195,12 +181,27 @@ public class JavaLogger extends AbstractLogger {
      */
     @Override
     public void error(Throwable thrown, Object message) {
+        log(Level.ERROR, java.util.logging.Level.SEVERE, message, thrown);
+    }
+
+    /**
+     * Output a message with the log level specified dynamically.
+     *
+     * @param   level       the {@link Level}
+     * @param   message     the message (will be output using {@link Object#toString()}
+     */
+    @Override
+    public void log(Level level, Object message) {
+        log(level, convertLevel(level), message, null);
+    }
+
+    private void log(Level level, java.util.logging.Level julLevel, Object message, Throwable throwable) {
         String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
-            LogListener.invokeAll(millis, this, Level.ERROR, text, thrown);
+            LogListener.invokeAll(millis, this, level, text, throwable);
         StackTraceElement sourceDetails = LoggerFactory.callerInfo();
-        outputMultiLine(text, s -> outputLogRecord(java.util.logging.Level.SEVERE, s, millis, sourceDetails, thrown));
+        outputMultiLine(text, s -> outputLogRecord(julLevel, s, millis, sourceDetails, throwable));
     }
 
     private void outputLogRecord(java.util.logging.Level level, String message, long millis,

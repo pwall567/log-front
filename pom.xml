@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.pwall.log</groupId>
   <artifactId>log-front</artifactId>
-  <version>5.0</version>
+  <version>5.1</version>
   <name>Logging interface</name>
   <description>Simple logging interface and basic implementation</description>
   <packaging>jar</packaging>
@@ -55,7 +55,7 @@
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front-api</artifactId>
-      <version>1.2</version>
+      <version>1.3</version>
     </dependency>
     <dependency>
       <groupId>net.pwall.util</groupId>
@@ -71,7 +71,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.11</version>
+      <version>1.3.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

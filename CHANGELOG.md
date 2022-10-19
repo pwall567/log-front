@@ -2,6 +2,14 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [5.1] - 2022-10-19
+### Changed
+- `JavaLogger`: added `isEnabled` from later version of `log-front-api`, reorganised code
+- `Slf4jLogger`: added `isEnabled` from later version of `log-front-api`, added `log` with variable level
+- `Slf4jProxy`: added `isEnabled` and `log` (variable level)
+- `ConsoleLogger`, `FormattingLogger`: added `log` (variable level)
+- `pom.xml`: bumped dependency versions
+
 ## [5.0] - 2022-06-21
 ### Added
 - `AbstractLoggerFactory`: abstract base class for `LoggerFactory` implementations

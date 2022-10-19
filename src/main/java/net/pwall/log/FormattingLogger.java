@@ -26,6 +26,7 @@
 package net.pwall.log;
 
 import java.time.Clock;
+import java.util.function.Supplier;
 
 /**
  * A {@link Logger} implementation that uses a supplied {@link LogFormatter}, outputting to the supplied
@@ -99,6 +100,17 @@ public class FormattingLogger<F extends LogFormatter, A extends LogAppender<F>> 
     @Override
     public void error(Throwable throwable, Object message) {
         outputMessage(Level.ERROR, message, throwable);
+    }
+
+    @Override
+    public void log(Level level, Object message) {
+        outputMessage(level, message, null);
+    }
+
+    @Override
+    public void log(Level level, Supplier<Object> messageSupplier) {
+        if (isEnabled(level))
+            outputMessage(level, messageSupplier.get(), null);
     }
 
     private void outputMessage(Level level, Object message, Throwable throwable) {

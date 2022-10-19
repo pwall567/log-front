@@ -49,6 +49,9 @@ public class Slf4jProxy {
     private final Method errorMethod;
     private final Method errorThrowableMethod;
 
+    private final Method[] dynamicIsEnabledMethods;
+    private final Method[] dynamicLogMethods;
+
     /**
      * Construct an {@code Slf4jProxy}.  Only one such object will be required.
      *
@@ -70,6 +73,9 @@ public class Slf4jProxy {
         warnMethod = loggerClass.getMethod("warn", String.class);
         errorMethod = loggerClass.getMethod("error", String.class);
         errorThrowableMethod = loggerClass.getMethod("error", String.class, Throwable.class);
+        dynamicIsEnabledMethods = new Method[] { isTraceEnabledMethod, isDebugEnabledMethod, isInfoEnabledMethod,
+                isWarnEnabledMethod, isErrorEnabledMethod };
+        dynamicLogMethods = new Method[] { traceMethod, debugMethod, infoMethod, warnMethod, errorMethod };
     }
 
     /**
@@ -153,6 +159,15 @@ public class Slf4jProxy {
     public boolean isErrorEnabled(Object slf4jLogger) {
         try {
             return (Boolean)isErrorEnabledMethod.invoke(slf4jLogger);
+        }
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4jLoggerException(e);
+        }
+    }
+
+    public boolean isEnabled(Object slf4jLogger, Level level) {
+        try {
+            return (Boolean)dynamicIsEnabledMethods[level.ordinal()].invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new Slf4jLoggerException(e);
@@ -244,6 +259,15 @@ public class Slf4jProxy {
     public void error(Object slf4jLogger, String text, Throwable throwable) {
         try {
             errorThrowableMethod.invoke(slf4jLogger, text, throwable);
+        }
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new Slf4jLoggerException(e);
+        }
+    }
+
+    public void log (Object slf4jLogger, Level level, String text) {
+        try {
+            dynamicLogMethods[level.ordinal()].invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new Slf4jLoggerException(e);

@@ -158,6 +158,18 @@ public class ConsoleLogger extends AbstractLogger {
         }
     }
 
+    /**
+     * Output a message with a variable level.
+     *
+     * @param level       the {@link Level}
+     * @param message     the message (will be output using {@link Object#toString() toString()}
+     */
+    @Override
+    public void log(Level level, Object message) {
+        if (isEnabled(level))
+            outputLog(level, message, null);
+    }
+
     private int outputLog(Level level, Object message, Throwable throwable) {
         long time = getClock().millis();
         String text = String.valueOf(message);

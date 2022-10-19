@@ -27,6 +27,7 @@ package net.pwall.log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Clock;
+import java.util.function.Supplier;
 
 /**
  * A {@link Logger} that outputs to {@code slf4j}.  To avoid a transitive dependency on that package, all references are
@@ -108,6 +109,17 @@ public class Slf4jLogger extends AbstractLogger {
     }
 
     /**
+     * Test whether the specified level is enabled for this {@code Logger}.
+     *
+     * @param   level   the {@link Level}
+     * @return          {@code true} if output of the specified level is enabled
+     */
+    @Override
+    public boolean isEnabled(Level level) {
+        return slf4jProxy.isEnabled(slf4jLogger, level);
+    }
+
+    /**
      * Output a trace message.
      *
      * @param   message     the message (will be output using {@link Object#toString()}
@@ -184,6 +196,37 @@ public class Slf4jLogger extends AbstractLogger {
         if (LogListener.present())
             LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, throwable);
         outputMultiLine(text, s -> slf4jProxy.error(slf4jLogger, s, throwable));
+    }
+
+    /**
+     * Output a message with the log level specified dynamically.
+     *
+     * @param   level       the {@link Level}
+     * @param   message     the message (will be output using {@link Object#toString()}
+     */
+    @Override
+    public void log(Level level, Object message) {
+        String text = String.valueOf(message);
+        if (LogListener.present())
+            LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
+        outputMultiLine(text, s -> slf4jProxy.log(slf4jLogger, level, s));
+    }
+
+    /**
+     * Output a message supplied by a {@link Supplier} function, with a variable level.  The function will only be
+     * called if the logging level is enabled.
+     *
+     * @param   level               the {@link Level}
+     * @param   messageSupplier     the message supplier
+     */
+    @Override
+    public void log(Level level, Supplier<Object> messageSupplier) {
+        if (isEnabled(level)) {
+            String text = String.valueOf(messageSupplier.get());
+            if (LogListener.present())
+                LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
+            outputMultiLine(text, s -> slf4jProxy.log(slf4jLogger, level, s));
+        }
     }
 
 }
