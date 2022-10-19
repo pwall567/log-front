@@ -224,7 +224,7 @@ public class Slf4jLogger extends AbstractLogger {
         if (isEnabled(level)) {
             String text = String.valueOf(messageSupplier.get());
             if (LogListener.present())
-                LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
+                LogListener.invokeAll(getClock().millis(), this, level, text, null);
             outputMultiLine(text, s -> slf4jProxy.log(slf4jLogger, level, s));
         }
     }

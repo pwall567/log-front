@@ -2,6 +2,14 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [5.1.2] - 2022-10-19
+### Changed
+- Upload of library failed, but required new version to retry
+
+## [5.1.1] - 2022-10-19
+### Changed
+- `Slf4jLogger`: bug fix
+
 ## [5.1] - 2022-10-19
 ### Changed
 - `JavaLogger`: added `isEnabled` from later version of `log-front-api`, reorganised code
