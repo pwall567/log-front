@@ -2,7 +2,7 @@
  * @(#) LogTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2023 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,7 @@ public class LogTest {
 
     @Test
     public void shouldCreateDefaultLogger() {
+        Log.setDefaultLoggerFactory(null);
         Logger logger = Log.getLogger("xxx");
         assertTrue(logger instanceof Slf4jLogger);
         logger.info("getDefaultLogger seems to work!");
@@ -47,6 +48,7 @@ public class LogTest {
 
     @Test
     public void shouldOutputMultiLineUsingSlf4jLogger() {
+        Log.setDefaultLoggerFactory(null);
         Logger logger = Log.getLogger("yyy");
         assertTrue(logger instanceof Slf4jLogger);
         logger.info("Slf4jLogger multi-line\nline 2\nline 3 and end\n");
@@ -54,6 +56,7 @@ public class LogTest {
 
     @Test
     public void shouldCreateLoggerUsingClassName() {
+        Log.setDefaultLoggerFactory(null);
         Logger logger = Log.getLogger(getClass());
         assertEquals(getClass().getName(), logger.getName());
     }

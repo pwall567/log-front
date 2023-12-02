@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [5.2] - 2023-12-02
+### Changed
+- `pom.xml`: updated plugin and dependency versions
+
 ## [5.1.2] - 2022-10-19
 ### Changed
 - Upload of library failed, but required new version to retry
