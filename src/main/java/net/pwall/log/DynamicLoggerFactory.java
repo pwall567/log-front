@@ -2,7 +2,7 @@
  * @(#) DynamicLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2024 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,20 +40,26 @@ import java.time.Clock;
  */
 public class DynamicLoggerFactory extends AbstractLoggerFactory<Logger> {
 
-    private static Slf4jProxy slf4jProxy = null;
+    private static Slf4jProxyInterface slf4jProxy = null;
     private static boolean javaLogging = false;
 
     private FormattingLoggerFactory<?, ?> formattingLoggerFactory = null;
 
     static {
         try {
-            // first, check whether slf4j is present on the classpath
-            slf4jProxy = new Slf4jProxy();
+            // first, check whether Gradle logging is present on the classpath
+            slf4jProxy = new GradleProxy();
         }
         catch (Exception ignore) {
-            // slf4j not found; are we using java.util.logging?
-            javaLogging = System.getProperty("java.util.logging.config.file") != null ||
-                    DynamicLoggerFactory.class.getResource("logging.properties") != null;
+            try {
+                // next, check whether slf4j is present on the classpath
+                slf4jProxy = new Slf4jProxy();
+            }
+            catch (Exception ignore2) {
+                // slf4j not found; are we using java.util.logging?
+                javaLogging = System.getProperty("java.util.logging.config.file") != null ||
+                        DynamicLoggerFactory.class.getResource("logging.properties") != null;
+            }
         }
     }
 

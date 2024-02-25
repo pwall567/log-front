@@ -237,6 +237,23 @@ The `LogListener` receives log events as `LogItem`s, which contain the following
 | `text`      | `Object`    | the content of the log message                        |
 | `throwable` | `Throwable` | the `Throwable` associated with the log event, if any |
 
+## Gradle Logging
+
+Gradle has its own logging mechanism, and its own set of log levels.
+When used in a Gradle script or plugin, the automated logging mechanism determination described above in
+[Quick Start](#quick-start) is modified to check for the presence of the Gradle logging classes, and if present, to use
+them.
+
+The `log-front` logging levels are mapped to the Gradle levels as follows:
+
+| `log-front` | Gradle      |
+|-------------|-------------|
+| `ERROR`     | `ERROR`     |
+| `WARN`      | `WARN`      |
+| `INFO`      | `LIFECYCLE` |
+| `DEBUG`     | `INFO`      |
+| `TRACE`     | `DEBUG`     |
+
 ## `slf4j`
 
 The `slf4j` library, if used, is accessed entirely through reflection.
@@ -257,40 +274,40 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.3.4</version>
+      <version>1.3.14</version>
       <scope>runtime</scope>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    runtimeOnly 'ch.qos.logback:logback-classic:1.3.4'
+    runtimeOnly 'ch.qos.logback:logback-classic:1.3.14'
 ```
 ### Gradle (kts)
 ```kotlin
-    runtimeOnly("ch.qos.logback:logback-classic:1.3.4")
+    runtimeOnly("ch.qos.logback:logback-classic:1.3.14")
 ```
 
 ## Dependency Specification
 
-The latest version of the library is 5.2, and it may be obtained from the Maven Central repository.
+The latest version of the library is 5.3, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.log</groupId>
       <artifactId>log-front</artifactId>
-      <version>5.2</version>
+      <version>5.3</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:5.2'
+    implementation 'net.pwall.log:log-front:5.3'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:5.2")
+    implementation("net.pwall.log:log-front:5.3")
 ```
 
 Peter Wall
 
-2023-12-02
+2024-02-25

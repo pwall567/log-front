@@ -2,6 +2,16 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [5.3] - 2024-02-25
+### Added
+- `GradleProxy`: copy of `Slf4jProxy` modified for Gradle classes
+- `Slf4jProxyInterface`: implemented by `Slf4jProxy` and `GradleProxy`
+### Changed
+- `Slf4jLogger`, `Slf4jProxy`: modify to use `Slf4jProxyInterface`
+- `DynamicLoggerFactory`: add check for Gradle classes
+- `LogList`: add ability to filter by `Logger` name
+- `pom.xml`: updated dependency version
+
 ## [5.2] - 2023-12-02
 ### Changed
 - `pom.xml`: updated plugin and dependency versions

@@ -2,7 +2,7 @@
  * @(#) LogList.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021, 2022 Peter Wall
+ * Copyright (c) 2021, 2022, 2024 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,32 @@ import java.util.List;
 public class LogList extends LogListener implements Iterable<LogItem> {
 
     private final List<LogItem> list = new ArrayList<>();
+    private final String loggerName;
+
+    /**
+     * Construct a {@code LogList} for a specific {@link Logger}, identified by name.
+     *
+     * @param   loggerName  the {@link Logger} name
+     */
+    public LogList(String loggerName) {
+        this.loggerName = loggerName;
+    }
+
+    /**
+     * Construct a {@code LogList} for a specific {@link Logger}, identified by class.
+     *
+     * @param   loggerClass the {@link Logger} class
+     */
+    public LogList(Class<?> loggerClass) {
+        this(loggerClass.getName());
+    }
+
+    /**
+     * Construct a {@code LogList} with no filtering.
+     */
+    public LogList() {
+        this((String)null);
+    }
 
     /**
      * Receive a log event and store a new {@link LogItem} in the list.
@@ -49,8 +75,10 @@ public class LogList extends LogListener implements Iterable<LogItem> {
      */
     @Override
     public void receive(long time, Logger logger, Level level, Object message, Throwable throwable) {
-        synchronized (list) {
-            list.add(new LogItem(time, logger.getName(), level, message, throwable));
+        if (loggerName == null || loggerName.equals(logger.getName())) {
+            synchronized (list) {
+                list.add(new LogItem(time, logger.getName(), level, message, throwable));
+            }
         }
     }
 

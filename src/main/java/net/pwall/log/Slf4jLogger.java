@@ -2,7 +2,7 @@
  * @(#) Slf4jLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2024 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ import java.util.function.Supplier;
  */
 public class Slf4jLogger extends AbstractLogger {
 
-    private final Slf4jProxy slf4jProxy;
+    private final Slf4jProxyInterface slf4jProxy;
     private final Object slf4jLogger;
 
     /**
@@ -51,7 +51,7 @@ public class Slf4jLogger extends AbstractLogger {
      * @throws  InvocationTargetException   if thrown by the underlying system
      * @throws  IllegalAccessException      if thrown by the underlying system
      */
-    Slf4jLogger(String name, Level level, Clock clock, Slf4jProxy slf4jProxy)
+    Slf4jLogger(String name, Level level, Clock clock, Slf4jProxyInterface slf4jProxy)
             throws InvocationTargetException, IllegalAccessException {
         super(name, level, clock);
         this.slf4jProxy = slf4jProxy;

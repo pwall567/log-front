@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * The {@code LogListener} class is the base class for an object that is called for every log event.  It is intended to
  * be used only in unit tests.
- *
+ * <br>
  * The constructor adds the object to a static list of listeners; the {@link Logger} classes will check for the presence
  * of listeners and invoke them as required.
  *
@@ -51,7 +51,7 @@ public abstract class LogListener implements AutoCloseable {
 
     /**
      * Close the listener - remove it from the list.
-     *
+     * <br>
      * This operation is idempotent - closing a listener that is already closed has no effect.
      */
     @Override
@@ -98,7 +98,7 @@ public abstract class LogListener implements AutoCloseable {
      * @return      {@code true} if listeners are present
      */
     public static boolean present() {
-        return listeners.size() > 0;
+        return !listeners.isEmpty();
     }
 
     /**
