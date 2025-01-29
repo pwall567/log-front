@@ -1,8 +1,8 @@
 # log-front
 
-[![Build Status](https://travis-ci.com/pwall567/log-front.svg?branch=main)](https://app.travis-ci.com/github/pwall567/log-front)
+[![Build Status](https://github.com/pwall567/log-front/actions/workflows/build.yml/badge.svg)](https://github.com/pwall567/log-front/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Maven Central](https://img.shields.io/maven-central/v/net.pwall.log/log-front?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.pwall.log%22%20AND%20a:%22log-front%22)
+[![Maven Central](https://img.shields.io/maven-central/v/io.jstuff/log-front?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.jstuff%22%20AND%20a:%22log-front%22)
 
 Simple logging interface and basic implementation.
 
@@ -274,40 +274,40 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.3.14</version>
+      <version>1.3.15</version>
       <scope>runtime</scope>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    runtimeOnly 'ch.qos.logback:logback-classic:1.3.14'
+    runtimeOnly 'ch.qos.logback:logback-classic:1.3.15'
 ```
 ### Gradle (kts)
 ```kotlin
-    runtimeOnly("ch.qos.logback:logback-classic:1.3.14")
+    runtimeOnly("ch.qos.logback:logback-classic:1.3.15")
 ```
 
 ## Dependency Specification
 
-The latest version of the library is 5.3, and it may be obtained from the Maven Central repository.
+The latest version of the library is 6.0, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
-      <groupId>net.pwall.log</groupId>
+      <groupId>io.jstuff</groupId>
       <artifactId>log-front</artifactId>
-      <version>5.3</version>
+      <version>6.0</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.log:log-front:5.3'
+    implementation 'io.jstuff:log-front:6.0'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.log:log-front:5.3")
+    implementation("io.jstuff:log-front:6.0")
 ```
 
 Peter Wall
 
-2024-02-25
+2025-01-30
