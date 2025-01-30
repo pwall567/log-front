@@ -27,9 +27,12 @@ package io.jstuff.log.test;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Iterator;
 
+import io.jstuff.log.FormattingLoggerFactory;
+import io.jstuff.log.LoggerFactory;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -55,22 +58,25 @@ public class LoggerTest {
 
     @Test
     public void shouldGetDefaultLoggerWithClock() {
-        OffsetDateTime time = OffsetDateTime.of(2022, 4, 12, 22, 41, 3, 456_000_000, ZoneOffset.ofHours(10));
+        ZoneOffset zoneOffset = ZoneOffset.ofHours(12);
+        OffsetDateTime time = OffsetDateTime.of(2022, 6, 12, 22, 41, 3, 456_000_000, zoneOffset);
         Clock clock = Clock.fixed(time.toInstant(), time.getOffset());
-        Logger logger = Log.getDefaultLoggerFactory().getLogger("wombat", clock);
+        LoggerFactory<?> factory = FormattingLoggerFactory.getBasic();
+        Logger logger = factory.getLogger("wombat", clock); // can't use default because slf4j doesn't recognise clock
         try (LogList logList = new LogList()) {
             logger.info("Hello!");
             Iterator<LogItem> iterator = logList.iterator();
             assertTrue(iterator.hasNext());
             LogItem logItem = iterator.next();
             assertEquals(time.toInstant().toEpochMilli(), logItem.getTime());
-            assertEquals("22:41:03.456 wombat INFO Hello!", logItem.toString());
+            assertEquals("22:41:03.456 wombat INFO Hello!", logItem.toString(zoneOffset));
         }
     }
 
     @Test
     public void shouldGetDefaultLoggerByClassWithClock() {
-        OffsetDateTime time = OffsetDateTime.of(2022, 4, 15, 10, 48, 8, 0, ZoneOffset.ofHours(10));
+        ZoneOffset zoneOffset = ZoneOffset.ofHours(12);
+        OffsetDateTime time = OffsetDateTime.of(2022, 6, 15, 10, 48, 8, 0, zoneOffset);
         Clock clock = Clock.fixed(time.toInstant(), time.getOffset());
         Logger logger = Log.getDefaultLoggerFactory().getLogger(LoggerTest.class, clock);
         try (LogList logList = new LogList()) {
@@ -79,7 +85,7 @@ public class LoggerTest {
             assertTrue(iterator.hasNext());
             LogItem logItem = iterator.next();
             assertEquals(time.toInstant().toEpochMilli(), logItem.getTime());
-            assertEquals("10:48:08.000 io.jstuff.log.test.LoggerTest INFO 123", logItem.toString());
+            assertEquals("10:48:08.000 io.jstuff.log.test.LoggerTest INFO 123", logItem.toString(zoneOffset));
         }
     }
 

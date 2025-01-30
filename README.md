@@ -237,6 +237,16 @@ The `LogListener` receives log events as `LogItem`s, which contain the following
 | `text`      | `Object`    | the content of the log message                        |
 | `throwable` | `Throwable` | the `Throwable` associated with the log event, if any |
 
+In addition to the usual `toString()` method, `LogItem` has three overloaded versions:
+
+- `toString(char separator)`
+- `toString(ZoneId zoneId)`
+- `toString(char separator, ZoneId zoneId)`
+
+The `toString()` is intended mainly for debugging, and these additional functions allow the separator (the default is
+space) and the `ZoneId` to be used when formatting the time (the default is the current default time zone) to be
+specified.
+
 ## Gradle Logging
 
 Gradle has its own logging mechanism, and its own set of log levels.

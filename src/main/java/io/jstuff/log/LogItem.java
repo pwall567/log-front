@@ -111,18 +111,39 @@ public class LogItem {
      */
     @Override
     public String toString() {
-        return toString(' ');
+        return toString(' ', defaultZoneId);
     }
 
     /**
-     * Create a formatted form of the {@code LogItem}, using the specified separator.
+     * Create a formatted form of the {@code LogItem}, using the specified separator and the default time zone.
      *
      * @param       separator   the custom separator
      * @return      the formatted string
      */
     public String toString(char separator) {
+        return toString(separator, defaultZoneId);
+    }
+
+    /**
+     * Create a formatted form of the {@code LogItem}, using the specified separator and the default time zone.
+     *
+     * @param       zoneId      the time zone to be applied
+     * @return      the formatted string
+     */
+    public String toString(ZoneId zoneId) {
+        return toString(' ', zoneId);
+    }
+
+    /**
+     * Create a formatted form of the {@code LogItem}, using the specified separator and time zone.
+     *
+     * @param       separator   the custom separator
+     * @param       zoneId      the time zone to be applied
+     * @return      the formatted string
+     */
+    public String toString(char separator, ZoneId zoneId) {
         StringBuilder sb = new StringBuilder();
-        int dayMillis = AbstractFormatter.getDayMillis(time, defaultZoneId);
+        int dayMillis = AbstractFormatter.getDayMillis(time, zoneId);
         AbstractFormatter.outputTime(dayMillis, ch -> sb.append((char)ch));
         sb.append(separator);
         sb.append(name).append(separator);
