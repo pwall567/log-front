@@ -2,7 +2,7 @@
  * @(#) AbstractLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,12 @@
 
 package io.jstuff.log;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.util.Objects;
 import java.util.function.Consumer;
+
+import io.jstuff.util.IntOutput;
 
 /**
  * Abstract base class for {@link Logger} implementations.
@@ -35,6 +38,8 @@ import java.util.function.Consumer;
  * @author  Peter Wall
  */
 public abstract class AbstractLogger implements Logger {
+
+    public static final int TAB_WIDTH = 4; // TODO consider making this variable
 
     private final String name;
     private Level level;
@@ -100,23 +105,24 @@ public abstract class AbstractLogger implements Logger {
      * @param   message         the log message
      * @param   outputFunction  an output function that takes a single line (which by now will not contain newline)
      */
-    protected static void outputMultiLine(String message, Consumer<String> outputFunction) {
+    public static void outputMultiLine(String message, Consumer<String> outputFunction) {
         int n = message.length();
-        if (n == 0) {
+        if (n == 0 || isAllASCII(message)) {
             outputFunction.accept(message);
             return;
         }
-        int i = 0;
-        int j = i;
+        int j = 0;
+        StringBuilder sb = new StringBuilder(80);
         while (true) {
             while (true) {
                 if (j == n) {
-                    outputFunction.accept(message.substring(i));
+                    outputFunction.accept(sb.toString());
                     return;
                 }
                 char ch = message.charAt(j++);
                 if (ch == '\n') {
-                    outputFunction.accept(message.substring(i, j - 1));
+                    outputFunction.accept(sb.toString());
+                    sb.setLength(0);
                     if (j < n && message.charAt(j) == '\r')
                         j++;
                     if (j < n)
@@ -124,16 +130,49 @@ public abstract class AbstractLogger implements Logger {
                     return;
                 }
                 if (ch == '\r') {
-                    outputFunction.accept(message.substring(i, j - 1));
+                    outputFunction.accept(sb.toString());
+                    sb.setLength(0);
                     if (j < n && message.charAt(j) == '\n')
                         j++;
                     if (j < n)
                         break;
                     return;
                 }
+                if (ch >= 0x20 && ch < 0x7F)
+                    sb.append(ch);
+                else if (ch == '\t') {
+                    do {
+                        sb.append(' ');
+                    } while ((sb.length() % TAB_WIDTH) != 0);
+                }
+                else if (ch != 0) {
+                    sb.append('\\');
+                    sb.append('u');
+                    try {
+                        IntOutput.append4HexLC(sb, ch);
+                    }
+                    catch (IOException e) {
+                        // can't happen - StringBuilder doesn't throw exception
+                    }
+                }
             }
-            i = j;
+            sb.setLength(0);
         }
+    }
+
+    /**
+     * Check whether a string is all ASCII characters (0x20..0x7E).
+     *
+     * @param   s   the string
+     * @return      {@code true} iff the string is all ASCII
+     */
+    private static boolean isAllASCII(String s) {
+        for (int i = 0, n = s.length(); i < n; i++) {
+            char ch = s.charAt(i);
+            if (ch < ' ' || ch >= 0x7F)
+                return false;
+        }
+        return true;
     }
 
 }

@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [6.1] - 2025-02-06
+### Changed
+- `AbstractLogger`: improved sanitising of log message
+
 ## [6.0] - 2025-01-30
 ### Added
 - `build.yml`, `deploy.yml`: converted project to GitHub Actions

@@ -27,20 +27,19 @@ package io.jstuff.log.test;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Iterator;
 
-import io.jstuff.log.FormattingLoggerFactory;
-import io.jstuff.log.LoggerFactory;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import io.jstuff.log.FormattingLoggerFactory;
+import io.jstuff.log.Log;
 import io.jstuff.log.LogItem;
 import io.jstuff.log.LogList;
 import io.jstuff.log.Logger;
-import io.jstuff.log.Log;
+import io.jstuff.log.LoggerFactory;
 
 public class LoggerTest {
 

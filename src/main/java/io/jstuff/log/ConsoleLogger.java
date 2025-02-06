@@ -181,7 +181,7 @@ public class ConsoleLogger extends AbstractLogger {
     }
 
     private void outputMulti(int dayMillis, Level level, String text) {
-        AbstractLogger.outputMultiLine(text, line -> {
+        outputMultiLine(text, line -> {
             StringBuilder sb = new StringBuilder(120);
             AbstractFormatter.outputTime(dayMillis, ch -> sb.append((char)ch));
             sb.append(separator).append(getName());

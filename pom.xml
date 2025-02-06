@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>log-front</artifactId>
-  <version>6.0</version>
+  <version>6.1</version>
   <name>Logging interface</name>
   <description>Simple logging interface and basic implementation</description>
   <packaging>jar</packaging>
