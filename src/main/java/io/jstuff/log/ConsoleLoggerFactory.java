@@ -2,7 +2,7 @@
  * @(#) ConsoleLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -113,21 +113,16 @@ public class ConsoleLoggerFactory extends AbstractLoggerFactory<ConsoleLogger> {
     }
 
     /**
-     * Get a {@link ConsoleLogger} with the supplied name and {@link Level}.
+     * Create a {@link ConsoleLogger} with the supplied name, {@link Level} and {@link Clock}.
      *
      * @param   name    the name
      * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
      * @return          a {@link ConsoleLogger}
-     * @throws  LoggerException     if the name is null, empty or contains non-ASCII characters
      */
     @Override
-    public ConsoleLogger getLogger(String name, Level level, Clock clock) {
-        ConsoleLogger logger = getCachedLogger(name);
-        if (logger != null)
-            return logger;
-        logger = new ConsoleLogger(name, level, clock, output);
-        putCachedLogger(name, logger);
-        return logger;
+    protected ConsoleLogger createLogger(String name, Level level, Clock clock) {
+        return new ConsoleLogger(name, level, clock, output);
     }
 
     /**

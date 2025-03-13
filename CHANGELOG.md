@@ -2,6 +2,16 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [6.2] - 2025-03-14
+### Changed
+- `AbstractLoggerFactory`: improve logger caching and name checking
+- `AbstractLogger`: right-trim messages
+- `BasicFormatter`: don't output empty message if followed by exception
+- `LogListener`: minor optimisation
+- `Slf4jLogger`: changed logging level checks to include both internal and implementation class checks
+### Removed
+- `LogList`, `LogItem`: moved to separate project [`log-front-test`](https://github.com/pwall567/log-front-test)
+
 ## [6.1] - 2025-02-06
 ### Changed
 - `AbstractLogger`: improved sanitising of log message

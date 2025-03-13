@@ -2,7 +2,7 @@
  * @(#) AbstractLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,8 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.jstuff.log.Log.defaultLevelPropertyName;
+
 /**
  * Abstract base class for {@link LoggerFactory} implementations.
  *
@@ -37,7 +39,6 @@ import java.util.Map;
  */
 public abstract class AbstractLoggerFactory<L extends Logger> implements LoggerFactory<L> {
 
-    public static final String defaultLevelPropertyName = "net.pwall.log.defaultLevel";
     public static final Level systemDefaultLevel;
 
     static {
@@ -110,19 +111,8 @@ public abstract class AbstractLoggerFactory<L extends Logger> implements LoggerF
      *
      * @param   name        the {@link Logger} name
      * @return              the {@link Logger}, or {@code null} if not found
-     * @throws  LoggerException on any errors
      */
     protected synchronized L getCachedLogger(String name) {
-        if (name == null)
-            throw new LoggerException("Logger name must not be null");
-        int n = name.length();
-        if (n == 0)
-            throw new LoggerException("Logger name must not be empty");
-        for (int i = 0; i < n; i++) {
-            char ch = name.charAt(i);
-            if (ch < ' ' || ch > 0xFE)
-                throw new LoggerException("Illegal character in Logger name");
-        }
         return loggerCache.get(name);
     }
 
@@ -135,5 +125,35 @@ public abstract class AbstractLoggerFactory<L extends Logger> implements LoggerF
     protected synchronized void putCachedLogger(String name, L logger) {
         loggerCache.put(name, logger);
     }
+
+    /**
+     * Get a {@link Logger} with the supplied name and {@link Level}.
+     *
+     * @param   name    the name
+     * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
+     * @return          a {@link ConsoleLogger}
+     * @throws  LoggerException if the name is {@code null} or contains illegal (non-ASCII) characters
+     */
+    @Override
+    public L getLogger(String name, Level level, Clock clock) {
+        LoggerFactory.validateLoggerName(name);
+        L logger = getCachedLogger(name);
+        if (logger != null && logger.getLevel().equals(level) && logger.getClock().equals(clock))
+            return logger;
+        logger = createLogger(name, level, clock);
+        putCachedLogger(name, logger);
+        return logger;
+    }
+
+    /**
+     * Create a {@link Logger} with the supplied name, {@link Level} and {@link Clock}.
+     *
+     * @param   name    the name
+     * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
+     * @return          a {@link Logger}
+     */
+    protected abstract L createLogger(String name, Level level, Clock clock);
 
 }

@@ -36,7 +36,7 @@ import java.util.function.IntConsumer;
  */
 public class PrintStreamAppender<F extends LogFormatter> implements LogAppender<F>, IntConsumer {
 
-    /** Default output stream for {@code ConsoleLogger} */
+    /** Default output stream for {@code PrintStreamAppender} */
     public static final PrintStream defaultOutput = System.out;
 
     private final PrintStream stream;
@@ -85,7 +85,7 @@ public class PrintStreamAppender<F extends LogFormatter> implements LogAppender<
     /**
      * Output a single character.  This function satisfies the {@link IntConsumer} interface required by the
      * {@link LogFormatter}.
-     *
+     * <br>
      * When a newline is output, the function uses the {@link PrintStream#println()} function, which will cause the
      * operating-system-dependent form of line ending to be used (and will also flush the output).
      *

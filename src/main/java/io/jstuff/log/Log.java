@@ -34,8 +34,8 @@ import java.time.Clock;
  */
 public class Log {
 
-    public static final String defaultLoggerFactoryPropertyName = "net.pwall.log.defaultLoggerFactory";
-    public static final String defaultLevelPropertyName = "net.pwall.log.defaultLevel";
+    public static final String defaultLoggerFactoryPropertyName = "io.jstuff.log.defaultLoggerFactory";
+    public static final String defaultLevelPropertyName = "io.jstuff.log.defaultLevel";
 
     private static LoggerFactory<?> defaultLoggerFactory = null;
 

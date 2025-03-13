@@ -2,7 +2,7 @@
  * @(#) JavaLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021, 2022 Peter Wall
+ * Copyright (c) 2021, 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -196,12 +196,11 @@ public class JavaLogger extends AbstractLogger {
     }
 
     private void log(Level level, java.util.logging.Level julLevel, Object message, Throwable throwable) {
-        String text = String.valueOf(message);
         long millis = getClock().millis();
         if (LogListener.present())
-            LogListener.invokeAll(millis, this, level, text, throwable);
+            LogListener.invokeAll(millis, this, level, message, throwable);
         StackTraceElement sourceDetails = LoggerFactory.callerInfo();
-        outputMultiLine(text, s -> outputLogRecord(julLevel, s, millis, sourceDetails, throwable));
+        outputMultiLine(String.valueOf(message), s -> outputLogRecord(julLevel, s, millis, sourceDetails, throwable));
     }
 
     private void outputLogRecord(java.util.logging.Level level, String message, long millis,

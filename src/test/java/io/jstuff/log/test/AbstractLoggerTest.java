@@ -30,7 +30,9 @@ import java.util.List;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import io.jstuff.log.AbstractLogger;
 
@@ -81,6 +83,36 @@ public class AbstractLoggerTest {
         assertEquals(2, lines.size());
         assertEquals("First line", lines.get(0));
         assertEquals("    Second line", lines.get(1));
+    }
+
+    @Test
+    public void shouldOutputTrimmingTrailingSpaces() {
+        List<String> lines = new ArrayList<>();
+        String message = "First line    \n\tSecond line\t\n";
+        AbstractLogger.outputMultiLine(message, lines::add);
+        assertEquals(2, lines.size());
+        assertEquals("First line", lines.get(0));
+        assertEquals("    Second line", lines.get(1));
+    }
+
+    @Test
+    @SuppressWarnings("UnnecessaryUnicodeEscape")
+    public void shouldTestStringIsAllASCII() {
+        assertTrue(AbstractLogger.isAllASCII("ABC"));
+        assertTrue(AbstractLogger.isAllASCII(""));
+        assertTrue(AbstractLogger.isAllASCII("The quick brown fox etc."));
+        assertTrue(AbstractLogger.isAllASCII("!@#$%^&*()_+\\"));
+        assertFalse(AbstractLogger.isAllASCII("ABC\n"));
+        assertFalse(AbstractLogger.isAllASCII("\u00A1Hola!"));
+    }
+
+    @Test
+    public void shouldTrimStringBuilder() {
+        assertEquals("", AbstractLogger.trimmedString(new StringBuilder()));
+        assertEquals("", AbstractLogger.trimmedString(new StringBuilder("                    ")));
+        assertEquals("abc", AbstractLogger.trimmedString(new StringBuilder("abc                  ")));
+        assertEquals("abc", AbstractLogger.trimmedString(new StringBuilder("abc")));
+        assertEquals(" abc", AbstractLogger.trimmedString(new StringBuilder(" abc ")));
     }
 
 }

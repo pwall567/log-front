@@ -1,8 +1,8 @@
 /*
- * @(#) LogListTest.java
+ * @(#) ExampleLogListener.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021, 2022 Peter Wall
+ * Copyright (c) 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,30 +25,27 @@
 
 package io.jstuff.log.test;
 
+import io.jstuff.log.Level;
+import io.jstuff.log.LogListener;
+import io.jstuff.log.Logger;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+public class ExampleLogListener extends LogListener {
 
-import io.jstuff.log.Level;
-import io.jstuff.log.LogItem;
-import io.jstuff.log.LogList;
-import io.jstuff.log.Logger;
-import io.jstuff.log.NullLogger;
+    private final List<ExampleLogEntry> list = new ArrayList<>();
 
-public class LogListTest {
-
-    @Test
-    public void shouldCreateListAndAllowCopies() {
-        Logger nullLogger = new NullLogger("xxx");
-        try (LogList logList = new LogList()) {
-            List<LogItem> list1 = logList.toList();
-            assertEquals(0, list1.size());
-            logList.receive(System.currentTimeMillis(), nullLogger, Level.INFO, "Testing", null);
-            List<LogItem> list2 = logList.toList();
-            assertEquals(1, list2.size());
-            assertEquals(0, list1.size());
+    @Override
+    public void receive(long time, Logger logger, Level level, Object message, Throwable throwable) {
+        synchronized (list) {
+            list.add(new ExampleLogEntry(time, logger.getName(), level, message, throwable));
         }
+    }
+
+    public Iterator<ExampleLogEntry> iterator() {
+        return list.iterator();
     }
 
 }

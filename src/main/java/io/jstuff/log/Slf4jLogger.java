@@ -2,7 +2,7 @@
  * @(#) Slf4jLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022, 2024 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2024, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -65,7 +65,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public boolean isTraceEnabled() {
-        return slf4jProxy.isTraceEnabled(slf4jLogger);
+        return super.isTraceEnabled() && slf4jProxy.isTraceEnabled(slf4jLogger);
     }
 
     /**
@@ -75,7 +75,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public boolean isDebugEnabled() {
-        return slf4jProxy.isDebugEnabled(slf4jLogger);
+        return super.isDebugEnabled() && slf4jProxy.isDebugEnabled(slf4jLogger);
     }
 
     /**
@@ -85,7 +85,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public boolean isInfoEnabled() {
-        return slf4jProxy.isInfoEnabled(slf4jLogger);
+        return super.isInfoEnabled() && slf4jProxy.isInfoEnabled(slf4jLogger);
     }
 
     /**
@@ -95,7 +95,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public boolean isWarnEnabled() {
-        return slf4jProxy.isWarnEnabled(slf4jLogger);
+        return super.isWarnEnabled() && slf4jProxy.isWarnEnabled(slf4jLogger);
     }
 
     /**
@@ -105,7 +105,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public boolean isErrorEnabled() {
-        return slf4jProxy.isErrorEnabled(slf4jLogger);
+        return super.isErrorEnabled() && slf4jProxy.isErrorEnabled(slf4jLogger);
     }
 
     /**
@@ -116,7 +116,7 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public boolean isEnabled(Level level) {
-        return slf4jProxy.isEnabled(slf4jLogger, level);
+        return super.isEnabled(level) && slf4jProxy.isEnabled(slf4jLogger, level);
     }
 
     /**
@@ -126,10 +126,11 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void trace(Object message) {
-        String text = String.valueOf(message);
-        if (LogListener.present())
-            LogListener.invokeAll(getClock().millis(), this, Level.TRACE, text, null);
-        outputMultiLine(text, s -> slf4jProxy.trace(slf4jLogger, s));
+        if (isTraceEnabled()) {
+            if (LogListener.present())
+                LogListener.invokeAll(getClock().millis(), this, Level.TRACE, message, null);
+            outputMultiLine(String.valueOf(message), s -> slf4jProxy.trace(slf4jLogger, s));
+        }
     }
 
     /**
@@ -139,10 +140,11 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void debug(Object message) {
-        String text = String.valueOf(message);
-        if (LogListener.present())
-            LogListener.invokeAll(getClock().millis(), this, Level.DEBUG, text, null);
-        outputMultiLine(text, s -> slf4jProxy.debug(slf4jLogger, s));
+        if (isDebugEnabled()) {
+            if (LogListener.present())
+                LogListener.invokeAll(getClock().millis(), this, Level.DEBUG, message, null);
+            outputMultiLine(String.valueOf(message), s -> slf4jProxy.debug(slf4jLogger, s));
+        }
     }
 
     /**
@@ -152,10 +154,11 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void info(Object message) {
-        String text = String.valueOf(message);
-        if (LogListener.present())
-            LogListener.invokeAll(getClock().millis(), this, Level.INFO, text, null);
-        outputMultiLine(text, s -> slf4jProxy.info(slf4jLogger, s));
+        if (isInfoEnabled()) {
+            if (LogListener.present())
+                LogListener.invokeAll(getClock().millis(), this, Level.INFO, message, null);
+            outputMultiLine(String.valueOf(message), s -> slf4jProxy.info(slf4jLogger, s));
+        }
     }
 
     /**
@@ -165,10 +168,11 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void warn(Object message) {
-        String text = String.valueOf(message);
-        if (LogListener.present())
-            LogListener.invokeAll(getClock().millis(), this, Level.WARN, text, null);
-        outputMultiLine(text, s -> slf4jProxy.warn(slf4jLogger, s));
+        if (isWarnEnabled()) {
+            if (LogListener.present())
+                LogListener.invokeAll(getClock().millis(), this, Level.WARN, message, null);
+            outputMultiLine(String.valueOf(message), s -> slf4jProxy.warn(slf4jLogger, s));
+        }
     }
 
     /**
@@ -178,10 +182,11 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void error(Object message) {
-        String text = String.valueOf(message);
-        if (LogListener.present())
-            LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
-        outputMultiLine(text, s -> slf4jProxy.error(slf4jLogger, s));
+        if (isErrorEnabled()) {
+            if (LogListener.present())
+                LogListener.invokeAll(getClock().millis(), this, Level.ERROR, message, null);
+            outputMultiLine(String.valueOf(message), s -> slf4jProxy.error(slf4jLogger, s));
+        }
     }
 
     /**
@@ -192,10 +197,11 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void error(Throwable throwable, Object message) {
-        String text = String.valueOf(message);
-        if (LogListener.present())
-            LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, throwable);
-        outputMultiLine(text, s -> slf4jProxy.error(slf4jLogger, s, throwable));
+        if (isErrorEnabled()) {
+            if (LogListener.present())
+                LogListener.invokeAll(getClock().millis(), this, Level.ERROR, message, throwable);
+            outputMultiLine(String.valueOf(message), s -> slf4jProxy.error(slf4jLogger, s, throwable));
+        }
     }
 
     /**
@@ -206,10 +212,11 @@ public class Slf4jLogger extends AbstractLogger {
      */
     @Override
     public void log(Level level, Object message) {
-        String text = String.valueOf(message);
-        if (LogListener.present())
-            LogListener.invokeAll(getClock().millis(), this, Level.ERROR, text, null);
-        outputMultiLine(text, s -> slf4jProxy.log(slf4jLogger, level, s));
+        if (isEnabled(level)) {
+            if (LogListener.present())
+                LogListener.invokeAll(getClock().millis(), this, level, message, null);
+            outputMultiLine(String.valueOf(message), s -> slf4jProxy.log(slf4jLogger, level, s));
+        }
     }
 
     /**
@@ -222,10 +229,10 @@ public class Slf4jLogger extends AbstractLogger {
     @Override
     public void log(Level level, Supplier<Object> messageSupplier) {
         if (isEnabled(level)) {
-            String text = String.valueOf(messageSupplier.get());
+            Object message = messageSupplier.get();
             if (LogListener.present())
-                LogListener.invokeAll(getClock().millis(), this, level, text, null);
-            outputMultiLine(text, s -> slf4jProxy.log(slf4jLogger, level, s));
+                LogListener.invokeAll(getClock().millis(), this, level, message, null);
+            outputMultiLine(String.valueOf(message), s -> slf4jProxy.log(slf4jLogger, level, s));
         }
     }
 

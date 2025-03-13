@@ -34,34 +34,32 @@ import static org.junit.Assert.assertSame;
 
 import io.jstuff.log.ConsoleLoggerFactory;
 import io.jstuff.log.Level;
-import io.jstuff.log.LogItem;
-import io.jstuff.log.LogList;
-import io.jstuff.log.Logger;
 import io.jstuff.log.Log;
+import io.jstuff.log.Logger;
 import io.jstuff.log.LoggerFactory;
 
 public class LogListenerTest {
 
     @Test
     public void shouldStoreLogItemsInList() {
-        try (LogList list = new LogList()) {
+        try (ExampleLogListener list = new ExampleLogListener()) {
             Logger log = Log.getLogger("xxx");
             log.info("message 1");
             log.warn("message 2");
             IllegalStateException exception = new IllegalStateException("Another dummy");
             log.error(exception, "message 3");
-            Iterator<LogItem> items = list.iterator();
-            LogItem first = items.next();
+            Iterator<ExampleLogEntry> items = list.iterator();
+            ExampleLogEntry first = items.next();
             assertEquals("xxx", first.getName());
             assertEquals(Level.INFO, first.getLevel());
             assertEquals("message 1", first.getMessage().toString());
             assertNull(first.getThrowable());
-            LogItem second = items.next();
+            ExampleLogEntry second = items.next();
             assertEquals("xxx", second.getName());
             assertEquals(Level.WARN, second.getLevel());
             assertEquals("message 2", second.getMessage().toString());
             assertNull(second.getThrowable());
-            LogItem third = items.next();
+            ExampleLogEntry third = items.next();
             assertEquals("xxx", third.getName());
             assertEquals(Level.ERROR, third.getLevel());
             assertEquals("message 3", third.getMessage().toString());
@@ -71,25 +69,25 @@ public class LogListenerTest {
 
     @Test
     public void shouldStoreLogItemsInListUsingConsoleLogger() {
-        try (LogList list = new LogList()) {
+        try (ExampleLogListener list = new ExampleLogListener()) {
             LoggerFactory<?> factory = new ConsoleLoggerFactory();
             Logger log = factory.getLogger("abcd");
             log.info("console message 1");
             log.warn("console message 2");
             IllegalStateException exception = new IllegalStateException("Dummy");
             log.error(exception, "console message 3");
-            Iterator<LogItem> items = list.iterator();
-            LogItem first = items.next();
+            Iterator<ExampleLogEntry> items = list.iterator();
+            ExampleLogEntry first = items.next();
             assertEquals("abcd", first.getName());
             assertEquals(Level.INFO, first.getLevel());
             assertEquals("console message 1", first.getMessage().toString());
             assertNull(first.getThrowable());
-            LogItem second = items.next();
+            ExampleLogEntry second = items.next();
             assertEquals("abcd", second.getName());
             assertEquals(Level.WARN, second.getLevel());
             assertEquals("console message 2", second.getMessage().toString());
             assertNull(second.getThrowable());
-            LogItem third = items.next();
+            ExampleLogEntry third = items.next();
             assertEquals("abcd", third.getName());
             assertEquals(Level.ERROR, third.getLevel());
             assertEquals("console message 3", third.getMessage().toString());

@@ -2,7 +2,7 @@
  * @(#) LoggerTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,11 +33,11 @@ import java.util.Iterator;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import io.jstuff.log.FormattingLoggerFactory;
+import io.jstuff.log.Level;
 import io.jstuff.log.Log;
-import io.jstuff.log.LogItem;
-import io.jstuff.log.LogList;
 import io.jstuff.log.Logger;
 import io.jstuff.log.LoggerFactory;
 
@@ -62,13 +62,12 @@ public class LoggerTest {
         Clock clock = Clock.fixed(time.toInstant(), time.getOffset());
         LoggerFactory<?> factory = FormattingLoggerFactory.getBasic();
         Logger logger = factory.getLogger("wombat", clock); // can't use default because slf4j doesn't recognise clock
-        try (LogList logList = new LogList()) {
+        try (ExampleLogListener logList = new ExampleLogListener()) {
             logger.info("Hello!");
-            Iterator<LogItem> iterator = logList.iterator();
+            Iterator<ExampleLogEntry> iterator = logList.iterator();
             assertTrue(iterator.hasNext());
-            LogItem logItem = iterator.next();
+            ExampleLogEntry logItem = iterator.next();
             assertEquals(time.toInstant().toEpochMilli(), logItem.getTime());
-            assertEquals("22:41:03.456 wombat INFO Hello!", logItem.toString(zoneOffset));
         }
     }
 
@@ -78,14 +77,24 @@ public class LoggerTest {
         OffsetDateTime time = OffsetDateTime.of(2022, 6, 15, 10, 48, 8, 0, zoneOffset);
         Clock clock = Clock.fixed(time.toInstant(), time.getOffset());
         Logger logger = Log.getDefaultLoggerFactory().getLogger(LoggerTest.class, clock);
-        try (LogList logList = new LogList()) {
+        try (ExampleLogListener logList = new ExampleLogListener()) {
             logger.info(123);
-            Iterator<LogItem> iterator = logList.iterator();
+            Iterator<ExampleLogEntry> iterator = logList.iterator();
             assertTrue(iterator.hasNext());
-            LogItem logItem = iterator.next();
+            ExampleLogEntry logItem = iterator.next();
             assertEquals(time.toInstant().toEpochMilli(), logItem.getTime());
-            assertEquals("10:48:08.000 io.jstuff.log.test.LoggerTest INFO 123", logItem.toString(zoneOffset));
         }
+    }
+
+    @Test
+    public void shouldCheckLevelBeforeEvaluatingMessage() {
+        Logger logger = Log.getLogger(Level.INFO);
+        logger.debug(() -> "Response: " + failMessage());
+    }
+
+    private String failMessage() {
+        fail("Should not execute");
+        return null;
     }
 
 }

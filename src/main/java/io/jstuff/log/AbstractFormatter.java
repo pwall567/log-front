@@ -170,7 +170,7 @@ public abstract class AbstractFormatter implements LogFormatter {
     }
 
     /**
-     * Convert a time in epoch millis to millis from start of day (local time).
+     * Convert a time in epoch millis to millis from start of day in the specified time zone.
      *
      * @param   millis      the time in epoch millis
      * @param   zoneId      the {@link ZoneId}

@@ -2,7 +2,7 @@
  * @(#) DynamicLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022, 2024 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2024, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ import java.time.Clock;
  *   <li>If <code>slf4j</code> is available on the class path, create an {@link Slf4jLogger}</li>
  *   <li>If the system property <code>java.util.logging.config.file</code> is present, or if the file
  *     <code>logging.properties</code> is present as a resource, create a {@link JavaLogger}</li>
- *   <li>Otherwise, create a {@link ConsoleLogger}</li>
+ *   <li>Otherwise, create a {@link FormattingLogger}</li>
  * </ol>
  *
  * @author  Peter Wall
@@ -101,26 +101,15 @@ public class DynamicLoggerFactory extends AbstractLoggerFactory<Logger> {
     }
 
     /**
-     * Get a {@link Logger} with the specified name, {@link Level} and {@link Clock}.  See the class documentation for
-     * the rules used to determine the type of {@link Logger} returned.
+     * Create a {@link Logger} with the supplied name, {@link Level} and {@link Clock}.
      *
      * @param   name    the name
      * @param   level   the {@link Level}
      * @param   clock   the {@link Clock}
      * @return          a {@link Logger}
-     * @throws  LoggerException     if the name is null, empty or contains non-ASCII characters
      */
     @Override
-    public Logger getLogger(String name, Level level, Clock clock) {
-        Logger logger = getCachedLogger(name);
-        if (logger != null)
-            return logger;
-        logger = getSpecificLogger(name, level, clock);
-        putCachedLogger(name, logger);
-        return logger;
-    }
-
-    private Logger getSpecificLogger(String name, Level level, Clock clock) {
+    protected Logger createLogger(String name, Level level, Clock clock) {
         if (slf4jProxy != null) {
             try {
                 return new Slf4jLogger(name, level, clock, slf4jProxy);

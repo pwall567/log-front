@@ -1,8 +1,8 @@
 /*
- * @(#) LoggerException.java
+ * @(#) ExampleLogEntry.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022 Peter Wall
+ * Copyright (c) 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,21 +23,44 @@
  * SOFTWARE.
  */
 
-package io.jstuff.log;
+package io.jstuff.log.test;
 
-/**
- * Parent class for exceptions thrown by library.
- *
- * @author  Peter Wall
- */
-public class LoggerException extends RuntimeException {
+import io.jstuff.log.Level;
 
-    public LoggerException(String message) {
-        super(message);
+public class ExampleLogEntry {
+
+    private final long time;
+    private final String name;
+    private final Level level;
+    private final Object message;
+    private final Throwable throwable;
+
+    public ExampleLogEntry(long time, String name, Level level, Object message, Throwable throwable) {
+        this.time = time;
+        this.name = name;
+        this.level = level;
+        this.message = message;
+        this.throwable = throwable;
     }
 
-    public LoggerException(String message, Throwable cause) {
-        super(message, cause);
+    public long getTime() {
+        return time;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public Object getMessage() {
+        return message;
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
     }
 
 }

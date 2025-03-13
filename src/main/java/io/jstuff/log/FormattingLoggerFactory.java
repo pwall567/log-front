@@ -2,7 +2,7 @@
  * @(#) FormattingLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,22 +51,17 @@ public class FormattingLoggerFactory<F extends LogFormatter, A extends LogAppend
     }
 
     /**
-     * Get a {@link FormattingLogger} with the specified name, level and clock.
+     * Create a {@link FormattingLogger} with the supplied name, {@link Level} and {@link Clock}, using the
+     * {@link LogAppender} defined for this {@code FormattingLoggerFactory}.
      *
      * @param   name    the name
-     * @param   level   the level
-     * @param   clock   the clock
-     * @return          the {@link FormattingLogger}
-     * @throws  LoggerException     if the name is null, empty or contains non-ASCII characters
+     * @param   level   the {@link Level}
+     * @param   clock   the {@link Clock}
+     * @return          a {@link FormattingLogger}
      */
     @Override
-    public FormattingLogger<F, A> getLogger(String name, Level level, Clock clock) {
-        FormattingLogger<F, A> logger = getCachedLogger(name);
-        if (logger != null)
-            return logger;
-        logger = new FormattingLogger<>(name, appender, level, clock);
-        putCachedLogger(name, logger);
-        return logger;
+    protected FormattingLogger<F, A> createLogger(String name, Level level, Clock clock) {
+        return new FormattingLogger<>(name, appender, level, clock);
     }
 
     /**

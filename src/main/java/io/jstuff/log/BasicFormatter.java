@@ -55,7 +55,9 @@ public class BasicFormatter extends AbstractFormatter {
     public void format(long millis, Logger logger, Level level, Object message, Throwable throwable,
             IntConsumer outFunction) {
         int dayMillis = getDayMillis(millis, logger.getClock().getZone());
-        outputMessage(dayMillis, logger, level, message.toString(), outFunction);
+        String messageString = message != null ? message.toString() : "";
+        if (!messageString.isEmpty() || throwable == null)
+            outputMessage(dayMillis, logger, level, messageString, outFunction);
         if (throwable != null) {
             StringWriter sw = new StringWriter();
             throwable.printStackTrace(new PrintWriter(sw));
@@ -74,8 +76,10 @@ public class BasicFormatter extends AbstractFormatter {
             outFunction.accept(' ');
             outputNameWithLimit(nameLengthLimit, logger.getName(), outFunction);
             outFunction.accept(':');
-            outFunction.accept(' ');
-            outputText(line, outFunction);
+            if (!line.isEmpty()) {
+                outFunction.accept(' ');
+                outputText(line, outFunction);
+            }
             outFunction.accept('\n');
         });
     }

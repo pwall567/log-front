@@ -63,7 +63,7 @@ public class GradleProxy implements Slf4jProxyInterface {
     private final Method logThrowableMethod;
 
     /**
-     * Construct an {@code Slf4jProxy}.  Only one such object will be required.
+     * Construct a {@code GradleProxy}.  Only one such object will be required.
      *
      * @throws ClassNotFoundException       if the {@code slf4j} classes are not found
      * @throws NoSuchMethodException        if the required methods are not found

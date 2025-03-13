@@ -2,7 +2,7 @@
  * @(#) ConsoleLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -172,11 +172,10 @@ public class ConsoleLogger extends AbstractLogger {
 
     private int outputLog(Level level, Object message, Throwable throwable) {
         long time = getClock().millis();
-        String text = String.valueOf(message);
         if (LogListener.present())
-            LogListener.invokeAll(time, this, level, text, throwable);
+            LogListener.invokeAll(time, this, level, message, throwable);
         int dayMillis = AbstractFormatter.getDayMillis(time, getClock().getZone());
-        outputMulti(dayMillis, level, text);
+        outputMulti(dayMillis, level, String.valueOf(message));
         return dayMillis;
     }
 

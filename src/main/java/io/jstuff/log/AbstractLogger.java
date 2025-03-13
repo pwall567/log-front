@@ -107,7 +107,7 @@ public abstract class AbstractLogger implements Logger {
      */
     public static void outputMultiLine(String message, Consumer<String> outputFunction) {
         int n = message.length();
-        if (n == 0 || isAllASCII(message)) {
+        if (n == 0 || (isAllASCII(message) && message.charAt(message.length() - 1) != ' ')) {
             outputFunction.accept(message);
             return;
         }
@@ -116,12 +116,12 @@ public abstract class AbstractLogger implements Logger {
         while (true) {
             while (true) {
                 if (j == n) {
-                    outputFunction.accept(sb.toString());
+                    outputFunction.accept(trimmedString(sb));
                     return;
                 }
                 char ch = message.charAt(j++);
                 if (ch == '\n') {
-                    outputFunction.accept(sb.toString());
+                    outputFunction.accept(trimmedString(sb));
                     sb.setLength(0);
                     if (j < n && message.charAt(j) == '\r')
                         j++;
@@ -130,7 +130,7 @@ public abstract class AbstractLogger implements Logger {
                     return;
                 }
                 if (ch == '\r') {
-                    outputFunction.accept(sb.toString());
+                    outputFunction.accept(trimmedString(sb));
                     sb.setLength(0);
                     if (j < n && message.charAt(j) == '\n')
                         j++;
@@ -166,13 +166,36 @@ public abstract class AbstractLogger implements Logger {
      * @param   s   the string
      * @return      {@code true} iff the string is all ASCII
      */
-    private static boolean isAllASCII(String s) {
+    public static boolean isAllASCII(String s) {
         for (int i = 0, n = s.length(); i < n; i++) {
             char ch = s.charAt(i);
             if (ch < ' ' || ch >= 0x7F)
                 return false;
         }
         return true;
+    }
+
+    /**
+     * Convert a {@link StringBuilder} to a {@link String}, trimming trailing spaces.
+     *
+     * @param   sb      the {@link StringBuilder}
+     * @return          the trimmed {@link String}
+     */
+    public static String trimmedString(StringBuilder sb) {
+        int i = sb.length();
+        if (i == 0)
+            return "";
+        if (sb.charAt(--i) == ' ') {
+            while (true) {
+                if (i == 0)
+                    return "";
+                if (sb.charAt(i - 1) != ' ')
+                    break;
+                i--;
+            }
+            sb.setLength(i);
+        }
+        return sb.toString();
     }
 
 }

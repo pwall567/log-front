@@ -2,7 +2,7 @@
  * @(#) JavaLoggerFactory.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021, 2022 Peter Wall
+ * Copyright (c) 2021, 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,22 +44,16 @@ public class JavaLoggerFactory extends AbstractLoggerFactory<JavaLogger> {
     }
 
     /**
-     * Get a {@link JavaLogger} with the supplied name, {@link Level} and {@link Clock}.
+     * Create a {@link JavaLogger} with the supplied name, {@link Level} and {@link Clock}.
      *
      * @param   name    the name
      * @param   level   the {@link Level}
      * @param   clock   the {@link Clock}
-     * @return          the {@link JavaLogger}
-     * @throws  LoggerException     if the name is null, empty or contains non-ASCII characters
+     * @return          a {@link JavaLogger}
      */
     @Override
-    public JavaLogger getLogger(String name, Level level, Clock clock) {
-        JavaLogger logger = getCachedLogger(name);
-        if (logger != null)
-            return logger;
-        logger = new JavaLogger(name, level, clock);
-        putCachedLogger(name, logger);
-        return logger;
+    protected JavaLogger createLogger(String name, Level level, Clock clock) {
+        return new JavaLogger(name, level, clock);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/pwall567/log-front/actions/workflows/build.yml/badge.svg)](https://github.com/pwall567/log-front/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Maven Central](https://img.shields.io/maven-central/v/io.jstuff/log-front?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.jstuff%22%20AND%20a:%22log-front%22)
+[![Maven Central](https://img.shields.io/maven-central/v/io.jstuff/log-front?label=Maven%20Central)](https://central.sonatype.com/artifact/io.jstuff/log-front)
 
 Simple logging interface and basic implementation.
 
@@ -66,21 +66,30 @@ This will return one of the following:
 "`logging.properties`" is present as a resource, then a `JavaLogger` will be returned.
 3. Otherwise, a `FormattingLogger` will be returned.
 
+The name used in the `getLogger()` call may be a `String`, a `Class`, or it may be omitted, in which case the class of
+the calling function will be used.
+
 Then, to use the `Logger`:
 ```java
     log.info("Message"); // etc.
 ```
 
-The name used in the `getLogger()` call may be a `String`, a `Class`, or it may be omitted, in which case the class of
-the calling function will be used.
+The message may be any form of `Object`, and the `toString()` of the object will be invoked only if logging for the
+level implied by the function name is enabled for this `Logger`.
+When the message is a `String` (as in the above example), the `toString()` function will of course return the string
+itself.
+Alternative forms of the `info()` (_etc._) functions take a lambda returning the message object; this is the preferred
+means of specifying a complex message that is to be created only when needed.
 
 Your IDE will show the functions available on the `Logger` object.
 
-## Reference
+## Reference Guide
 
 Logging requests are made via the `Logger` interface, and instances of classes implementing this interface are obtained
 from a `LoggerFactory` (or from the static method `Log.getLogger()`).
 The API employs a `Level` enum, which corresponds with the logging level mechanism used in other libraries.
+
+These interfaces and enum are documented in the [`log-front-api`](https://github.com/pwall567/log-front-api) project.
 
 ### `Log`
 
@@ -97,74 +106,7 @@ To get the default `LoggerFactory`:
 It is also possible to set the default `LoggerFactory` to be used by subsequent calls to `getLogger()`:
 - `Log.setDefaultLoggerFactory(loggerFactory)`
 
-### `Logger`
-
-The `Logger` provides logging functions for each of the logging levels, including versions that lazily create the
-message (so that the message formatting is performed only when necessary).
-(The function signature takes `Object`; the function will perform `toString()` on the value.)
-There are additional versions of the `error()` function taking a `Throwable`, as in other logging frameworks.
-
-- `trace(Object message)`
-- `debug(Object message)`
-- `info(Object message)`
-- `warn(Object message)`
-- `error(Object message)`
-- `error(Object message, Throwable t)`
-- `trace(Supplier<Object> messageSupplier)`
-- `debug(Supplier<Object> messageSupplier)`
-- `info(Supplier<Object> messageSupplier)`
-- `warn(Supplier<Object> messageSupplier)`
-- `error(Supplier<Object> messageSupplier)`
-- `error(Supplier<Object> messageSupplier, Throwable t)`
-
-To supply the level as a variable:
-
-- `log(Level level, Object message)`
-- `log(Level level, Supplier<Object> messageSupplier)`
-
-`Logger` objects are not constructed explicitly (the constructors are package-private); they are obtained from a
-`LoggerFactory`.
-
-### `LoggerFactory`
-
-A `LoggerFactory` may be obtained by the static method `Log.getDefaultLoggerFactory()`; alternatively any of the
-implementing classes `FormattingLoggerFactory`, `DynamicLoggerFactory`, `ConsoleLoggerFactory` or `JavaLoggerFactory`
-may be instantiated directly or through the static methods of the class.
-
-`LoggerFactory` has two variations of the `getLogger()` method, one taking a `String` parameter and the other taking
-`Class` (the default implementation simply converts the class to its full name):
-
-- `getLogger(String name)`
-- `getLogger(Class<?> javaClass)`
-
-Expanded forms of these methods allow the level of the `Logger` to be specified, as well as a `Clock` to be used when
-creating log messages (this may be useful during testing to control the time on log events).
-
-- `getLogger(String name, Level level)`
-- `getLogger(String name, Clock clock)`
-- `getLogger(String name, Level level, Clock clock)`
-- `getLogger(Class<?> javaClass)`
-- `getLogger(Class<?> javaClass, Clock clock)`
-- `getLogger(Class<?> javaClass, Level level, Clock clock)`
-
-If a `Clock` is specified, it will be used by some but not all `LoggerFactory` implementations (in particular, `slf4j`
-does not provide the ability to specify a clock).
-If the `LogListener` functionality is used, the `Clock` will supply the time on `LogItem` events.
-
-### `Level`
-
-There are five levels:
-
-- `TRACE`
-- `DEBUG`
-- `INFO`
-- `WARN`
-- `ERROR`
-
-As is customary in logging systems, enabling logging for a level enables logging for that level and all higher (more
-serious) levels.
-For example, setting the logging level to `DEBUG` will enable logging for `DEBUG`, `INFO`, `WARN` and `ERROR` levels,
-but not for `TRACE`.
+The default `LoggerFactory` is initialised to a [`DynamicLoggerfactory`](#dynamicloggerfactory).
 
 ### `LogAppender`
 
@@ -198,21 +140,18 @@ event as required.
 
 The library provides a built-in mechanism for testing whether log items are output as expected.
 If an object extending the `LogListener` abstract base class is created, it will be added to a list of listeners and
-called for every log event (calling `close()` on the listener will remove it from the list).
-A simple implementation `LogList` is provided &ndash; this stores the log items in a list for later examination.
+will be called for every log event
+Calling `close()` on the listener will remove it from the list, and because the `LogListener` class implements the
+`AutoCloseable` interface, a natural way of using it is within a try-with-resources block &ndash; that way the listener
+will be removed automatically when the block of code ends, normally or otherwise.
 
-This functionality is best illustrated by example:
+The `LogListener` implementation must provide the following function:
 ```java
-        try (LogList logList = new LogList()) {
-            Logger log = Log.getLogger("xxx");
-            // code that outputs log message to "log"
-            Iterator<LogItem> logItems = logList.iterator();
-            // the log items will be presented via the iterator
-        }
+    public abstract void receive(long time, Logger logger, Level level, Object message, Throwable throwable);
 ```
-
-The `LogListener` class implements the `AutoCloseable` interface, allowing it to be used in a try-with-resources block.
-This ensures that the listener is removed from the list when it is no longer required.
+Note that the `Thread` (or any similar information) is not included in the listener arguments.
+The function will be invoked in the same execution environment as the logging call, so any such information may be
+obtained from the environment if required.
 
 The mechanism is intended to be completely non-intrusive &ndash; it should be possible to write code that outputs log
 messages using `Logger` objects obtained from the default `LoggerFactory`, and then to create tests that intercept the
@@ -225,34 +164,111 @@ system by other means will not be visible.
 And because logging systems create their own timestamps, the times on messages captured by this mechanism may differ
 very slightly from the times generated by the underlying system.
 
-### `LogItem`
+Note also that any use of logging within a `LogListener` runs the risk of recursion; this must be avoided by (for
+example) checking the identity of the `Logger` in the `receive()` function.
 
-The `LogListener` receives log events as `LogItem`s, which contain the following:
+The [`log-front-test`](https://github.com/pwall567/log-front-test) library makes use of the `LogListener` mechanism to
+provide a simple but effective testng mechanism.
 
-| Name        | Type        | Description                                           |
-|-------------|-------------|-------------------------------------------------------|
-| `time`      | `long`      | the time in milliseconds from the standard epoch      |
-| `name`      | `String`    | the `Logger` name                                     |
-| `level`     | `Level`     | the level of the logging event                        |
-| `text`      | `Object`    | the content of the log message                        |
-| `throwable` | `Throwable` | the `Throwable` associated with the log event, if any |
+### `AbstractLoggerFactory`
 
-In addition to the usual `toString()` method, `LogItem` has three overloaded versions:
+The `AbstractLoggerFactory` is the abstract base class of all the `LoggerFactory` implementations described here.
+It provides the following functions, which are available in all of the derived classes.
 
-- `toString(char separator)`
-- `toString(ZoneId zoneId)`
-- `toString(char separator, ZoneId zoneId)`
+- `Level getDefaultLevel()`
+- `void setDefaultLevel(Level)`
+- `Clock getDefaultClock()`
+- `void setDefaultClock(Clock defaultClock)`
 
-The `toString()` is intended mainly for debugging, and these additional functions allow the separator (the default is
-space) and the `ZoneId` to be used when formatting the time (the default is the current default time zone) to be
-specified.
+The default level will initially be set to `INFO`, and the default clock will be set to the system clock.
+
+### `DynamicLoggerFactory`
+
+The `DynamicLoggerFactory` is the default `LoggerFactory` used by the `Log.getLogger()` functions, unless overridden.
+It is this class that checks for the presence of `slf4j` or Java Logging, as described earlier:
+
+1. If the `slf4j` classes are found in the classpath, an `Slf4jLogger` will be returned.
+2. If `slf4j` is not found, but either the "`java.util.logging.config.file`" system property is present or a file named
+   "`logging.properties`" is present as a resource, then a `JavaLogger` will be returned.
+3. Otherwise, a `FormattingLogger` with a `PrintStreamAppender` and a `BasicFormatter` will be returned.
+
+The class derives from [`AbstractLoggerFactory`](#abstractloggerfactory), and therefore the functions of that class
+relating to default level and clock are available on this one.
+
+### `FormattingLoggerFactory`
+
+The `FormattingLoggerFactory` creates a `FormattingLogger`, which uses a `LogAppender` and a `LogFormatter` to output
+log messages that follow a simple standardised format.
+This is the main fallback `LoggerFactory` used if neither `slf4j` nor Java Logging is found in the run-time environment.
+
+This class also derives from [`AbstractLoggerFactory`](#abstractloggerfactory), and therefore the functions of that
+class relating to default level and clock are available on this one.
+
+### `FormattingLogger`
+
+The `FormattingLogger` is implemented with a specific `LogAppender`, and it delegates all functionality to that object.
+
+### `LogAppender`
+
+Objects implementing the `LogAppender` interface are expected to output the formatted message to a specific output
+mechanism.
+Only a single `LogAppender` &ndash; `PrintStreamAppender` &ndash; is currently available.
+
+### `PrintStreamAppender`
+
+The `PrintStreamAppender` is an implementation that outputs to a `PrintStream` (default `System.out`).
+
+### `LogFormatter`
+
+Objects implementing the `LogFormatter` interface must format the message for output by the `LogAppender`.
+Only a single `LogFormatter` &ndash; `BasicFormatter` &ndash; is currently available.
+
+### `BasicFormatter`
+
+The `BasicFormatter` will format a message similar to the following:
+```text
+11:34:55.766 INFO  com.example.LoggingTest: Logging test line
+```
+The date will be formatted using the system clock.
+A maximum of 40 characters will be output for the logger name; if the name is longer it will be truncated to 37
+characters preceded by three dots.
+
+### `JavaLoggerFactory`
+
+The `JavaLoggerFactory` creates a `JavaLogger`, which uses the Java Logging functionality (often referred to by the
+package name `java.util.logging`).
+
+This class also derives from [`AbstractLoggerFactory`](#abstractloggerfactory), and therefore the functions of that
+class relating to default level and clock are available on this one.
+
+### `JavaLogger`
+
+A `JavaLogger` outputs log messages using the Java Logging mechanism.
+The configuration options of that mechanism may be used to format the log messages, or to enable or disable logging for
+specific logger names.
+
+### `Slf4jLogger`
+
+Instances of this `Logger` are created by `DynamicLoggerFactory` when the `slf4j` classes are present in the classpath.
+It has no publicly-accessible constructors.
+See [`slf4j`](#slf4j) below for more details.
+
+### `ConsoleLoggerFactory`
+
+This used to provide simple fallback logging functionality for cases where neither `slf4j` nor Java Logging was
+provided.
+It has been superseded by `FormattingLoggerFactory` and will probably be removed in the near future.
+
+### `ConsoleLogger`
+
+See [`ConsoleLoggerFactory`](#consoleloggerfactory) above.
 
 ## Gradle Logging
 
-Gradle has its own logging mechanism, and its own set of log levels.
-When used in a Gradle script or plugin, the automated logging mechanism determination described above in
-[Quick Start](#quick-start) is modified to check for the presence of the Gradle logging classes, and if present, to use
-them.
+Gradle has its own logging mechanism and its own set of log levels.
+When used in a Gradle script or plugin, the automated logging mechanism determination described under
+[`DynamicLoggerFactory`](#dynamicloggerfactory) is modified to check for the presence of the Gradle logging classes, and
+if present, to use them.
 
 The `log-front` logging levels are mapped to the Gradle levels as follows:
 
@@ -275,9 +291,16 @@ potential problems with vulnerabilities resulting from the use of a specific ver
 Whilst there would be no actual vulnerability from using `slf4j` in this way, some vulnerability scanners might detect
 the library reference and report an issue.
 
+It should be noted that `slf4j` does not provide a mechanism for setting the logging level of an `org.slf4j.Logger`
+programmatically.
+When this library creates a `Logger` backed by an `slf4j` implementation, the setting of the logging level (whether by
+constructor parameter or by `setLevel()`) is managed internally, and the testing of levels to determine whether a log
+message is to be output uses **BOTH** mechanisms &ndash; that is, logging must be enabled in the `Logger` **AND** in the
+configuration of the `slf4j` implementation.
+
 To route logging from this library to `slf4j`, the simplest method is to add `logback` to your build (check
-[Maven Central](https://mvnrepository.com/artifact/ch.qos.logback/logback-classic) for the latest version, but beware
-&ndash; versions 1.4.x and later require the use of Java 11 or above):
+[Maven Central](https://mvnrepository.com/artifact/ch.qos.logback/logback-classic) for the latest version, but bear in
+mind that versions 1.4.x and later require the use of Java 11 or above):
 
 ### Maven
 ```xml
@@ -299,25 +322,25 @@ To route logging from this library to `slf4j`, the simplest method is to add `lo
 
 ## Dependency Specification
 
-The latest version of the library is 6.1, and it may be obtained from the Maven Central repository.
+The latest version of the library is 6.2, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>io.jstuff</groupId>
       <artifactId>log-front</artifactId>
-      <version>6.1</version>
+      <version>6.2</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'io.jstuff:log-front:6.1'
+    implementation 'io.jstuff:log-front:6.2'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("io.jstuff:log-front:6.1")
+    implementation("io.jstuff:log-front:6.2")
 ```
 
 Peter Wall
 
-2025-02-06
+2025-03-13

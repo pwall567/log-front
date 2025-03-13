@@ -118,11 +118,13 @@ public abstract class LogListener implements AutoCloseable {
         synchronized (listeners) {
             // hold the lock for as little time as possible - grab the listener(s) and release
             int n = listeners.size();
-            if (n == 1)
-                single = listeners.get(0);
-            else if (n > 1) {
-                array = new LogListener[n];
-                array = listeners.toArray(array);
+            if (n > 0) {
+                if (n == 1)
+                    single = listeners.get(0);
+                else {
+                    array = new LogListener[n];
+                    array = listeners.toArray(array);
+                }
             }
         }
         if (single != null)
