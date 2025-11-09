@@ -2,7 +2,7 @@
  * @(#) PrintStreamAppender.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 package io.jstuff.log;
 
 import java.io.PrintStream;
+import java.time.Instant;
 import java.util.function.IntConsumer;
 
 /**
@@ -71,15 +72,15 @@ public class PrintStreamAppender<F extends LogFormatter> implements LogAppender<
     /**
      * Output a log message.
      *
-     * @param   millis      the time of the event in milliseconds from the standard era
+     * @param   time        the time of the event as an {@link Instant}
      * @param   logger      the {@link Logger}
      * @param   level       the {@link Level}
      * @param   message     the message
      * @param   throwable   an optional {@link Throwable}
      */
     @Override
-    public synchronized void output(long millis, Logger logger, Level level, Object message, Throwable throwable) {
-        formatter.format(millis, logger, level, message, throwable, this);
+    public synchronized void output(Instant time, Logger logger, Level level, Object message, Throwable throwable) {
+        formatter.format(time, logger, level, message, throwable, this);
     }
 
     /**

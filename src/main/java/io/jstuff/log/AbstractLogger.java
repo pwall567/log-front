@@ -27,6 +27,7 @@ package io.jstuff.log;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -97,6 +98,205 @@ public abstract class AbstractLogger implements Logger {
     public Clock getClock() {
         return clock;
     }
+
+    /**
+     * Output a trace message.
+     *
+     * @param   message     the message
+     */
+    @Override
+    public void trace(Object message) {
+        if (isTraceEnabled())
+            outputLog(Level.TRACE, message, null);
+    }
+
+    /**
+     * Output a trace message, specifying the time as an {@link Instant}.
+     *
+     * @param   time        the time
+     * @param   message     the message
+     */
+    @Override
+    public void trace(Instant time, Object message) {
+        if (isTraceEnabled())
+            outputLog(time, Level.TRACE, message, null);
+    }
+
+    /**
+     * Output a debug message.
+     *
+     * @param   message     the message
+     */
+    @Override
+    public void debug(Object message) {
+        if (isDebugEnabled())
+            outputLog(Level.DEBUG, message, null);
+    }
+
+    /**
+     * Output a debug message, specifying the time as an {@link Instant}.
+     *
+     * @param   time        the time
+     * @param   message     the message
+     */
+    @Override
+    public void debug(Instant time, Object message) {
+        if (isDebugEnabled())
+            outputLog(time, Level.DEBUG, message, null);
+    }
+
+    /**
+     * Output an info message.
+     *
+     * @param   message     the message
+     */
+    @Override
+    public void info(Object message) {
+        if (isInfoEnabled())
+            outputLog(Level.INFO, message, null);
+    }
+
+    /**
+     * Output an info message, specifying the time as an {@link Instant}.
+     *
+     * @param   time        the time
+     * @param   message     the message
+     */
+    @Override
+    public void info(Instant time, Object message) {
+        if (isInfoEnabled())
+            outputLog(time, Level.INFO, message, null);
+    }
+
+    /**
+     * Output a warning message.
+     *
+     * @param   message     the message
+     */
+    @Override
+    public void warn(Object message) {
+        if (isWarnEnabled())
+            outputLog(Level.WARN, message, null);
+    }
+
+    /**
+     * Output a warning message, specifying the time as an {@link Instant}.
+     *
+     * @param   time        the time
+     * @param   message     the message
+     */
+    @Override
+    public void warn(Instant time, Object message) {
+        if (isWarnEnabled())
+            outputLog(time, Level.WARN, message, null);
+    }
+
+    /**
+     * Output an error message.
+     *
+     * @param   message     the message
+     */
+    @Override
+    public void error(Object message) {
+        if (isErrorEnabled())
+            outputLog(Level.ERROR, message, null);
+    }
+
+    /**
+     * Output an error message, specifying the time as an {@link Instant}.
+     *
+     * @param   time        the time
+     * @param   message     the message
+     */
+    @Override
+    public void error(Instant time, Object message) {
+        if (isErrorEnabled())
+            outputLog(time, Level.ERROR, message, null);
+    }
+
+    /**
+     * Output an error message along with a {@link Throwable}.
+     *
+     * @param   throwable   the {@link Throwable}
+     * @param   message     the message
+     */
+    @Override
+    public void error(Throwable throwable, Object message) {
+        if (isErrorEnabled())
+            outputLog(Level.ERROR, message, throwable);
+    }
+
+    /**
+     * Output an error message along with a {@link Throwable}, specifying the time as an {@link Instant}.
+     *
+     * @param   time        the time
+     * @param   throwable   the {@link Throwable}
+     * @param   message     the message
+     */
+    @Override
+    public void error(Instant time, Throwable throwable, Object message) {
+        if (isErrorEnabled())
+            outputLog(time, Level.ERROR, message, throwable);
+    }
+
+    /**
+     * Output a message with a variable level.
+     *
+     * @param   level       the {@link Level}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
+     */
+    @Override
+    public void log(Level level, Object message) {
+        if (isEnabled(level))
+            outputLog(level, message, null);
+    }
+
+    /**
+     * Output a message with a variable level, specifying the time as an {@link Instant} (the default implementation
+     * ignores the time).
+     *
+     * @param   time                the time
+     * @param   level       the {@link Level}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
+     */
+    @Override
+    public void log(Instant time, Level level, Object message) {
+        if (isEnabled(level))
+            outputLog(time, level, message, null);
+    }
+
+    /**
+     * Output the log message.  This may be overridden by implementing classes.
+     *
+     * @param   level       the {@link Level}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
+     */
+    protected void outputLog(Level level, Object message) {
+        outputLog(level, message, null);
+    }
+
+    /**
+     * Output the log message, along with an optional {@link Throwable}.  This may be overridden by implementing
+     * classes.
+     *
+     * @param   level       the {@link Level}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
+     * @param   throwable   an optional {@link Throwable}
+     */
+    protected void outputLog(Level level, Object message, Throwable throwable) {
+        outputLog(Instant.now(getClock()), level, message, throwable);
+    }
+
+    /**
+     * Output the log message specifying the time as an {@link Instant}, along with an optional {@link Throwable}.  This
+     * must be implemented by implementing classes.
+     *
+     * @param   time        the time
+     * @param   level       the {@link Level}
+     * @param   message     the message (will be output using {@link Object#toString() toString()}
+     * @param   throwable   an optional {@link Throwable}
+     */
+    protected abstract void outputLog(Instant time, Level level, Object message, Throwable throwable);
 
     /**
      * Split a line containing newline characters into separate log entries, so that malicious code can not create
@@ -176,7 +376,7 @@ public abstract class AbstractLogger implements Logger {
     }
 
     /**
-     * Convert a {@link StringBuilder} to a {@link String}, trimming trailing spaces.
+     * Convert a {@link StringBuilder} to a {@link String}, trimming trailing spaces (or newlines or tabs).
      *
      * @param   sb      the {@link StringBuilder}
      * @return          the trimmed {@link String}
@@ -189,7 +389,8 @@ public abstract class AbstractLogger implements Logger {
             while (true) {
                 if (i == 0)
                     return "";
-                if (sb.charAt(i - 1) != ' ')
+                char ch = sb.charAt(i - 1);
+                if (ch != ' ' && ch != '\n' && ch != '\t')
                     break;
                 i--;
             }

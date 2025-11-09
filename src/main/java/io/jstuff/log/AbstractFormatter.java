@@ -2,7 +2,7 @@
  * @(#) AbstractFormatter.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -170,17 +170,16 @@ public abstract class AbstractFormatter implements LogFormatter {
     }
 
     /**
-     * Convert a time in epoch millis to millis from start of day in the specified time zone.
+     * Convert a time as an {@link Instant} to millis from start of day in the specified time zone.
      *
-     * @param   millis      the time in epoch millis
+     * @param   time        the time as an {@link Instant}
      * @param   zoneId      the {@link ZoneId}
      * @return              the time in millis from start of day
      */
-    public static int getDayMillis(long millis, ZoneId zoneId) {
-        Instant instant = Instant.ofEpochMilli(millis);
-        ZoneOffset offset = zoneId.getRules().getOffset(instant);
-        int daySeconds = (int)((instant.getEpochSecond() + offset.getTotalSeconds()) % 86400);
-        return daySeconds * 1000 + (int)(millis % 1000);
+    public static int getDayMillis(Instant time, ZoneId zoneId) {
+        ZoneOffset offset = zoneId.getRules().getOffset(time);
+        int daySeconds = (int)((time.getEpochSecond() + offset.getTotalSeconds()) % 86400);
+        return daySeconds * 1000 + time.getNano() / 1_000_000;
     }
 
 }

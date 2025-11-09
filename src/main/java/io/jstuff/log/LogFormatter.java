@@ -2,7 +2,7 @@
  * @(#) LogFormatter.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 
 package io.jstuff.log;
 
+import java.time.Instant;
 import java.util.function.IntConsumer;
 
 /**
@@ -37,13 +38,13 @@ public interface LogFormatter {
     /**
      * Format a log message.
      *
-     * @param   millis      the time of the log message as milliseconds from the start of the epoch
+     * @param   time        the time of the log message as an {@link Instant}
      * @param   logger      the {@link Logger} that originated the log event
      * @param   level       the {@link Level}
      * @param   message     the message
      * @param   throwable   an optional {@link Throwable}
      * @param   outFunction the {@link IntConsumer} to use to output the message
      */
-    void format(long millis, Logger logger, Level level, Object message, Throwable throwable, IntConsumer outFunction);
+    void format(Instant time, Logger logger, Level level, Object message, Throwable throwable, IntConsumer outFunction);
 
 }

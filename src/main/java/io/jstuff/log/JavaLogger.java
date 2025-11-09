@@ -26,6 +26,7 @@
 package io.jstuff.log;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.logging.LogRecord;
 
 /**
@@ -123,89 +124,19 @@ public class JavaLogger extends AbstractLogger {
         return javaLogger.isLoggable(convertLevel(level));
     }
 
-    /**
-     * Output a trace message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
     @Override
-    public void trace(Object message) {
-        log(Level.TRACE, java.util.logging.Level.FINER, message, null);
-    }
-
-    /**
-     * Output a debug message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void debug(Object message) {
-        log(Level.DEBUG, java.util.logging.Level.FINE, message, null);
-    }
-
-    /**
-     * Output an info message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void info(Object message) {
-        log(Level.INFO, java.util.logging.Level.INFO, message, null);
-    }
-
-    /**
-     * Output a warning message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void warn(Object message) {
-        log(Level.WARN, java.util.logging.Level.WARNING, message, null);
-    }
-
-    /**
-     * Output an error message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void error(Object message) {
-        log(Level.ERROR, java.util.logging.Level.SEVERE, message, null);
-    }
-
-    /**
-     * Output an error message along with a {@link Throwable}.
-     *
-     * @param   thrown      the {@link Throwable}
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void error(Throwable thrown, Object message) {
-        log(Level.ERROR, java.util.logging.Level.SEVERE, message, thrown);
-    }
-
-    /**
-     * Output a message with the log level specified dynamically.
-     *
-     * @param   level       the {@link Level}
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void log(Level level, Object message) {
-        log(level, convertLevel(level), message, null);
-    }
-
-    private void log(Level level, java.util.logging.Level julLevel, Object message, Throwable throwable) {
-        long millis = getClock().millis();
+    protected void outputLog(Instant time, Level level, Object message, Throwable throwable) {
         if (LogListener.present())
-            LogListener.invokeAll(millis, this, level, message, throwable);
+            LogListener.invokeAll(time, this, level, message, throwable);
         StackTraceElement sourceDetails = LoggerFactory.callerInfo();
+        java.util.logging.Level julLevel = convertLevel(level);
+        long millis = time.toEpochMilli();
         outputMultiLine(String.valueOf(message), s -> outputLogRecord(julLevel, s, millis, sourceDetails, throwable));
     }
 
-    private void outputLogRecord(java.util.logging.Level level, String message, long millis,
+    private void outputLogRecord(java.util.logging.Level julLevel, String message, long millis,
             StackTraceElement callerInfo, Throwable throwable) {
-        LogRecord logRecord = new LogRecord(level, message);
+        LogRecord logRecord = new LogRecord(julLevel, message);
         logRecord.setMillis(millis);
         logRecord.setSourceClassName(callerInfo.getClassName());
         logRecord.setSourceMethodName(callerInfo.getMethodName());

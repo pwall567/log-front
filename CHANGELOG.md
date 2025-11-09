@@ -2,6 +2,20 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [7.0] - 2025-11-09
+### Added
+- `GradleProxyException`: separate error handling for proxy loggers
+- `ACLProxy`, `ACLProxyException`: added support for Apache Commons Logging
+### Changed
+- `Slf4jLogger`: renamed to `ProxyLogger`
+- `Slf4jProxyInterface`: renamed to `LoggerProxy`
+- `Slf4jLoggerException`: renamed to `Slf4jProxyException`
+- `Slf4jProxy`, `GradleProxy`: updated to use new classes
+- `DynamicLoggerFactory`: updated to include check for Apache Commons Logging
+- `AbstractLogger`, `FormattingLogger`, `JavaLogger`, `ConsoleLogger`: added functions that take time parameter, and
+  moved functions into abstract class
+- `pom.xml`: updated version of `log-front-api`
+
 ## [6.2] - 2025-03-14
 ### Changed
 - `AbstractLoggerFactory`: improve logger caching and name checking

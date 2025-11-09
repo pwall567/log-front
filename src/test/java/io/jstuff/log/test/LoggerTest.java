@@ -26,6 +26,7 @@
 package io.jstuff.log.test;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Iterator;
@@ -56,7 +57,7 @@ public class LoggerTest {
     }
 
     @Test
-    public void shouldGetDefaultLoggerWithClock() {
+    public void shouldGetLoggerWithClock() {
         ZoneOffset zoneOffset = ZoneOffset.ofHours(12);
         OffsetDateTime time = OffsetDateTime.of(2022, 6, 12, 22, 41, 3, 456_000_000, zoneOffset);
         Clock clock = Clock.fixed(time.toInstant(), time.getOffset());
@@ -67,7 +68,7 @@ public class LoggerTest {
             Iterator<ExampleLogEntry> iterator = logList.iterator();
             assertTrue(iterator.hasNext());
             ExampleLogEntry logItem = iterator.next();
-            assertEquals(time.toInstant().toEpochMilli(), logItem.getTime());
+            assertEquals(time.toInstant(), logItem.getTime());
         }
     }
 
@@ -82,12 +83,36 @@ public class LoggerTest {
             Iterator<ExampleLogEntry> iterator = logList.iterator();
             assertTrue(iterator.hasNext());
             ExampleLogEntry logItem = iterator.next();
-            assertEquals(time.toInstant().toEpochMilli(), logItem.getTime());
+            assertEquals(time.toInstant(), logItem.getTime());
+        }
+    }
+
+    @Test
+    public void shouldLogMessageWithSpecifiedTime() {
+        ZoneOffset zoneOffset = ZoneOffset.ofHours(12);
+        OffsetDateTime time = OffsetDateTime.of(2022, 6, 15, 10, 48, 8, 0, zoneOffset);
+        Clock clock = Clock.fixed(time.toInstant(), time.getOffset());
+        LoggerFactory<?> factory = FormattingLoggerFactory.getBasic();
+        Logger logger = factory.getLogger("wombat", clock); // can't use default because slf4j doesn't accept times
+        try (ExampleLogListener logList = new ExampleLogListener()) {
+            Instant instant = Instant.from(OffsetDateTime.of(2025, 11, 9, 13, 28, 58, 456_000_000,
+                    ZoneOffset.ofHours(11)));
+            logger.info(instant, 123);
+            Iterator<ExampleLogEntry> iterator = logList.iterator();
+            assertTrue(iterator.hasNext());
+            ExampleLogEntry logItem = iterator.next();
+            assertEquals(instant, logItem.getTime());
         }
     }
 
     @Test
     public void shouldCheckLevelBeforeEvaluatingMessage() {
+        Logger logger = Log.getLogger(Level.INFO);
+        logger.debug(new FailingObject());
+    }
+
+    @Test
+    public void shouldCheckLevelBeforeEvaluatingMessageUsingLambda() {
         Logger logger = Log.getLogger(Level.INFO);
         logger.debug(() -> "Response: " + failMessage());
     }
@@ -95,6 +120,16 @@ public class LoggerTest {
     private String failMessage() {
         fail("Should not execute");
         return null;
+    }
+
+    private static class FailingObject {
+
+        @Override
+        public String toString() {
+            fail("Should not be invoked");
+            return "";
+        }
+
     }
 
 }

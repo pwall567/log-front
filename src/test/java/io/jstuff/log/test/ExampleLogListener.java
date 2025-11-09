@@ -29,6 +29,7 @@ import io.jstuff.log.Level;
 import io.jstuff.log.LogListener;
 import io.jstuff.log.Logger;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ExampleLogListener extends LogListener {
     private final List<ExampleLogEntry> list = new ArrayList<>();
 
     @Override
-    public void receive(long time, Logger logger, Level level, Object message, Throwable throwable) {
+    public void receive(Instant time, Logger logger, Level level, Object message, Throwable throwable) {
         synchronized (list) {
             list.add(new ExampleLogEntry(time, logger.getName(), level, message, throwable));
         }

@@ -2,7 +2,7 @@
  * @(#) Slf4jProxy.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022, 2024 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2024, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ import java.lang.reflect.Method;
  *
  * @author  Peter Wall
  */
-public class Slf4jProxy implements Slf4jProxyInterface {
+public class Slf4jProxy implements LoggerProxy {
 
     private final Method getLoggerMethod;
 
@@ -79,10 +79,10 @@ public class Slf4jProxy implements Slf4jProxyInterface {
     }
 
     /**
-     * Get a {@code Logger} object with the specified name.
+     * Get a {@code org.slf4j.Logger} object with the specified name.
      *
-     * @param   name        the name
-     * @return              a {@code Logger}
+     * @param   name                        the name
+     * @return                              a {@code org.slf4j.Logger}
      * @throws  InvocationTargetException   if thrown by underlying system
      * @throws  IllegalAccessException      if thrown by underlying system
      */
@@ -92,10 +92,11 @@ public class Slf4jProxy implements Slf4jProxyInterface {
     }
 
     /**
-     * Test whether trace output is enabled for this {@code Logger}.
+     * Test whether trace output is enabled for this {@code org.slf4j.Logger}.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @return                  {@code true} if trace output is enabled
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @return                      {@code true} if trace output is enabled
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public boolean isTraceEnabled(Object slf4jLogger) {
@@ -103,15 +104,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             return (Boolean)isTraceEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
-     * Test whether debug output is enabled for this {@code Logger}.
+     * Test whether debug output is enabled for this {@code org.slf4j.Logger}.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @return                  {@code true} if debug output is enabled
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @return                      {@code true} if debug output is enabled
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public boolean isDebugEnabled(Object slf4jLogger) {
@@ -119,15 +121,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             return (Boolean)isDebugEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
-     * Test whether info output is enabled for this {@code Logger}.
+     * Test whether info output is enabled for this {@code org.slf4j.Logger}.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @return                  {@code true} if info output is enabled
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @return                      {@code true} if info output is enabled
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public boolean isInfoEnabled(Object slf4jLogger) {
@@ -135,15 +138,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             return (Boolean)isInfoEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
-     * Test whether warning output is enabled for this {@code Logger}.
+     * Test whether warning output is enabled for this {@code org.slf4j.Logger}.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @return                  {@code true} if warning output is enabled
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @return                      {@code true} if warning output is enabled
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public boolean isWarnEnabled(Object slf4jLogger) {
@@ -151,15 +155,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             return (Boolean)isWarnEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
-     * Test whether error output is enabled for this {@code Logger}.
+     * Test whether error output is enabled for this {@code org.slf4j.Logger}.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @return                  {@code true} if error output is enabled
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @return                      {@code true} if error output is enabled
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public boolean isErrorEnabled(Object slf4jLogger) {
@@ -167,16 +172,17 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             return (Boolean)isErrorEnabledMethod.invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
-     * Test whether a specified level is enabled for this {@code Logger}.
+     * Test whether a specified level is enabled for this {@code org.slf4j.Logger}.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @param   level           the {@code Level}
-     * @return                  {@code true} if error output is enabled
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @param   level               the {@link Level}
+     * @return                      {@code true} if error output is enabled
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public boolean isEnabled(Object slf4jLogger, Level level) {
@@ -184,15 +190,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             return (Boolean)dynamicIsEnabledMethods[level.ordinal()].invoke(slf4jLogger);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
      * Output a trace message.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @param   text            the message
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @param   text                the message
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public void trace(Object slf4jLogger, String text) {
@@ -200,15 +207,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             traceMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
      * Output a debug message.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @param   text            the message
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @param   text                the message
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public void debug(Object slf4jLogger, String text) {
@@ -216,15 +224,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             debugMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
      * Output an info message.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @param   text            the message
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @param   text                the message
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public void info(Object slf4jLogger, String text) {
@@ -232,15 +241,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             infoMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
      * Output a warning message.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @param   text            the message
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @param   text                the message
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public void warn(Object slf4jLogger, String text) {
@@ -248,15 +258,16 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             warnMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
      * Output an error message.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @param   text            the message
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @param   text                the message
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public void error(Object slf4jLogger, String text) {
@@ -264,16 +275,17 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             errorMethod.invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
      * Output an error message along with a {@link Throwable}.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @param   text            the message
-     * @param   throwable       the {@link Throwable}
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @param   text                the message
+     * @param   throwable           the {@link Throwable}
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public void error(Object slf4jLogger, String text, Throwable throwable) {
@@ -281,16 +293,17 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             errorThrowableMethod.invoke(slf4jLogger, text, throwable);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 
     /**
      * Output a message at the specified level.
      *
-     * @param   slf4jLogger     the {@code Logger}
-     * @param   level           the {@code Level}
-     * @param   text            the message
+     * @param   slf4jLogger         the {@code org.slf4j.Logger}
+     * @param   level               the {@link Level}
+     * @param   text                the message
+     * @throws  Slf4jProxyException on any errors in the {@code slf4j} implementation
      */
     @Override
     public void log (Object slf4jLogger, Level level, String text) {
@@ -298,7 +311,7 @@ public class Slf4jProxy implements Slf4jProxyInterface {
             dynamicLogMethods[level.ordinal()].invoke(slf4jLogger, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new Slf4jProxyException(e);
         }
     }
 

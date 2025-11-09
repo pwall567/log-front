@@ -29,6 +29,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -88,61 +89,6 @@ public class ConsoleLogger extends AbstractLogger {
     }
 
     /**
-     * Output a trace message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void trace(Object message) {
-        if (isTraceEnabled())
-            outputLog(Level.TRACE, message, null);
-    }
-
-    /**
-     * Output a debug message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void debug(Object message) {
-        if (isDebugEnabled())
-            outputLog(Level.DEBUG, message, null);
-    }
-
-    /**
-     * Output an info message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void info(Object message) {
-        if (isInfoEnabled())
-            outputLog(Level.INFO, message, null);
-    }
-
-    /**
-     * Output a warning message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void warn(Object message) {
-        if (isWarnEnabled())
-            outputLog(Level.WARN, message, null);
-    }
-
-    /**
-     * Output an error message.
-     *
-     * @param   message     the message (will be output using {@link Object#toString()}
-     */
-    @Override
-    public void error(Object message) {
-        if (isErrorEnabled())
-            outputLog(Level.ERROR, message, null);
-    }
-
-    /**
      * Output an error message along with a {@link Throwable}.
      *
      * @param   message     the message (will be output using {@link Object#toString()}
@@ -151,7 +97,9 @@ public class ConsoleLogger extends AbstractLogger {
     @Override
     public void error(Throwable throwable, Object message) {
         if (isErrorEnabled()) {
-            int dayMillis = outputLog(Level.ERROR, message, throwable);
+            Instant time = Instant.now(getClock());
+            outputLog(time, Level.ERROR, message, throwable);
+            int dayMillis = AbstractFormatter.getDayMillis(time, getClock().getZone());
             StringWriter sw = new StringWriter();
             throwable.printStackTrace(new PrintWriter(sw));
             outputMulti(dayMillis, Level.ERROR, sw.toString());
@@ -159,24 +107,29 @@ public class ConsoleLogger extends AbstractLogger {
     }
 
     /**
-     * Output a message with a variable level.
+     * Output an error message along with a {@link Throwable}, specifying the time as an {@link Instant}.
      *
-     * @param level       the {@link Level}
-     * @param message     the message (will be output using {@link Object#toString() toString()}
+     * @param   time        the time
+     * @param   message     the message (will be output using {@link Object#toString()}
+     * @param   throwable   the {@link Throwable}
      */
     @Override
-    public void log(Level level, Object message) {
-        if (isEnabled(level))
-            outputLog(level, message, null);
+    public void error(Instant time, Throwable throwable, Object message) {
+        if (isErrorEnabled()) {
+            outputLog(time, Level.ERROR, message, throwable);
+            int dayMillis = AbstractFormatter.getDayMillis(time, getClock().getZone());
+            StringWriter sw = new StringWriter();
+            throwable.printStackTrace(new PrintWriter(sw));
+            outputMulti(dayMillis, Level.ERROR, sw.toString());
+        }
     }
 
-    private int outputLog(Level level, Object message, Throwable throwable) {
-        long time = getClock().millis();
+    @Override
+    protected void outputLog(Instant time, Level level, Object message, Throwable throwable) {
         if (LogListener.present())
             LogListener.invokeAll(time, this, level, message, throwable);
         int dayMillis = AbstractFormatter.getDayMillis(time, getClock().getZone());
         outputMulti(dayMillis, level, String.valueOf(message));
-        return dayMillis;
     }
 
     private void outputMulti(int dayMillis, Level level, String text) {

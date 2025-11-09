@@ -1,8 +1,8 @@
 /*
- * @(#) LogAppender.java
+ * @(#) ACLProxyException.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022, 2025 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,39 +25,20 @@
 
 package io.jstuff.log;
 
-import java.time.Instant;
-
 /**
- * Log Appender interface.
+ * An exception class to handle errors in accessing Apache Commons Logging.
  *
  * @author  Peter Wall
- * @param   <F>     the {@link LogFormatter} type
  */
-public interface LogAppender<F extends LogFormatter> extends AutoCloseable {
+public class ACLProxyException extends LoggerException {
 
     /**
-     * Output a single log message.
+     * Create an {@code ACLProxyException} with the supplied nested {@link Exception}.
      *
-     * @param   time        the time of the event as an {@link Instant}
-     * @param   logger      the {@link Logger}
-     * @param   level       the {@link Level}
-     * @param   message     the message
-     * @param   throwable   an optional {@link Throwable}
+     * @param nested    the {@link Exception}
      */
-    void output(Instant time, Logger logger, Level level, Object message, Throwable throwable);
-
-    /**
-     * Get the {@link LogFormatter} used by this {@code LogAppender}.
-     *
-     * @return      the {@link LogFormatter}
-     */
-    F getFormatter();
-
-    /**
-     * Close the appender.  Default information does nothing.
-     */
-    default void close() {
-        // do nothing
+    public ACLProxyException(Exception nested) {
+        super("Error accessing Apache Commons Logging", nested);
     }
 
 }

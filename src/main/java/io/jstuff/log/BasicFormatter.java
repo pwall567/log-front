@@ -2,7 +2,7 @@
  * @(#) BasicFormatter.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ package io.jstuff.log;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Instant;
 import java.util.function.IntConsumer;
 
 /**
@@ -45,16 +46,16 @@ public class BasicFormatter extends AbstractFormatter {
     /**
      * Format a log message.
      *
-     * @param   millis      the time of the log message as milliseconds from the start of the epoch
+     * @param   time        the time of the log message as an {@link Instant}
      * @param   logger      the {@link Logger} that originated the log event
      * @param   level       the {@link Level}
      * @param   message     the message
      * @param   outFunction the {@link IntConsumer} to use to output the message
      */
     @Override
-    public void format(long millis, Logger logger, Level level, Object message, Throwable throwable,
+    public void format(Instant time, Logger logger, Level level, Object message, Throwable throwable,
             IntConsumer outFunction) {
-        int dayMillis = getDayMillis(millis, logger.getClock().getZone());
+        int dayMillis = getDayMillis(time, logger.getClock().getZone());
         String messageString = message != null ? message.toString() : "";
         if (!messageString.isEmpty() || throwable == null)
             outputMessage(dayMillis, logger, level, messageString, outFunction);
@@ -74,7 +75,8 @@ public class BasicFormatter extends AbstractFormatter {
             else
                 outputLevel5(level, outFunction);
             outFunction.accept(' ');
-            outputNameWithLimit(nameLengthLimit, logger.getName(), outFunction);
+            if (nameLengthLimit > 0)
+                outputNameWithLimit(nameLengthLimit, logger.getName(), outFunction);
             outFunction.accept(':');
             if (!line.isEmpty()) {
                 outFunction.accept(' ');

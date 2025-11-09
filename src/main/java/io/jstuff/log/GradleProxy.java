@@ -2,7 +2,7 @@
  * @(#) GradleProxy.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022, 2024 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2024, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ import java.lang.reflect.Method;
  *
  * @author  Peter Wall
  */
-public class GradleProxy implements Slf4jProxyInterface {
+public class GradleProxy implements LoggerProxy {
 
     private final Method getLoggerMethod;
 
@@ -65,7 +65,7 @@ public class GradleProxy implements Slf4jProxyInterface {
     /**
      * Construct a {@code GradleProxy}.  Only one such object will be required.
      *
-     * @throws ClassNotFoundException       if the {@code slf4j} classes are not found
+     * @throws ClassNotFoundException       if the Gradle logging classes are not found
      * @throws NoSuchMethodException        if the required methods are not found
      * @throws InvocationTargetException    if calls to Gradle classes fail
      * @throws IllegalAccessException       if calls to Gradle are not allowed
@@ -91,10 +91,10 @@ public class GradleProxy implements Slf4jProxyInterface {
     }
 
     /**
-     * Get a {@code Logger} object with the specified name.
+     * Get a {@code org.gradle.api.logging.Logger} object with the specified name.
      *
      * @param   name        the name
-     * @return              a {@code Logger}
+     * @return              a {@code org.gradle.api.logging.Logger}
      * @throws  InvocationTargetException   if thrown by underlying system
      * @throws  IllegalAccessException      if thrown by underlying system
      */
@@ -104,10 +104,11 @@ public class GradleProxy implements Slf4jProxyInterface {
     }
 
     /**
-     * Test whether trace output is enabled for this {@code Logger}.
+     * Test whether trace output is enabled for this {@code org.gradle.api.logging.Logger}.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @return                  {@code true} if trace output is enabled
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @return                          {@code true} if trace output is enabled
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public boolean isTraceEnabled(Object gradleLogger) {
@@ -115,15 +116,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             return (Boolean)isEnabledMethod.invoke(gradleLogger, debugLevel);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
-     * Test whether debug output is enabled for this {@code Logger}.
+     * Test whether debug output is enabled for this {@code org.gradle.api.logging.Logger}.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @return                  {@code true} if debug output is enabled
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @return                          {@code true} if debug output is enabled
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public boolean isDebugEnabled(Object gradleLogger) {
@@ -131,15 +133,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             return (Boolean)isEnabledMethod.invoke(gradleLogger, infoLevel);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
-     * Test whether info output is enabled for this {@code Logger}.
+     * Test whether info output is enabled for this {@code org.gradle.api.logging.Logger}.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @return                  {@code true} if info output is enabled
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @return                          {@code true} if info output is enabled
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public boolean isInfoEnabled(Object gradleLogger) {
@@ -147,15 +150,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             return (Boolean)isEnabledMethod.invoke(gradleLogger, lifecycleLevel);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
-     * Test whether warning output is enabled for this {@code Logger}.
+     * Test whether warning output is enabled for this {@code org.gradle.api.logging.Logger}.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @return                  {@code true} if warning output is enabled
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @return                          {@code true} if warning output is enabled
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public boolean isWarnEnabled(Object gradleLogger) {
@@ -163,15 +167,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             return (Boolean)isEnabledMethod.invoke(gradleLogger, warnLevel);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
-     * Test whether error output is enabled for this {@code Logger}.
+     * Test whether error output is enabled for this {@code org.gradle.api.logging.Logger}.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @return                  {@code true} if error output is enabled
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @return                          {@code true} if error output is enabled
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public boolean isErrorEnabled(Object gradleLogger) {
@@ -179,16 +184,17 @@ public class GradleProxy implements Slf4jProxyInterface {
             return (Boolean)isEnabledMethod.invoke(gradleLogger, warnLevel);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
-     * Test whether a specified level is enabled for this {@code Logger}.
+     * Test whether a specified level is enabled for this {@code org.gradle.api.logging.Logger}.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @param   level           the {@code Level}
-     * @return                  {@code true} if error output is enabled
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @param   level                   the {@link Level}
+     * @return                          {@code true} if error output is enabled
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public boolean isEnabled(Object gradleLogger, Level level) {
@@ -196,15 +202,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             return (Boolean)isEnabledMethod.invoke(gradleLogger, levels[level.ordinal()]);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
      * Output a trace message.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @param   text            the message
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @param   text                    the message
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public void trace(Object gradleLogger, String text) {
@@ -212,15 +219,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             logMethod.invoke(gradleLogger, debugLevel, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
      * Output a debug message.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @param   text            the message
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @param   text                    the message
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public void debug(Object gradleLogger, String text) {
@@ -228,15 +236,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             logMethod.invoke(gradleLogger, infoLevel, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
      * Output an info message.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @param   text            the message
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @param   text                    the message
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public void info(Object gradleLogger, String text) {
@@ -244,15 +253,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             logMethod.invoke(gradleLogger, lifecycleLevel, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
      * Output a warning message.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @param   text            the message
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @param   text                    the message
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public void warn(Object gradleLogger, String text) {
@@ -260,15 +270,16 @@ public class GradleProxy implements Slf4jProxyInterface {
             logMethod.invoke(gradleLogger, warnLevel, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
      * Output an error message.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @param   text            the message
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @param   text                    the message
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public void error(Object gradleLogger, String text) {
@@ -276,16 +287,17 @@ public class GradleProxy implements Slf4jProxyInterface {
             logMethod.invoke(gradleLogger, errorLevel, text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
      * Output an error message along with a {@link Throwable}.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @param   text            the message
-     * @param   throwable       the {@link Throwable}
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @param   text                    the message
+     * @param   throwable               the {@link Throwable}
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public void error(Object gradleLogger, String text, Throwable throwable) {
@@ -293,16 +305,17 @@ public class GradleProxy implements Slf4jProxyInterface {
             logThrowableMethod.invoke(gradleLogger, errorLevel, text, throwable);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 
     /**
      * Output a message at the specified level.
      *
-     * @param   gradleLogger    the {@code Logger}
-     * @param   level           the {@code Level}
-     * @param   text            the message
+     * @param   gradleLogger            the {@code org.gradle.api.logging.Logger}
+     * @param   level                   the {@link Level}
+     * @param   text                    the message
+     * @throws  GradleProxyException    on any errors in the Gradle Logging implementation
      */
     @Override
     public void log (Object gradleLogger, Level level, String text) {
@@ -310,7 +323,7 @@ public class GradleProxy implements Slf4jProxyInterface {
             logMethod.invoke(gradleLogger, levels[level.ordinal()], text);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new Slf4jLoggerException(e);
+            throw new GradleProxyException(e);
         }
     }
 

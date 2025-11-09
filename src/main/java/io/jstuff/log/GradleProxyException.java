@@ -1,8 +1,8 @@
 /*
- * @(#) Slf4JLoggerException.java
+ * @(#) GradleProxyException.java
  *
  * log-front  Logging interface
- * Copyright (c) 2020, 2021, 2022 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,19 +26,19 @@
 package io.jstuff.log;
 
 /**
- * An exception class to handle errors in accessing {@code slf4j}.
+ * An exception class to handle errors in accessing Gradle Logging.
  *
  * @author  Peter Wall
  */
-public class Slf4jLoggerException extends LoggerException {
+public class GradleProxyException extends LoggerException {
 
     /**
-     * Create an {@code Slf4JLoggerException} with the supplied nested {@link Throwable}.
+     * Create a {@code GradleProxyException} with the supplied nested {@link Exception}.
      *
-     * @param t     the {@link Throwable}
+     * @param nested    the {@link Exception}
      */
-    public Slf4jLoggerException(Throwable t) {
-        super("Error accessing slf4j Logger", t);
+    public GradleProxyException(Exception nested) {
+        super("Error accessing Gradle Logging", nested);
     }
 
 }

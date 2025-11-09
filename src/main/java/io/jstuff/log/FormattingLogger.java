@@ -2,7 +2,7 @@
  * @(#) FormattingLogger.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 package io.jstuff.log;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.function.Supplier;
 
 /**
@@ -73,53 +74,27 @@ public class FormattingLogger<F extends LogFormatter, A extends LogAppender<F>> 
     }
 
     @Override
-    public void trace(Object message) {
-        outputMessage(Level.TRACE, message, null);
-    }
-
-    @Override
-    public void debug(Object message) {
-        outputMessage(Level.DEBUG, message, null);
-    }
-
-    @Override
-    public void info(Object message) {
-        outputMessage(Level.INFO, message, null);
-    }
-
-    @Override
-    public void warn(Object message) {
-        outputMessage(Level.WARN, message, null);
-    }
-
-    @Override
-    public void error(Object message) {
-        outputMessage(Level.ERROR, message, null);
-    }
-
-    @Override
-    public void error(Throwable throwable, Object message) {
-        outputMessage(Level.ERROR, message, throwable);
-    }
-
-    @Override
-    public void log(Level level, Object message) {
-        outputMessage(level, message, null);
-    }
-
-    @Override
     public void log(Level level, Supplier<Object> messageSupplier) {
         if (isEnabled(level))
-            outputMessage(level, messageSupplier.get(), null);
+            outputLog(level, messageSupplier.get(), null);
     }
 
-    private void outputMessage(Level level, Object message, Throwable throwable) {
-        if (level.ordinal() >= this.getLevel().ordinal()) {
-            long millis = getClock().millis();
-            if (LogListener.present())
-                LogListener.invokeAll(millis, this, level, message, throwable);
-            appender.output(millis, this, level, message, throwable);
-        }
+    @Override
+    public void log(Instant time, Level level, Supplier<Object> messageSupplier) {
+        if (isEnabled(level))
+            outputLog(time, level, messageSupplier.get(), null);
+    }
+
+    @Override
+    protected void outputLog(Level level, Object message, Throwable throwable) {
+        outputLog(Instant.now(getClock()), level, message, throwable);
+    }
+
+    @Override
+    protected void outputLog(Instant time, Level level, Object message, Throwable throwable) {
+        if (LogListener.present())
+            LogListener.invokeAll(time, this, level, message, throwable);
+        appender.output(time, this, level, message, throwable);
     }
 
 }

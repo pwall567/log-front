@@ -34,15 +34,16 @@ Additional appenders (such as a rolling file appender or a syslog appender) and 
 This is a simple implementation of the [`log-front-api`](https://github.com/pwall567/log-front-api) (see that library
 for a description of the motivation behind its creation).
 
-The default behaviour is to use reflection to find the `slf4j` classes in the classpath &ndash; if they are found all
+The default behaviour is to use reflection to find the `slf4j` classes in the classpath &ndash; if they are found, all
 logging calls will be redirected to that mechanism.
-The second choice is to use the Java Logging framework if indicated by the presence of a system property or
+The second choice is to use Apache Commons Logging, if those classes are found in the classpath.
+The third choice is to use the Java Logging framework if indicated by the presence of a system property or
 configuration associated with that framework;
 otherwise log messages will be output using a logger that writes to a `PrintStream` (default `stdout`).
 
-If it is necessary to fit in with an existing logging framework other than `slf4j` or Java Logging, the API is designed
-to be simple to implement so that a thin interfacing layer can be created, accepting this API and invoking the required
-target logging mechanism.
+If it is necessary to fit in with an existing logging framework other than `slf4j`, Apache Commons Logging or Java
+Logging, the API is designed to be simple to implement so that a thin interfacing layer can be created, accepting this
+API and invoking the required target logging mechanism.
 
 New from version 4.0 onward is multi-line logging.
 This is a security measure &ndash; if an attacker is aware that input text is included in a log message, they may try to
@@ -61,10 +62,15 @@ To get an instance of `Logger`:
 ```
 
 This will return one of the following:
-1. If the `slf4j` classes are found in the classpath, an `Slf4jLogger` will be returned.
-2. If `slf4j` is not found, but either the "`java.util.logging.config.file`" system property is present or a file named
-"`logging.properties`" is present as a resource, then a `JavaLogger` will be returned.
-3. Otherwise, a `FormattingLogger` will be returned.
+1. If the Gradle Logging classes are found in the classpath, a `ProxyLogger` which uses the `GradleProxy` will be
+   returned.
+2. If Gradle Logging is not found, but the `slf4j` classes are found in the classpath, a `ProxyLogger` which uses the
+   `Slf4jProxy` will be returned.
+3. If neither Gradle Logging nor `slf4j` is found, but the Apache Commons Logging classes are found in the classpath, a
+   `ProxyLogger` which uses the `ACLProxy` will be returned.
+4. If none of the first three options is found, but either the "`java.util.logging.config.file`" system property is
+   present or a file named "`logging.properties`" is present as a resource, then a `JavaLogger` will be returned.
+5. Otherwise, a `FormattingLogger` will be returned.
 
 The name used in the `getLogger()` call may be a `String`, a `Class`, or it may be omitted, in which case the class of
 the calling function will be used.
@@ -80,6 +86,9 @@ When the message is a `String` (as in the above example), the `toString()` funct
 itself.
 Alternative forms of the `info()` (_etc._) functions take a lambda returning the message object; this is the preferred
 means of specifying a complex message that is to be created only when needed.
+```java
+    log.info(() -> "Total records: " + totalRecords);
+```
 
 Your IDE will show the functions available on the `Logger` object.
 
@@ -106,7 +115,9 @@ To get the default `LoggerFactory`:
 It is also possible to set the default `LoggerFactory` to be used by subsequent calls to `getLogger()`:
 - `Log.setDefaultLoggerFactory(loggerFactory)`
 
-The default `LoggerFactory` is initialised to a [`DynamicLoggerfactory`](#dynamicloggerfactory).
+The default `LoggerFactory` is initialised to a [`DynamicLoggerfactory`](#dynamicloggerfactory), but this may be
+overridden by the use of the `io.jstuff.log.defaultLoggerFactory` system property, which supplies the name of the
+`LoggerFactory` class to be used as default.
 
 ### `LogAppender`
 
@@ -247,28 +258,37 @@ A `JavaLogger` outputs log messages using the Java Logging mechanism.
 The configuration options of that mechanism may be used to format the log messages, or to enable or disable logging for
 specific logger names.
 
-### `Slf4jLogger`
+### `ProxyLogger`
 
-Instances of this `Logger` are created by `DynamicLoggerFactory` when the `slf4j` classes are present in the classpath.
+Instances of this `Logger` are created by `DynamicLoggerFactory` to handle logging via Gradle Logging, `slf4j` or Apache
+Commons Logging.
 It has no publicly-accessible constructors.
-See [`slf4j`](#slf4j) below for more details.
 
 ### `ConsoleLoggerFactory`
 
-This used to provide simple fallback logging functionality for cases where neither `slf4j` nor Java Logging was
-provided.
+This was previously used to provide simple fallback logging functionality for cases where neither `slf4j` nor Java
+Logging was provided.
 It has been superseded by `FormattingLoggerFactory` and will probably be removed in the near future.
 
 ### `ConsoleLogger`
 
 See [`ConsoleLoggerFactory`](#consoleloggerfactory) above.
 
+## Environment Variables
+
+The following environment variables may be set to modify defaults used by the library:
+
+- `io.jstuff.log.defaultLoggerFactory`: the default `LoggerFactory` class name (must be an implementation of
+  `LoggerFactory<L extends Logger>`); if omitted, `DynamicLoggerFactory` is used.
+- `io.jstuff.log.defaultLevel`: the default `Level` to be used (must be `TRACE`, `DEBUG`, `INFO`, `WARN` or `ERROR`); if
+  omitted, `INFO` is used.
+
 ## Gradle Logging
 
 Gradle has its own logging mechanism and its own set of log levels.
 When used in a Gradle script or plugin, the automated logging mechanism determination described under
-[`DynamicLoggerFactory`](#dynamicloggerfactory) is modified to check for the presence of the Gradle logging classes, and
-if present, to use them.
+[`DynamicLoggerFactory`](#dynamicloggerfactory) will detect the presence of the Gradle logging classes and use them in
+preference to any other logging framework.
 
 The `log-front` logging levels are mapped to the Gradle levels as follows:
 
@@ -320,27 +340,32 @@ mind that versions 1.4.x and later require the use of Java 11 or above):
     runtimeOnly("ch.qos.logback:logback-classic:1.3.15")
 ```
 
+## Apache Commons Logging
+
+From version 7.0, the library also includes support for Apache Commons Logging.
+As with `slf4j`, the underlying library is accessed through reflection.
+
 ## Dependency Specification
 
-The latest version of the library is 6.2, and it may be obtained from the Maven Central repository.
+The latest version of the library is 7.0, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>io.jstuff</groupId>
       <artifactId>log-front</artifactId>
-      <version>6.2</version>
+      <version>7.0</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'io.jstuff:log-front:6.2'
+    implementation 'io.jstuff:log-front:7.0'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("io.jstuff:log-front:6.2")
+    implementation("io.jstuff:log-front:7.0")
 ```
 
 Peter Wall
 
-2025-03-13
+2025-11-09

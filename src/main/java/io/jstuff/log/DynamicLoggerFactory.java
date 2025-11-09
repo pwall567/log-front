@@ -30,7 +30,11 @@ import java.time.Clock;
 /**
  * The dynamic {@link LoggerFactory}, which tries to create a {@link Logger} as follows:
  * <ol>
- *   <li>If <code>slf4j</code> is available on the class path, create an {@link Slf4jLogger}</li>
+ *   <li>If Gradle Logging is available on the class path, create a {@link ProxyLogger} using {@link GradleProxy}</li>
+ *   <li>If <code>slf4j</code> is available on the class path, create a {@link ProxyLogger} using
+ *     {@link Slf4jProxy}</li>
+ *   <li>If Apache Commons Logging is available on the class path, create a {@link ProxyLogger} using
+ *     {@link ACLProxy}</li>
  *   <li>If the system property <code>java.util.logging.config.file</code> is present, or if the file
  *     <code>logging.properties</code> is present as a resource, create a {@link JavaLogger}</li>
  *   <li>Otherwise, create a {@link FormattingLogger}</li>
@@ -40,7 +44,7 @@ import java.time.Clock;
  */
 public class DynamicLoggerFactory extends AbstractLoggerFactory<Logger> {
 
-    private static Slf4jProxyInterface slf4jProxy = null;
+    private static LoggerProxy proxy = null;
     private static boolean javaLogging = false;
 
     private FormattingLoggerFactory<?, ?> formattingLoggerFactory = null;
@@ -48,17 +52,23 @@ public class DynamicLoggerFactory extends AbstractLoggerFactory<Logger> {
     static {
         try {
             // first, check whether Gradle logging is present on the classpath
-            slf4jProxy = new GradleProxy();
+            proxy = new GradleProxy();
         }
         catch (Exception ignore) {
             try {
                 // next, check whether slf4j is present on the classpath
-                slf4jProxy = new Slf4jProxy();
+                proxy = new Slf4jProxy();
             }
             catch (Exception ignore2) {
-                // slf4j not found; are we using java.util.logging?
-                javaLogging = System.getProperty("java.util.logging.config.file") != null ||
-                        DynamicLoggerFactory.class.getResource("logging.properties") != null;
+                try {
+                    // next, check whether Apache Commons Logging is present on the classpath
+                    proxy = new ACLProxy();
+                }
+                catch (Exception ignore3) {
+                    // Gradle, slf4j and Apache Commons Logging not found; are we using java.util.logging?
+                    javaLogging = System.getProperty("java.util.logging.config.file") != null ||
+                            DynamicLoggerFactory.class.getResource("logging.properties") != null;
+                }
             }
         }
     }
@@ -110,9 +120,9 @@ public class DynamicLoggerFactory extends AbstractLoggerFactory<Logger> {
      */
     @Override
     protected Logger createLogger(String name, Level level, Clock clock) {
-        if (slf4jProxy != null) {
+        if (proxy != null) {
             try {
-                return new Slf4jLogger(name, level, clock, slf4jProxy);
+                return new ProxyLogger(name, level, clock, proxy);
             }
             catch (Exception ignore) {
             }

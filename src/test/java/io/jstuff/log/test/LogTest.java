@@ -2,7 +2,7 @@
  * @(#) LogTest.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022, 2023 Peter Wall
+ * Copyright (c) 2022, 2023, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ import io.jstuff.log.Logger;
 import io.jstuff.log.LoggerFactory;
 import io.jstuff.log.NullLogger;
 import io.jstuff.log.NullLoggerFactory;
-import io.jstuff.log.Slf4jLogger;
+import io.jstuff.log.ProxyLogger;
 
 public class LogTest {
 
@@ -42,16 +42,16 @@ public class LogTest {
     public void shouldCreateDefaultLogger() {
         Log.setDefaultLoggerFactory(null);
         Logger logger = Log.getLogger("xxx");
-        assertTrue(logger instanceof Slf4jLogger);
+        assertTrue(logger instanceof ProxyLogger);
         logger.info("getDefaultLogger seems to work!");
     }
 
     @Test
-    public void shouldOutputMultiLineUsingSlf4jLogger() {
+    public void shouldOutputMultiLineUsingProxyLogger() {
         Log.setDefaultLoggerFactory(null);
         Logger logger = Log.getLogger("yyy");
-        assertTrue(logger instanceof Slf4jLogger);
-        logger.info("Slf4jLogger multi-line\nline 2\nline 3 and end\n");
+        assertTrue(logger instanceof ProxyLogger);
+        logger.info("ProxyLogger multi-line\nline 2\nline 3 and end\n");
     }
 
     @Test

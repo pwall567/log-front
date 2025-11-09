@@ -2,7 +2,7 @@
  * @(#) Log.java
  *
  * log-front  Logging interface
- * Copyright (c) 2022 Peter Wall
+ * Copyright (c) 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,11 @@ public class Log {
     public static final String defaultLevelPropertyName = "io.jstuff.log.defaultLevel";
 
     private static LoggerFactory<?> defaultLoggerFactory = null;
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private Log() {}
 
     /**
      * Get the default {@link LoggerFactory} (initially a {@link DynamicLoggerFactory}).

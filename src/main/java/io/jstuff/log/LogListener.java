@@ -2,7 +2,7 @@
  * @(#) LogListener.java
  *
  * log-front  Logging interface
- * Copyright (c) 2021, 2022 Peter Wall
+ * Copyright (c) 2021, 2022, 2025 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,13 @@
 
 package io.jstuff.log;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The {@code LogListener} class is the base class for an object that is called for every log event.  It is intended to
- * be used only in unit tests.
+ * be used principally in unit tests.
  * <br>
  * The constructor adds the object to a static list of listeners; the {@link Logger} classes will check for the presence
  * of listeners and invoke them as required.
@@ -62,13 +63,13 @@ public abstract class LogListener implements AutoCloseable {
     /**
      * Receive a log event.
      *
-     * @param   time        the time of the event in milliseconds
+     * @param   time        the time of the event as an {@link Instant}
      * @param   logger      the logger object
      * @param   level       the logging level
      * @param   message     the message
      * @param   throwable   a {@link Throwable}, if provided
      */
-    public abstract void receive(long time, Logger logger, Level level, Object message, Throwable throwable);
+    public abstract void receive(Instant time, Logger logger, Level level, Object message, Throwable throwable);
 
     /**
      * Add a listener to the list.
@@ -105,13 +106,13 @@ public abstract class LogListener implements AutoCloseable {
      * Invoke all listeners.  For reasons of efficiency, this should be called only after {@link #present()} has
      * returned {@code true}.
      *
-     * @param   time        the time of the log in milliseconds
+     * @param   time        the time of the log as an {@link Instant}
      * @param   logger      the originating {@link Logger}
      * @param   level       the level
      * @param   message     the log message
      * @param   throwable   the {@link Throwable}, if present
      */
-    public static void invokeAll(long time, Logger logger, Level level, Object message, Throwable throwable) {
+    public static void invokeAll(Instant time, Logger logger, Level level, Object message, Throwable throwable) {
         // this is optimised for the most common case of a single listener
         LogListener single = null;
         LogListener[] array = emptyArray;

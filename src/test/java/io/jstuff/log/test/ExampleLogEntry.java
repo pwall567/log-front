@@ -25,17 +25,19 @@
 
 package io.jstuff.log.test;
 
+import java.time.Instant;
+
 import io.jstuff.log.Level;
 
 public class ExampleLogEntry {
 
-    private final long time;
+    private final Instant time;
     private final String name;
     private final Level level;
     private final Object message;
     private final Throwable throwable;
 
-    public ExampleLogEntry(long time, String name, Level level, Object message, Throwable throwable) {
+    public ExampleLogEntry(Instant time, String name, Level level, Object message, Throwable throwable) {
         this.time = time;
         this.name = name;
         this.level = level;
@@ -43,7 +45,7 @@ public class ExampleLogEntry {
         this.throwable = throwable;
     }
 
-    public long getTime() {
+    public Instant getTime() {
         return time;
     }
 
